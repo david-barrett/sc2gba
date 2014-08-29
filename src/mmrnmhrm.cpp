@@ -6,7 +6,13 @@
 #include "mmrnmhrm_out1.h"
 #include "mmrnmhrm1.h"
 #include "mmrnmhrm_fire1a.h"
-#include "mmrnmhrm_fire1b.h"
+#include "mmrnmhrm_fire1b1.h"
+#include "mmrnmhrm_fire1b2.h"
+#include "mmrnmhrm_fire1c.h"
+#include "mmrnmhrm_fire1d.h"
+#include "mmrnmhrm_fire1e.h"
+#include "mmrnmhrm_fire1f.h"
+#include "mmrnmhrm_fire1g.h"
 
 #include "mmrnmhrm_out2.h"
 #include "mmrnmhrm2.h"
@@ -66,6 +72,7 @@ void MoveMmrnmhrmMissile(pWeapon ur);
 #define TRACK_WAIT 5
 #define MISSILE_DAMAGE 1
 #define MISSILE_LIFE 40
+#define MISSILE_RANGE MISSILE_SPEED*MISSILE_LIFE
 
 
 void LoadMmrnmhrm(s16 SpriteStart)
@@ -77,33 +84,44 @@ void LoadMmrnmhrm(s16 SpriteStart)
        		OAMData[loop] = mmrnmhrm1Data[loop-OAMStart];
        		OAMData[loop+512] = mmrnmhrm_out1Data[loop-OAMStart];
        		OAMData[loop+1024] = mmrnmhrm_fire1aData[loop-OAMStart];
-       		OAMData[loop+1024+512] = mmrnmhrm_fire1bData[loop-OAMStart];
+       		//OAMData[loop+1024+512] = mmrnmhrm_fire1bData[loop-OAMStart];
    	}
    	for(loop = OAMStart; loop < OAMStart+32; loop++)               //load sprite image data
    	{
-		OAMData[loop+512+1024+512] = mmrnmhrm_fire2Data[loop-OAMStart]; //loads some garb
+		OAMData[loop+512+1024] = mmrnmhrm_fire2Data[loop-OAMStart]; //loads some garb
    	}
 
 	//pilot
 
    	for (loop=OAMStart ;loop<OAMStart+1024;loop++)
 	{
-			OAMData[loop+1024+512+32+512] = mmrnmhrmpilotData[loop-OAMStart];
+			OAMData[loop+1024+32+512] = mmrnmhrmpilotData[loop-OAMStart];
 	}
 
 	for (loop=OAMStart ;loop<OAMStart+512;loop++)
 	{
-		OAMData[loop+(1024*3)+32] = mmrnmhrmpilotlData[loop-OAMStart];
+		OAMData[loop+(1024*2)+32+512] = mmrnmhrmpilotlData[loop-OAMStart];
 		//OAMData[loop+(1024*2)+32+512] = mmrnmhrmpilotrData[loop-OAMStart];
 	}
 
 	for (loop=OAMStart ;loop<OAMStart+256;loop++)
 	{
-		OAMData[loop+(1024*3)+32+512] = mmrnmhrmpilottData[loop-OAMStart];
-		OAMData[loop+(1024*3)+32+512+256] = mmrnmhrmpilotfData[loop-OAMStart];
+		OAMData[loop+(1024*3)+32] = mmrnmhrmpilottData[loop-OAMStart];
+		OAMData[loop+(1024*3)+32+256] = mmrnmhrmpilotfData[loop-OAMStart];
 	}
 	for (loop=OAMStart ;loop<OAMStart+1024;loop++)
-		OAMData[loop+(1024*4)+32] = mmrnmhrmpilotsData[loop-OAMStart];
+		OAMData[loop+(1024*3)+32+512] = mmrnmhrmpilotsData[loop-OAMStart];
+
+	for (loop=OAMStart ;loop<OAMStart+128;loop++)
+	{
+		  		OAMData[loop+(1024*4)+512+32] = mmrnmhrm_fire1b1Data[loop-OAMStart];
+				OAMData[loop+(1024*4)+512+32+128] = mmrnmhrm_fire1b2Data[loop-OAMStart];
+				OAMData[loop+(1024*4)+512+32+256] = mmrnmhrm_fire1cData[loop-OAMStart];
+				OAMData[loop+(1024*4)+512+32+256+128] = mmrnmhrm_fire1dData[loop-OAMStart];
+				OAMData[loop+(1024*5)+32] = mmrnmhrm_fire1eData[loop-OAMStart];
+				OAMData[loop+(1024*5)+32+128] = mmrnmhrm_fire1fData[loop-OAMStart];
+				OAMData[loop+(1024*5)+32+128] = mmrnmhrm_fire1gData[loop-OAMStart];
+	}
 
 	
 
@@ -121,7 +139,7 @@ int FireMmrnmhrm(pPlayer pl)
 		//laser
 		play_sfx(&mmrnmhrm_laser,pl->plr-1);
 
-		for (int b=0;b<2;b++)
+		for (int b=0;b<7;b++)
 		{
 
 
@@ -132,10 +150,14 @@ int FireMmrnmhrm(pPlayer pl)
 		pl->weapon[b].parent=pl;
 		pl->weapon[b].damageparent=0;
 
-		pl->weapon[b].size=32;//(b==3?8:32);
+		pl->weapon[b].size=(b==0?32:16);
 		pl->weapon[b].angle = pl->angle;
 
-		s32 off=(b==0?13:45);
+		s32 off=(b==0?13:22+(b*14));
+		s16 sprite=pl->SpriteStart+64;//b==0;
+		if (b>0)
+			sprite=pl->SpriteStart+282+(b*8);
+		
 
 		pl->weapon[b].xspeed=0;
 		pl->weapon[b].yspeed=0;
@@ -148,11 +170,11 @@ int FireMmrnmhrm(pPlayer pl)
 			pl->weapon[b].xpos,pl->weapon[b].ypos,screenx,screeny,pl->weapon[b].size);
 
 		sprites[pl->weapon[b].sprite].attribute0 = COLOR_256 | SQUARE | ROTATION_FLAG | SIZE_DOUBLE | MODE_TRANSPARENT | pl->weapon[b].yscreen;	//setup sprite info, 256 colour, shape and y-coord
-		sprites[pl->weapon[b].sprite].attribute1 = SIZE_32 | ROTDATA(pl->weapon[b].sprite) | pl->weapon[b].xscreen;
 		if (b==0)
-			sprites[pl->weapon[b].sprite].attribute2 = pl->SpriteStart+96 | PRIORITY(1);
+			sprites[pl->weapon[b].sprite].attribute1 = SIZE_32 | ROTDATA(pl->weapon[b].sprite) | pl->weapon[b].xscreen;
 		else
-			sprites[pl->weapon[b].sprite].attribute2 = pl->SpriteStart+64 | PRIORITY(1);
+			sprites[pl->weapon[b].sprite].attribute1 = SIZE_16 | ROTDATA(pl->weapon[b].sprite) | pl->weapon[b].xscreen;		
+		sprites[pl->weapon[b].sprite].attribute2 = sprite | PRIORITY(1);
 		}
 
 	}
@@ -202,12 +224,17 @@ int FireMmrnmhrm(pPlayer pl)
 		pl->weapon[b].xpos = pl->xpos+((52 * (s32)SIN[ModifyAngle(pl->angle,(i==0?-30:+30))])>>8)/3;
 		pl->weapon[b].ypos = pl->ypos-((52 * (s32)COS[ModifyAngle(pl->angle,(i==0?-30:+30))])>>8)/3;
 
+		#ifdef MISSILE_START
+		pl->weapon[b].xpos-=pl->weapon[b].xspeed;
+		pl->weapon[b].ypos+=pl->weapon[b].yspeed;
+		#endif
+
 		drawOnScreen(&pl->weapon[b].xscreen,&pl->weapon[b].yscreen,
 			pl->weapon[b].xpos,pl->weapon[b].ypos,screenx,screeny,pl->weapon[b].size);
 
 	 	sprites[pl->weapon[b].sprite].attribute0 = COLOR_256 | SQUARE | ROTATION_FLAG | SIZE_DOUBLE | MODE_TRANSPARENT | pl->weapon[b].yscreen;	//setup sprite info, 256 colour, shape and y-coord
 		sprites[pl->weapon[b].sprite].attribute1 = SIZE_8 | ROTDATA(pl->weapon[b].sprite) | pl->weapon[b].xscreen;
-		sprites[pl->weapon[b].sprite].attribute2 = pl->SpriteStart+128 | PRIORITY(1);
+		sprites[pl->weapon[b].sprite].attribute2 = pl->SpriteStart+96 | PRIORITY(1);
 		ret=1;
 
 		}
@@ -249,9 +276,9 @@ void SetMmrnmhrm(pPlayer pl)
 		pl->fspecsprite=5+o;
 		pl->lspecsprite=12+o;
 
-		pl->range=300;
+		pl->range=LASER_RANGE;
 
-	pl->fireangle=45;
+	
 
 	pl->firefunc=&FireMmrnmhrm;
 	pl->specfunc=&SpecialMmrnmhrm;
@@ -268,7 +295,7 @@ void SetMmrnmhrm(pPlayer pl)
 	pl->ship_flags = FIRES_FORE | IMMEDIATE_WEAPON;
 	pl->mass=5;
 
-	pl->pilot_sprite=(1024+512+32+512)/16;
+	pl->pilot_sprite=(1024+32+512)/16;
 	pl->pilots[0].x=41;
 	pl->pilots[0].y=256;
 	pl->pilots[1].x=5;
@@ -307,6 +334,7 @@ int SpecialMmrnmhrm(pPlayer pl)
 			pl->weapon_wait=YWING_WEAPON_WAIT;
 			pl->special_wait=YWING_SPECIAL_WAIT;
 			pl->batt_regen=YWING_ENERGY_REGENERATION;
+			pl->range=LASER_RANGE;
 		}
 	}
 	else
@@ -328,6 +356,7 @@ int SpecialMmrnmhrm(pPlayer pl)
 		pl->weapon_wait=WEAPON_WAIT;
 		pl->special_wait=SPECIAL_WAIT;
 		pl->batt_regen=ENERGY_REGENERATION;
+		pl->range=MISSILE_RANGE;
 	}
 
 

@@ -344,7 +344,23 @@ for (int i=0;i<12;i++)
 		SetShip(p1);
 
 		SetShip(p2);
+/*  DISPLAYS WINNER!
+		plist1[0].active==DESTROYED;
+			plist1[2].active=DESTROYED;
+			plist1[3].active=DESTROYED;
+			plist1[6].active=DESTROYED;
+			plist1[7].active=DESTROYED;
+			plist1[9].active=DESTROYED;
+			plist1[10].active=DESTROYED;
+			plist1[11].active=DESTROYED;
+			plist1[13].active=DESTROYED;
 
+		for (int pp=0;pp<14;pp++)
+			plist2[pp].active=DESTROYED;
+
+		DrawWinner(plist1,plist2);
+		while(1);
+*/
 
 		/*
 		LoadPal();

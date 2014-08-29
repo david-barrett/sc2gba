@@ -55,6 +55,7 @@ void Postmycon(pPlayer pl);
 #define MISSILE_LIFE (NUM_PLASMAS * PLASMA_DURATION)
 #define MISSILE_SPEED 8
 #define MISSILE_DAMAGE 10
+#define MISSILE_RANGE  MISSILE_SPEED*MISSILE_LIFE
 
 #define TRACK_WAIT 1
 
@@ -184,9 +185,7 @@ void SetMycon(pPlayer pl)
 	pl->fspecsprite=5+o;
 	pl->lspecsprite=12+o;
 
-	pl->range=300;
-
-	pl->fireangle=45;
+	pl->range=MISSILE_RANGE;
 
 	pl->firefunc=&FireMycon;
 	pl->specfunc=&SpecialMycon;

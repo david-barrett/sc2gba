@@ -165,11 +165,9 @@ void SetVux(pPlayer pl)
 	pl->fspecsprite=5+o;
 	pl->lspecsprite=12+o;
 
-	pl->range=200;
+	pl->range=LASER_RANGE;
 
-	pl->offset=9;
-
-	pl->fireangle=45;
+	pl->offset=9;	
 
 	pl->firefunc=&FireVux;
 	pl->specfunc=&SpecialVux;
@@ -215,7 +213,7 @@ int FireVux(pPlayer pl)
 
 	pl->weapon[b].type=LASER;
 	pl->weapon[b].life=1;
-	pl->weapon[b].damage=-2;//GUESS
+	pl->weapon[b].damage=-1;
 	pl->weapon[b].target=pl->opp;
 	pl->weapon[b].parent=pl;
 	pl->weapon[b].damageparent=0;

@@ -139,9 +139,7 @@ void SetIlwrath(pPlayer pl)
 	pl->fspecsprite=5+o;
 	pl->lspecsprite=12+o;
 
-	pl->range=50;
-
-	pl->fireangle=45;
+	pl->range=40;
 
 	pl->firefunc=&FireIlwrath;
 	pl->specfunc=&SpecialIlwrath;

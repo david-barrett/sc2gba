@@ -30,8 +30,9 @@
 #define SPECIAL_WAIT 16
 
 #define SHIP_MASS 1
-#define MISSILE_SPEED DISPLAY_TO_WORLD (24)
+#define MISSILE_SPEED 24 //DISPLAY_TO_WORLD (24)
 #define MISSILE_LIFE 5
+#define MISSILE_RANGE MISSILE_SPEED*MISSILE_LIFE
 
 
 
@@ -81,9 +82,7 @@ void SetFury(pPlayer pl)
 	pl->ffiresprite=1+o;
 	pl->lfiresprite=12+o;
 
-	pl->range=120;
-
-	pl->fireangle=100;
+	pl->range=MISSILE_RANGE;
 
 	pl->firefunc=&FireFury;
 	pl->specfunc=&SpecialFury;

@@ -548,22 +548,20 @@ int ChooseNextShipRand(pPlrList list)
 {
 	int ret=1;
 
-	int choose=ran(0,13);
-	do
+	s16 num=0;
+	s16 avail[16];
+
+	for (s16 i=0;i<14;i++)
 	{
-		if (list[choose].active==ACTIVE)
-				ret=0;
-		else
+		if (list[i].active==ACTIVE)
 		{
-			choose++;
-			if (choose==14)
-				choose=0;
+			avail[num]=i;
+			num++;
 		}
 
 	}
-	while (ret);
 
-	return choose;
+	return avail[ran(0,num-1)];
 
 }
 

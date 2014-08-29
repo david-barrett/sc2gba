@@ -4,7 +4,7 @@
 #include "sincosrad.h"
 
 #include "probe_out.h"
-#include "arilou_laser.h"
+#include "probe_laser.h"
 
 
 
@@ -16,6 +16,15 @@
 #include "probepilott.h"
 #include "probepilotf.h"
 #include "probepilots.h"
+
+#include "probecrew1.h"
+#include "probecrew2.h"
+#include "probecrew3.h"
+#include "probecrew4.h"
+#include "probecrew5.h"
+#include "probecrew6.h"
+#include "probecrew7.h"
+#include "probecrew8.h"
 
 extern s32 screenx,screeny;
 extern pOAMEntry sprites;
@@ -65,7 +74,7 @@ void LoadProbe(s16 SpriteStart)
   	{
        		OAMData[loop] = probeData[loop-OAMStart];
        		OAMData[loop+512] = probe_outData[loop-OAMStart];
-       		OAMData[loop+1024] = arilou_laserData[loop-OAMStart];
+       		OAMData[loop+1024] = probe_laserData[loop-OAMStart];
    	}
 	//pilot
 
@@ -90,6 +99,17 @@ void LoadProbe(s16 SpriteStart)
 
 	}
 
+	for (loop=OAMStart ;loop<OAMStart+32;loop++)
+	{
+		OAMData[loop+(1024*4)+128+512+256] = probecrew1Data[loop-OAMStart];
+		OAMData[loop+(1024*4)+128+512+256+32] = probecrew2Data[loop-OAMStart];
+		OAMData[loop+(1024*4)+128+512+256+64] = probecrew3Data[loop-OAMStart];
+		OAMData[loop+(1024*4)+128+512+256+96] = probecrew4Data[loop-OAMStart];
+		OAMData[loop+(1024*5)] = probecrew5Data[loop-OAMStart];
+		OAMData[loop+(1024*5)+32] = probecrew6Data[loop-OAMStart];
+		OAMData[loop+(1024*5)+64] = probecrew7Data[loop-OAMStart];
+		OAMData[loop+(1024*5)+96] = probecrew8Data[loop-OAMStart];
+	}
 }
 
 int FireProbe(pPlayer pl)
@@ -97,7 +117,7 @@ int FireProbe(pPlayer pl)
 	pPlayer opp=(pPlayer)pl->opp;
 	//play_sfx(&probe_fire,pl->plr-1);
 
-	for (int b=0;b<2;b++)
+	for (int b=0;b<3;b++)
 	{
 
 
@@ -111,7 +131,7 @@ int FireProbe(pPlayer pl)
 			pl->weapon[b].size=32;//(b==3?8:32);
 			pl->weapon[b].angle = FindAngle(pl->xpos,pl->ypos,opp->xpos,opp->ypos);
 
-			s32 off=(b==0?13:45);
+			s32 off=(b==0?13:13+(b*32));
 
 			pl->weapon[b].xspeed=0;
 			pl->weapon[b].yspeed=0;
@@ -164,9 +184,8 @@ void SetProbe(pPlayer pl)
 		pl->fspecsprite=5+o;
 		pl->lspecsprite=12+o;
 
-		pl->range=100;
+		pl->range=90;
 
-	pl->fireangle=45;
 
 	pl->firefunc=&FireProbe;
 	pl->specfunc=&SpecialProbe;
@@ -204,6 +223,7 @@ int SpecialProbe(pPlayer pl)
 {
 	extern pAsteroid asteroids;
 	s32 d;
+	s8 found=0;
 
 	for (int i=0;i<5;i++)
 	{
@@ -213,10 +233,14 @@ int SpecialProbe(pPlayer pl)
 			if (d<HARVEST_RANGE)
 			{
 				asteroids[i].life=0;
-				ModifyBatt(pl,MAX_ENERGY);
-				play_sfx(&probe_energise,pl->plr-1);
+				found=1;
 			}
 		}
+	}
+	if (found)
+	{
+		ModifyBatt(pl,MAX_ENERGY);
+		play_sfx(&probe_energise,pl->plr-1);
 	}
 
 	return 1;

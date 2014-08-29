@@ -113,7 +113,7 @@ int FireZoqfot(pPlayer pl)
 
 	pl->weapon[b].type=SIMPLE;
 	pl->weapon[b].life=MISSILE_LIFE;
-	pl->weapon[b].damage=-1*MISSILE_DAMAGE; //guess
+	pl->weapon[b].damage=-1*MISSILE_DAMAGE; 
 	pl->weapon[b].target=pl->opp;
 	pl->weapon[b].parent=pl;
 	pl->weapon[b].damageparent=0;
@@ -128,6 +128,11 @@ int FireZoqfot(pPlayer pl)
 
 	pl->weapon[b].xpos = pl->xpos+((s32)(pl->offset * SIN[pl->angle])>>8);
 	pl->weapon[b].ypos = pl->ypos-((s32)(pl->offset * COS[pl->angle])>>8);
+
+	#ifdef MISSILE_START
+	pl->weapon[b].xpos-=pl->weapon[b].xspeed;
+	pl->weapon[b].ypos+=pl->weapon[b].yspeed;
+	#endif
 
 	drawOnScreen(&pl->weapon[b].xscreen,&pl->weapon[b].yscreen,
 		pl->weapon[b].xpos,pl->weapon[b].ypos,screenx,screeny,pl->weapon[b].size);
@@ -178,9 +183,9 @@ void SetZoqFot(pPlayer pl)
 		pl->fspecsprite=5+o;
 		pl->lspecsprite=12+o;
 
-		pl->range=1440;
+		pl->range=MISSILE_RANGE;
 
-	pl->fireangle=45;
+
 
 	pl->firefunc=&FireZoqfot;
 	pl->specfunc=&SpecialZoqfot;

@@ -6,6 +6,7 @@
 #include "blackurq_out.h"
 #include "blackurq_blade.h"
 #include "blackurq_fire.h"
+#include "thradd_flame.h"
 
 
 #include "blackurq_sfx.h"
@@ -32,7 +33,7 @@ void MoveDogi(pWeapon ur);
 void PostBlackurq(pPlayer p);
 
 extern s32 zoom;
-
+extern s8 v3do;
 
 void RotateSprite(int rotDataIndex, s32 angle, s32 x_scale,s32 y_scale);
 
@@ -56,6 +57,9 @@ void RotateSprite(int rotDataIndex, s32 angle, s32 x_scale,s32 y_scale);
 										 */
 #define MISSILE_DAMAGE 4
 
+#define BLADE_SPEED 2
+#define BLADE_WAIT 2
+
 #define GAS_DAMAGE 3
 #define GAS_SPEED 16
 #define GAS_LIFE 10 //guess
@@ -64,15 +68,16 @@ void LoadBlackurq(s16 SpriteStart)
 {
 	s16 OAMStart=16*SpriteStart;
 	s16 loop;
-	for(loop = OAMStart; loop < OAMStart+512; loop++)               //load sprite image data
+	for(loop = OAMStart; loop < OAMStart+512; loop++)           
   	{
        		OAMData[loop] = blackurqData[loop-OAMStart];
        		OAMData[loop+512] = blackurq_outData[loop-OAMStart];
    	}
-   	for(loop = OAMStart; loop < OAMStart+128; loop++)               //load sprite image data
+   	for(loop = OAMStart; loop < OAMStart+128; loop++)           
    	{
-		OAMData[loop+1024] = blackurq_bladeData[loop-OAMStart]; //loads some garb
-		OAMData[loop+1024+128] = blackurq_fireData[loop-OAMStart]; //loads some garb
+		OAMData[loop+1024] = blackurq_bladeData[loop-OAMStart]; 
+		OAMData[loop+1024+128] = blackurq_fireData[loop-OAMStart];
+		OAMData[loop+1024+256] = thradd_flameData[loop-OAMStart];
    	}
 
    	//pilot
@@ -128,6 +133,12 @@ int FireBlackurq(pPlayer pl)
 
 	pl->weapon[b].xpos = pl->xpos+((s32)(pl->offset * SIN[pl->angle])>>8);
 	pl->weapon[b].ypos = pl->ypos-((s32)(pl->offset * COS[pl->angle])>>8);
+
+	#ifdef MISSILE_START
+	pl->weapon[b].xpos-=pl->weapon[b].xspeed;
+	pl->weapon[b].ypos+=pl->weapon[b].yspeed;
+	#endif
+
 
 	drawOnScreen(&pl->weapon[b].xscreen,&pl->weapon[b].yscreen,
 		pl->weapon[b].xpos,pl->weapon[b].ypos,screenx,screeny,pl->weapon[b].size);
@@ -206,9 +217,7 @@ void SetBlackurq(pPlayer pl)
 		pl->fspecsprite=5+o;
 		pl->lspecsprite=12+o;
 
-		pl->range=1440;
-
-	pl->fireangle=45;
+		pl->range=MISSILE_SPEED*MISSILE_LIFE;
 
 	pl->firefunc=&FireBlackurq;
 	pl->specfunc=&SpecialBlackurq;
@@ -262,12 +271,20 @@ int SpecialBlackurq(pPlayer pl)
 			pl->weapon[b].xpos = pl->xpos-((s32)(pl->offset * SIN[pl->angle])>>8);
 			pl->weapon[b].ypos = pl->ypos+((s32)(pl->offset * COS[pl->angle])>>8);
 
+			#ifdef MISSILE_START
+			pl->weapon[b].xpos-=pl->weapon[b].xspeed;
+			pl->weapon[b].ypos+=pl->weapon[b].yspeed;
+			#endif
+
 			drawOnScreen(&pl->weapon[b].xscreen,&pl->weapon[b].yscreen,
 				pl->weapon[b].xpos,pl->weapon[b].ypos,screenx,screeny,pl->weapon[b].size);
 
 		 	sprites[pl->weapon[b].sprite].attribute0 = COLOR_256 | SQUARE | ROTATION_FLAG | SIZE_DOUBLE | MODE_TRANSPARENT | pl->weapon[b].yscreen;	//setup sprite info, 256 colour, shape and y-coord
 			sprites[pl->weapon[b].sprite].attribute1 = SIZE_16 | ROTDATA(pl->weapon[b].sprite) | pl->weapon[b].xscreen;
-			sprites[pl->weapon[b].sprite].attribute2 = pl->SpriteStart+72 | PRIORITY(1);
+			if (v3do)
+				sprites[pl->weapon[b].sprite].attribute2 = pl->SpriteStart+72 | PRIORITY(1);
+			else
+				sprites[pl->weapon[b].sprite].attribute2 = pl->SpriteStart+80 | PRIORITY(1);
 			//tmp use exp
 			//sprites[pl->weapon[b].sprite].attribute2 = FireSprite1+4 | PRIORITY(1);//4or12or16
 
@@ -443,6 +460,27 @@ void RestoreGFXBlackurq(pPlayer p)
 	}
 }
 
+void MoveBlades(pWeapon w)
+{
+	pPlayer target = (pPlayer)w->target;
+	s16 d;
+	if (w->turn_wait==0)
+	{
+		d=distanceBetweenPoints(target->xpos,target->ypos,w->xpos,w->ypos);
+	if (target->crew>0&&d<24)
+	{
+		w->turn_wait=BLADE_WAIT;
+		s16 angle = FindAngle(w->xpos,w->ypos,target->xpos,target->ypos);
+
+		w->xpos+=((BLADE_SPEED) * (s32)SIN[angle])>>8;
+		w->ypos-=((BLADE_SPEED) * (s32)COS[angle])>>8;
+	}
+	}
+	else
+		w->turn_wait--;
+
+}
+
 void PostBlackurq(pPlayer p)
 {
 	s16 a=p->angle-45;
@@ -451,7 +489,7 @@ void PostBlackurq(pPlayer p)
 	RotateSprite(p->plr==1?0:13, a, zoom, zoom);
 
 	if (p->warp>1)
-	{
+	{/*
 		for (int i=0;i<12;i++)
 		{
 			if (p->weapon[i].type==TRAIL)
@@ -459,20 +497,22 @@ void PostBlackurq(pPlayer p)
 				RotateSprite(p->weapon[i].sprite, a, zoom, zoom);
 				p->weapon[i].angle= a;
 			}
-		}
+		}*/
 	}
 	else
 	{
 
 	for (int i=0;i<4;i++)
 	{
-
+		if (p->weapon[i].type==SIMPLE||p->weapon[i].type==BLADES)
+		{
 		p->weapon[i].actualangle+=1;
 		if (p->weapon[i].actualangle==16)
 			p->weapon[i].actualangle=0;
 		p->weapon[i].angle=(p->weapon[i].actualangle*45)>>1;
 		if (p->weapon[i].life==MISSILE_LIFE-1)
 			p->weapon[i].life++;
+		}
 	}
 
 	}
@@ -482,5 +522,11 @@ void PostBlackurq(pPlayer p)
 		p->weapon[p->currentweapon].xspeed=0;
 		p->weapon[p->currentweapon].yspeed=0;
 		p->charging=0;
+		if (v3do)
+		{
+			p->weapon[p->currentweapon].movefunc=&MoveBlades;
+			p->weapon[p->currentweapon].type=BLADES;
+			p->weapon[p->currentweapon].turn_wait=BLADE_WAIT;
+		}
 	}
 }

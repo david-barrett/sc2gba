@@ -115,8 +115,9 @@ int SpecialChmmr(pPlayer pl)
 	if (magnitude<3)
 		magnitude=3;
 
-	opp->xspeed+=(s32)(magnitude * (s32)SIN[a])>>8;
-	opp->yspeed+=(s32)(magnitude * (s32)COS[a])>>8;
+	if (!(opp->cloak||(opp->ship==SKIFF&&opp->limpets==0)))
+		opp->xspeed+=(s32)(magnitude * (s32)SIN[a])>>8;
+		opp->yspeed+=(s32)(magnitude * (s32)COS[a])>>8;
 
 	play_sfx(&chmmr_tractor,pl->plr-1);
 /*
@@ -188,7 +189,6 @@ void SetChmmr(pPlayer pl)
 
 	pl->offset=16;
 
-	pl->fireangle=45;
 
 	pl->firefunc=&FireChmmr;
 	pl->specfunc=&SpecialChmmr;
@@ -222,7 +222,7 @@ void SetChmmr(pPlayer pl)
 		sprites[pl->weapon[i+9].sprite].attribute1 = SIZE_16 | ROTDATA(pl->weapon[i+9].sprite) | 240;
 		sprites[pl->weapon[i+9].sprite].attribute2 = pl->SpriteStart+130 | PRIORITY(1);
 		pl->weapon[i+9].turn_wait=i;
-		pl->weapon[i+9].life=5;
+		pl->weapon[i+9].life=10;
 		pl->weapon[i+9].size=16;
 		pl->weapon[i+9].type=SAT;
 		pl->weapon[i+9].movefunc=&MoveSat;
@@ -241,7 +241,7 @@ void SetChmmr(pPlayer pl)
 int FireChmmr(pPlayer pl)
 {
 
-
+	pl->charging=2;
 	for (int b=0;b<4;b++)
 	{
 
@@ -275,6 +275,33 @@ int FireChmmr(pPlayer pl)
 
 	}
 	play_sfx(&chmmr_laser,pl->plr-1);
+
+	s16 b=5;
+	pl->weapon[b].type=LASER;
+	pl->weapon[b].life=1;
+	pl->weapon[b].damage=0;
+	pl->weapon[b].target=pl->opp;
+	pl->weapon[b].parent=pl;
+	pl->weapon[b].damageparent=0;
+
+	pl->weapon[b].size=8;
+	pl->weapon[b].angle = pl->angle;
+
+	s32 off=15;
+
+	pl->weapon[b].xspeed=0;
+	pl->weapon[b].yspeed=0;
+
+
+	pl->weapon[b].xpos = pl->xpos+((off * (s32)SIN[pl->angle])>>8);
+	pl->weapon[b].ypos = pl->ypos-((off * (s32)COS[pl->angle])>>8);
+
+	drawOnScreen(&pl->weapon[b].xscreen,&pl->weapon[b].yscreen,
+		pl->weapon[b].xpos,pl->weapon[b].ypos,screenx,screeny,pl->weapon[b].size);
+
+	sprites[pl->weapon[b].sprite].attribute0 = COLOR_256 | SQUARE | ROTATION_FLAG | SIZE_DOUBLE | MODE_TRANSPARENT | pl->weapon[b].yscreen;	//setup sprite info, 256 colour, shape and y-coord
+    sprites[pl->weapon[b].sprite].attribute1 = SIZE_8 | ROTDATA(pl->weapon[b].sprite) | pl->weapon[b].xscreen;
+    sprites[pl->weapon[b].sprite].attribute2 = pl->SpriteStart+128 | PRIORITY(1);
 
 	return 1;
 }
@@ -467,12 +494,52 @@ void RestoreGFXChmmr(pPlayer p)
 	}
 }
 
-void PostChmmr(pPlayer p)
+void PostChmmr(pPlayer pl)
 {
 	for (int i=9;i<12;i++)
 	{
-		p->weapon[i].actualangle++;
-		if (p->weapon[i].actualangle==16)
-			p->weapon[i].actualangle=0;
+		pl->weapon[i].actualangle++;
+		if (pl->weapon[i].actualangle==16)
+			pl->weapon[i].actualangle=0;
+	}
+
+	if (pl->charging>0)
+	{
+		pl->charging--;
+		if (pl->charging==0)
+		{
+			for (int b=0;b<4;b++)
+			{
+
+
+				pl->weapon[b].type=LASER;
+				pl->weapon[b].life=1;
+				pl->weapon[b].damage=0;//GUESS
+				pl->weapon[b].target=pl->opp;
+				pl->weapon[b].parent=pl;
+				pl->weapon[b].damageparent=0;
+
+				pl->weapon[b].size=32;
+				pl->weapon[b].angle = pl->angle;
+
+				s32 off=(b*31)+25;
+
+				pl->weapon[b].xspeed=0;
+				pl->weapon[b].yspeed=0;
+
+
+				pl->weapon[b].xpos = pl->xpos+((off * (s32)SIN[pl->angle])>>8);
+				pl->weapon[b].ypos = pl->ypos-((off * (s32)COS[pl->angle])>>8);
+
+				drawOnScreen(&pl->weapon[b].xscreen,&pl->weapon[b].yscreen,
+					pl->weapon[b].xpos,pl->weapon[b].ypos,screenx,screeny,pl->weapon[b].size);
+
+				sprites[pl->weapon[b].sprite].attribute0 = COLOR_256 | SQUARE | ROTATION_FLAG | SIZE_DOUBLE | MODE_TRANSPARENT | pl->weapon[b].yscreen;	//setup sprite info, 256 colour, shape and y-coord
+				sprites[pl->weapon[b].sprite].attribute1 = SIZE_32 | ROTDATA(pl->weapon[b].sprite) | pl->weapon[b].xscreen;
+				sprites[pl->weapon[b].sprite].attribute2 = pl->SpriteStart+96 | PRIORITY(1);
+			}
+           		
+	
+		}
 	}
 }

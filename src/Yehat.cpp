@@ -32,6 +32,7 @@
 #define SHIP_MASS 3
 #define MISSILE_SPEED /*DISPLAY_TO_WORLD*/ (20)
 #define MISSILE_LIFE 10
+#define MISSILE_RANGE  MISSILE_SPEED*MISSILE_LIFE
 
 
 
@@ -126,9 +127,7 @@ void SetYehat(pPlayer pl)
 	pl->fspecsprite=5+o;
 	pl->lspecsprite=12+o;
 
-	pl->range=200;
-
-	pl->fireangle=45;
+	pl->range=MISSILE_RANGE;
 
 	pl->firefunc=&FireYehat;
 	pl->specfunc=&SpecialYehat;
@@ -188,6 +187,11 @@ int FireYehat(pPlayer pl)
 
 	pl->weapon[b].xpos = pl->xpos+((52 * (s32)SIN[ModifyAngle(pl->angle,(i==0?-30:+30))])>>8)/3;
 	pl->weapon[b].ypos = pl->ypos-((52 * (s32)COS[ModifyAngle(pl->angle,(i==0?-30:+30))])>>8)/3;
+
+	#ifdef MISSILE_START
+	pl->weapon[b].xpos-=pl->weapon[b].xspeed;
+	pl->weapon[b].ypos+=pl->weapon[b].yspeed;
+	#endif
 
 	drawOnScreen(&pl->weapon[b].xscreen,&pl->weapon[b].yscreen,
 		pl->weapon[b].xpos,pl->weapon[b].ypos,screenx,screeny,pl->weapon[b].size);

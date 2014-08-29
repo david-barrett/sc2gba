@@ -265,7 +265,7 @@ void CalcPlanet(pPlayer pl)
 		s32 y = ((pl->mass+1) * (s32)COS[a])>>9;//((2) * (s32)COS[a])>>8;
 
 		pl->xspeed = pl->xspeed + x;
-		pl->yspeed = pl->yspeed - y;
+		pl->yspeed = pl->yspeed + y;
 
 	}
 

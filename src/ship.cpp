@@ -573,6 +573,7 @@ void ProcessPlayer(pPlayer pl)
 		{
 			play_sfx(opp->ditty,pl->plr-1);
 			//remove pilot
+			
 
 			MoveSprite(&sprites[42+off], 240, 160);
 			MoveSprite(&sprites[43+off], 240, 160);
@@ -583,7 +584,7 @@ void ProcessPlayer(pPlayer pl)
 		}
 		pl->EndGame--;
 		ModifyBatt(pl,-1*pl->batt);
-		if (!pl->destruct)
+		if (pl->destruct<3)
 			DetonateShip(pl);
 	}
 

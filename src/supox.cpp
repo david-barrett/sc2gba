@@ -19,7 +19,7 @@
 #define MAX_ENERGY 16
 #define ENERGY_REGENERATION 1
 #define WEAPON_ENERGY_COST 1
-#define SPECIAL_ENERGY_COST 1
+#define SPECIAL_ENERGY_COST 0// 1
 #define ENERGY_WAIT 4
 #define MAX_THRUST SHIP_SPEED(40)
 #define THRUST_INCREMENT SHIP_SPEED(8)
@@ -29,9 +29,10 @@
 #define SPECIAL_WAIT 0
 
 #define SHIP_MASS 4
-#define MISSILE_SPEED DISPLAY_TO_WORLD (30)
+#define MISSILE_SPEED 30 //DISPLAY_TO_WORLD (30)
 #define MISSILE_LIFE 10
 #define MISSILE_DAMAGE 1
+#define MISSILE_RANGE  MISSILE_SPEED*MISSILE_LIFE
 
 #define ZIP_SPEED 30//Guess
 
@@ -144,7 +145,7 @@ void SetSupox(pPlayer pl)
 		pl->batt_regen=ENERGY_REGENERATION;
 
 	pl->mass=SHIP_MASS;
-		pl->offset=15;
+		pl->offset=14;
 
 	s16 o = (pl->plr-1)*13;
 
@@ -154,9 +155,7 @@ void SetSupox(pPlayer pl)
 	pl->fspecsprite=5+o;
 	pl->lspecsprite=12+o;
 
-	pl->range=200;
-
-	pl->fireangle=45;
+	pl->range=MISSILE_RANGE;
 
 	pl->firefunc=&FireSupox;
 	pl->specfunc=&SpecialSupox;
@@ -206,6 +205,11 @@ int FireSupox(pPlayer pl)
 
 	pl->weapon[b].xpos = pl->xpos+((40 * (s32)SIN[pl->angle])>>8)/3;
 	pl->weapon[b].ypos = pl->ypos-((40 * (s32)COS[pl->angle])>>8)/3;
+
+	#ifdef MISSILE_START
+	pl->weapon[b].xpos-=pl->weapon[b].xspeed;
+	pl->weapon[b].ypos+=pl->weapon[b].yspeed;
+	#endif
 
 	drawOnScreen(&pl->weapon[b].xscreen,&pl->weapon[b].yscreen,
 		pl->weapon[b].xpos,pl->weapon[b].ypos,screenx,screeny,pl->weapon[b].size);

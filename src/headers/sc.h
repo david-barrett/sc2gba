@@ -16,6 +16,8 @@
 
 //#define DEBUG 1
 
+#define MISSILE_START 1
+
 
 //#include "gfx/gfx.h"
 //#include "gfx/gfx_symbols.h"
@@ -314,7 +316,7 @@ s16 range;
 
 s8 limpets;
 
-s16 fireangle;
+//s16 fireangle;
 
 short reinc;//pkunk
 short shield;//yehat/utwig
@@ -410,7 +412,9 @@ enum type
 	CONFUSE,
 	SAT,
 	TURRET,
-	MARINE
+	MARINE,
+	BLADES,
+	RECOIL
 
 };
 

@@ -46,7 +46,7 @@ void PostArilou(pPlayer p);
 
 #define SHIP_MASS 1
 #define ARILOU_OFFSET 9
-#define LASER_RANGE 90// /*DISPLAY_TO_WORLD*/ (100 + ARILOU_OFFSET)
+#define LASER_RANGE 100// /*DISPLAY_TO_WORLD*/ (100 + ARILOU_OFFSET)
 
 
 
@@ -92,13 +92,13 @@ int FireArilou(pPlayer pl)
 	pPlayer opp=(pPlayer)pl->opp;
 	play_sfx(&arilou_fire,pl->plr-1);
 
-	for (int b=0;b<2;b++)
+	for (int b=0;b<4;b++)
 	{
 
 
 			pl->weapon[b].type=LASER;
 			pl->weapon[b].life=1;
-			pl->weapon[b].damage=-2;//GUESS
+			pl->weapon[b].damage=-1;
 			pl->weapon[b].target=pl->opp;
 			pl->weapon[b].parent=pl;
 			pl->weapon[b].damageparent=0;
@@ -106,7 +106,7 @@ int FireArilou(pPlayer pl)
 			pl->weapon[b].size=32;//(b==3?8:32);
 			pl->weapon[b].angle = FindAngle(pl->xpos,pl->ypos,opp->xpos,opp->ypos);
 
-			s32 off=(b==0?13:45);
+			s32 off=(b==0?13:13+(b*32));
 
 			pl->weapon[b].xspeed=0;
 			pl->weapon[b].yspeed=0;
@@ -158,9 +158,7 @@ void SetArilou(pPlayer pl)
 		pl->fspecsprite=5+o;
 		pl->lspecsprite=12+o;
 
-		pl->range=100;
-
-	pl->fireangle=45;
+		pl->range=LASER_RANGE;
 
 	pl->firefunc=&FireArilou;
 	pl->specfunc=&SpecialArilou;
@@ -268,11 +266,11 @@ void SetArilouPilot(pPlayer pl)
 
 	sprites[45+off].attribute0 = COLOR_256 | SQUARE  | 160;
 	sprites[45+off].attribute1 = SIZE_16 | 240;
-	sprites[45+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+96 | PRIORITY(2);
+	sprites[45+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+96 | PRIORITY(1);
 
 	sprites[46+off].attribute0 = COLOR_256 |TALL  | 160;
 	sprites[46+off].attribute1 = SIZE_32 | 240;
-	sprites[46+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+104 | PRIORITY(2);
+	sprites[46+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+104 | PRIORITY(1);
 
 	sprites[47+off].attribute0 = COLOR_256 | TALL  | 160;
 	sprites[47+off].attribute1 = SIZE_32 | 240;

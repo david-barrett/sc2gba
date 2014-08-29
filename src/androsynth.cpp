@@ -172,9 +172,7 @@ void SetAndrosynth(pPlayer pl)
 	pl->fspecsprite=5+o;
 	pl->lspecsprite=12+o;
 
-	pl->range=300;
-
-	pl->fireangle=45;
+	pl->range=MISSILE_SPEED*MISSILE_LIFE;
 
 	pl->firefunc=&FireAndrosynth;
 	pl->specfunc=&SpecialAndrosynth;
@@ -428,10 +426,12 @@ void PostAndro(pPlayer pl)
 			pl->turn_wait=TURN_WAIT;
 			sprites[(pl->plr==1)?0:13].attribute2 = pl->SpriteStart | PRIORITY(1);
 			pl->blaze=0;
+			pl->xspeed=0;
+			pl->yspeed=0;
 		}
 		else
 		{
-			//pl->batt_wait=ENERGY_WAIT;
+			pl->batt_wait=ENERGY_WAIT;
 			pl->thrust_turn=THRUST_WAIT;
 			pl->special_turn=SPECIAL_WAIT;
 			pl->weapon_turn=WEAPON_WAIT;

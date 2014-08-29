@@ -56,6 +56,7 @@ void RotateSprite(int rotDataIndex, s32 angle, s32 x_scale,s32 y_scale);
 #define MISSILE_SPEED 24
 #define MISSILE_LIFE 10
 #define MISSILE_DAMAGE 1
+#define MISSILE_RANGE  MISSILE_SPEED*MISSILE_LIFE
 
 #define DESTRUCT_RANGE 180
 #define MAX_DESTRUCTION (DESTRUCT_RANGE / 10)
@@ -137,6 +138,11 @@ int FireShofixti(pPlayer pl)
 		pl->weapon[b].xpos = pl->xpos+((s32)(pl->offset*2 * SIN[pl->weapon[b].angle])>>8);
 		pl->weapon[b].ypos = pl->ypos-((s32)(pl->offset*2 * COS[pl->weapon[b].angle])>>8);
 
+		#ifdef MISSILE_START
+		pl->weapon[b].xpos-=pl->weapon[b].xspeed;
+		pl->weapon[b].ypos+=pl->weapon[b].yspeed;
+		#endif
+
 		drawOnScreen(&pl->weapon[b].xscreen,&pl->weapon[b].yscreen,
 			pl->weapon[b].xpos,pl->weapon[b].ypos,screenx,screeny,pl->weapon[b].size);
 
@@ -183,9 +189,7 @@ void SetShofixti(pPlayer pl)
 	pl->fspecsprite=5+o;
 	pl->lspecsprite=12+o;
 
-	pl->range=300;
-
-	pl->fireangle=45;
+	pl->range=MISSILE_RANGE;
 
 	pl->firefunc=&FireShofixti;
 	pl->specfunc=&SpecialShofixti;
@@ -245,7 +249,7 @@ int SpecialShofixti(pPlayer pl)
 		for (loop=OAMStart ;loop<OAMStart+1024;loop++)
 			OAMData[loop+ps] = shofixtipilots3Data[loop-OAMStart];
 		//detonate
-		ModifyCrew(pl,MAX_CREW*-1);
+		ModifyCrew(pl,MAX_CREW*-1,1);
 		ModifyBatt(pl,MAX_ENERGY*-1);
 		play_sfx(&shofixti_kyaiee,pl->plr-1);
 

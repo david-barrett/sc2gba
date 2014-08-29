@@ -95,6 +95,8 @@ int SpecialUmgah(pPlayer pl)
 	pl->xpos-=((JUMP_DIST  * (s32)SIN[pl->angle])>>8);
 	pl->ypos+=((JUMP_DIST * (s32)COS[pl->angle])>>8);
 	play_sfx(&umgah_backzip,pl->plr-1);
+	pl->xspeed=0;
+	pl->yspeed=0;
 	return 1;
 }
 
@@ -132,9 +134,7 @@ void SetUmgah(pPlayer pl)
 	pl->fspecsprite=5+o;
 	pl->lspecsprite=12+o;
 
-	pl->range=50;
-
-	pl->fireangle=45;
+	pl->range=45;
 
 	pl->firefunc=&FireUmgah;
 	pl->specfunc=&SpecialUmgah;

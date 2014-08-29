@@ -53,6 +53,7 @@ void RotateSprite(int rotDataIndex, s32 angle, s32 x_scale,s32 y_scale);
 #define THRADDASH_OFFSET 9
 #define MISSILE_SPEED 30 //DISPLAY_TO_WORLD (30)
 #define MISSILE_LIFE 15
+#define MISSILE_RANGE  MISSILE_SPEED*MISSILE_LIFE
 #define MISSILE_DAMAGE 1
 
 #define NAPALM_DAMAGE 2
@@ -109,7 +110,7 @@ int FireThradd(pPlayer pl)
 
 	pl->weapon[b].type=SIMPLE;
 	pl->weapon[b].life=MISSILE_LIFE;
-	pl->weapon[b].damage=-1*MISSILE_DAMAGE; //guess
+	pl->weapon[b].damage=-1*MISSILE_DAMAGE; 
 	pl->weapon[b].target=pl->opp;
 	pl->weapon[b].parent=pl;
 	pl->weapon[b].damageparent=0;
@@ -124,6 +125,11 @@ int FireThradd(pPlayer pl)
 
 	pl->weapon[b].xpos = pl->xpos+((s32)(pl->offset * SIN[pl->angle])>>8);
 	pl->weapon[b].ypos = pl->ypos-((s32)(pl->offset * COS[pl->angle])>>8);
+
+	#ifdef MISSILE_START
+	pl->weapon[b].xpos-=pl->weapon[b].xspeed;
+	pl->weapon[b].ypos+=pl->weapon[b].yspeed;
+	#endif
 
 	drawOnScreen(&pl->weapon[b].xscreen,&pl->weapon[b].yscreen,
 		pl->weapon[b].xpos,pl->weapon[b].ypos,screenx,screeny,pl->weapon[b].size);
@@ -174,9 +180,8 @@ void SetThradd(pPlayer pl)
 		pl->fspecsprite=5+o;
 		pl->lspecsprite=12+o;
 
-		pl->range=1440;
-
-	pl->fireangle=45;
+		pl->range=MISSILE_RANGE;
+	
 
 	pl->firefunc=&FireThradd;
 	pl->specfunc=&SpecialThradd;
@@ -261,6 +266,66 @@ int aiThradd(pPlayer ai, pObject ObjectsOfConcern, COUNT ConcernCounter)
 	pObject lpEvalDesc,lpEnemyEvalDesc;
 	pPlayer opp=(pPlayer)ai->opp;
 
+	lpEvalDesc = &ObjectsOfConcern[ENEMY_SHIP_INDEX];
+	if (lpEvalDesc->parent)
+	{
+#define STATIONARY_SPEED 4
+		
+		if (lpEvalDesc->which_turn > 8
+				|| distanceBetweenPoints(0,0,ai->xspeed,ai->yspeed) <=
+				(long)STATIONARY_SPEED * STATIONARY_SPEED)
+			lpEvalDesc->MoveState = PURSUE;
+		else
+			lpEvalDesc->MoveState = ENTICE;
+	}
+	ship_intelligence (ai, ObjectsOfConcern, ConcernCounter);
+
+	if (ai->special_turn == 0)
+	{
+		ai->ship_input_state &= ~SPECIAL;
+		if (ObjectsOfConcern[ENEMY_WEAPON_INDEX].parent
+				&& ObjectsOfConcern[ENEMY_WEAPON_INDEX].MoveState == ENTICE)
+		{
+			if ((ai->ship_input_state & THRUST)
+					|| (ai->turn_turn == 0
+					&& !(ai->ship_input_state & (LEFT | RIGHT)))
+					|| TurnAngle(FindAngle(0,0,ObjectsOfConcern[ENEMY_WEAPON_INDEX].xspeed,ObjectsOfConcern[ENEMY_WEAPON_INDEX].yspeed),
+						ai->angle,90)==0)
+				ai->ship_input_state |= SPECIAL;
+		}
+		else if (lpEvalDesc->parent)
+		{
+			if (lpEvalDesc->MoveState == PURSUE)
+			{
+				if (ai->batt >= WEAPON_ENERGY_COST
+						+ SPECIAL_ENERGY_COST
+						&& ai->turn_turn == 0
+						&& !(ai->ship_input_state & (LEFT | RIGHT))
+						&& (!(ai->ship_input_state & SPECIAL)
+						|| (distanceBetweenPoints(0,0,ai->xspeed,ai->yspeed)<ai->maxspeed)))
+					ai->ship_input_state |= SPECIAL;
+			}
+			else if (lpEvalDesc->MoveState == ENTICE)
+			{
+				s16 direction_angle=FindAngle(0,0,ai->xspeed,ai->yspeed);
+
+				if ((lpEvalDesc->which_turn > 24
+						&& !(ai->ship_input_state & (LEFT | RIGHT)))
+						|| (lpEvalDesc->which_turn <= 16
+						&& TurnAngle(direction_angle,ai->angle,180)==0
+						&& (lpEvalDesc->which_turn < 12
+						|| TurnAngle(direction_angle,
+							FindAngle(0,0,lpEvalDesc->xpos,lpEvalDesc->ypos),180==0))))
+					ai->ship_input_state |= SPECIAL;
+			}
+		}
+
+		if ((ai->ship_input_state & SPECIAL)
+				&& ai->batt >=
+				SPECIAL_ENERGY_COST)
+			ai->ship_input_state &= ~THRUST;
+	}
+
 
 }
 
@@ -312,3 +377,4 @@ void PostThradd(pPlayer p)
 {
 
 }
+

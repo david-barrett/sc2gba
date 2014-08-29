@@ -11,6 +11,7 @@
 #include "orz_exp.h"
 
 #include "orz_spaceman.h"
+#include "orz_spacemanreturn.h"
 #include "orz_status.h"
 #include "orz_statusflash.h"
 
@@ -63,6 +64,7 @@ void RotateSprite(int rotDataIndex, s32 angle, s32 x_scale,s32 y_scale);
 #define MISSILE_SPEED 30 //DISPLAY_TO_WORLD (30)
 #define MISSILE_LIFE 12
 #define MISSILE_DAMAGE 3
+#define MISSILE_RANGE MISSILE_SPEED*MISSILE_LIFE
 
 #define MARINE_SPEED 10 //guess
 #define MARINE_ATTACK_WAIT 5
@@ -109,6 +111,10 @@ void LoadOrz(s16 SpriteStart)
 		
 		OAMData[loop+(1024*3)+160+256] = orzpilotfData[loop-OAMStart];
 		OAMData[loop+(1024*3)+256+160+128] = orzpilotsData[loop-OAMStart];
+	}
+	for(loop = OAMStart; loop < OAMStart+32; loop++)        
+   	{
+		OAMData[loop+(1024*3)+256+160+256] = orz_spacemanreturnData[loop-OAMStart];
 	}
 }
 
@@ -194,7 +200,7 @@ void SetOrz(pPlayer pl)
 		pl->firebatt=WEAPON_ENERGY_COST;
 		pl->specbatt=SPECIAL_ENERGY_COST;
 
-		pl->offset=16;
+		pl->offset=13;
 
 		pl->batt_wait=ENERGY_WAIT;
 		pl->turn_wait=TURN_WAIT;
@@ -211,9 +217,7 @@ void SetOrz(pPlayer pl)
 		pl->fspecsprite=5+o;
 		pl->lspecsprite=12+o;
 
-		pl->range=1440;
-
-	pl->fireangle=45;
+		pl->range=MISSILE_RANGE;
 
 	pl->firefunc=&FireOrz;
 	pl->specfunc=&SpecialOrz;
@@ -271,7 +275,7 @@ void SetOrz(pPlayer pl)
 void CreateMarine(pPlayer pl,s16 x,s16 y,s16 status,s16 b)
 {
 	pl->weapon[b].type=MARINE;
-			pl->weapon[b].life=1;	
+			pl->weapon[b].life=3;	
 			pl->weapon[b].status=status;	
 			pl->weapon[b].movefunc=&MoveMarine;
 			pl->weapon[b].damage=0; 
@@ -295,7 +299,10 @@ void CreateMarine(pPlayer pl,s16 x,s16 y,s16 status,s16 b)
 
 			sprites[pl->weapon[b].sprite].attribute0 = COLOR_256 | SQUARE | ROTATION_FLAG | SIZE_DOUBLE | MODE_TRANSPARENT | pl->weapon[b].yscreen;	//setup sprite info, 256 colour, shape and y-coord
 			sprites[pl->weapon[b].sprite].attribute1 = SIZE_8 | ROTDATA(pl->weapon[b].sprite) | pl->weapon[b].xscreen;
-			sprites[pl->weapon[b].sprite].attribute2 = pl->SpriteStart+100 | PRIORITY(1);
+			if (status==2)
+				sprites[pl->weapon[b].sprite].attribute2 = pl->SpriteStart+100 | PRIORITY(1);
+			else
+			sprites[pl->weapon[b].sprite].attribute2 = pl->SpriteStart+234 | PRIORITY(1);
 
 }
 
@@ -303,16 +310,17 @@ int SpecialOrz(pPlayer pl)
 {
 	if (pl->ship_input_state & WEAPON)
 	{
+		pPlayer opp=(pPlayer)pl->opp;
 		s16 b= nextWeapon(pl,0,7);
 		//marine
-		if (pl->charging==0&&pl->crew>1&&b>=0)
+		if (pl->charging==0&&pl->crew>1&&b>=0&&!opp->cloak&&opp->crew>0)
 		{
 			pl->charging=MARINE_WAIT;
 			
 			ModifyCrew(pl,-1);
 
 			CreateMarine(pl,pl->xpos+((s32)(pl->offset * SIN[pl->weapon[b].angle])>>8)
-				,pl->ypos+((s32)(pl->offset * COS[pl->weapon[b].angle])>>8),200, b);
+				,pl->ypos+((s32)(pl->offset * COS[pl->weapon[b].angle])>>8),2, b);
 			
 			
 
@@ -533,7 +541,7 @@ void PostOrz(pPlayer pl)
 			for (s16 i=0;i<8;i++)
 			{
 				if (pl->weapon[i].status<0)
-					CreateMarine(pl,opp->xpos,opp->ypos,49,i);
+					CreateMarine(pl,opp->xpos,opp->ypos,1,i);
 			}
 
 		}
@@ -541,6 +549,12 @@ void PostOrz(pPlayer pl)
 	}
 
 	MarineStatus(pl);
+
+	if (pl->crew<1 && pl->EndGame==20)
+	{
+		for (s16 i=0;i<8;i++)
+			pl->weapon[i].status=0;
+	}
 	
 }
 
@@ -550,22 +564,14 @@ void MoveMarine(pWeapon ur)
 	pPlayer target=(pPlayer)ur->target;
 
 	pPlayer parent=(pPlayer)ur->parent;
-	if (ur->status>0)
+	
+	if (target->crew==0&&ur->status==2)
 	{
-	ur->status--;
-
-	//if out too long return
-	if (ur->status==0)
-	{
-		//been out too long die
-		ur->life=0;
-		MoveOffscreen(&sprites[ur->sprite]);
-
-		return;
+		ur->status=1;
+		sprites[ur->sprite].attribute2 = parent->SpriteStart+234 | PRIORITY(1);
 	}
-	if (target->crew==0&&ur->status>50)
-		ur->status=149;
-	if (ur->status<50||target->cloak)
+
+	if (ur->status==1||target->cloak)
 	{
 		//if reached mother ship dock
 		if (DetectWeaponToShip(parent,ur)==1)
@@ -588,6 +594,7 @@ void MoveMarine(pWeapon ur)
 			//board!!
 			play_sfx(&orz_intruder,parent->plr-1);
 			//AddMarine
+			ModifyCrew(target,-1);
 			ur->turn_wait=MARINE_ATTACK_WAIT;
 			ur->status=-1;
 		}
@@ -603,8 +610,8 @@ void MoveMarine(pWeapon ur)
 	int ret=TurnAngle(angle,ur->angle,15);
 	if (ret==0)
 	{
-		s32 x = ((MARINE_SPEED) * (s32)SIN[ur->angle])>>8;
-		s32 y = ((MARINE_SPEED) * (s32)COS[ur->angle])>>8;
+		s32 x = ((MARINE_SPEED) * (s32)SIN[(ur->actualangle*45)>>1])>>8;
+		s32 y = ((MARINE_SPEED) * (s32)COS[(ur->actualangle*45)>>1])>>8;
 
 		ur->xspeed = (ur->xspeed + x)/2;
 		ur->yspeed = (ur->yspeed + y)/2;
@@ -621,11 +628,10 @@ void MoveMarine(pWeapon ur)
 						if (ur->actualangle==16)
 							ur->actualangle=0;
 					}
-				ur->angle=(ur->actualangle*45)>>1;
+			//	ur->angle=(ur->actualangle*45)>>1;
 	//always do
 	ur->xpos+=ur->xspeed;
 	ur->ypos-=ur->yspeed;
-	}
 }
 
 void MarineStatus(pPlayer orz)

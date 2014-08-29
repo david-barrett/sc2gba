@@ -144,41 +144,41 @@ void SetupStatus(pPlayer p1,pPlayer p2)
 
 
 
-s16 statusCrew(s16 data,s16 minus)
+s16 statusCrew(s16 data,s16 minus,s16 s)
 {
-
-
 	s16 d = data - minus;
 	if (d<0)
 		return(blank);
+
+
 	switch (d)
 	{
 	case 0:
 		return(blank);
 	case 1:
-		return (crew1);
+		return (s);
 		break;
 	case 2:
-		return (crew2);
+		return (s+2);
 		break;
 	case 3:
-		return (crew3);
+		return (s+4);
 		break;
 	case 4:
-		return (crew4);
+		return (s+6);
 		break;
 	case 5:
-		return (crew5);
+		return (s+8);
 		break;
 	case 6:
-		return (crew6);
+		return (s+10);
 		break;
 	case 7:
-		return (crew7);
+		return (s+12);
 		break;
 	case 8:
 	default:
-		return (crew8);
+		return (s+14);
 	}
 }
 
@@ -426,12 +426,13 @@ void drawStatus(pPlayer p1,pPlayer p2)
 void UpdateCrew(pPlayer pl)
 {
 	int o=pl->plr==1?0:12;
-	sprites[start+o].attribute2 = statusCrew(pl->crew,40) | PRIORITY(2);
-	sprites[start+1+o].attribute2 = statusCrew(pl->crew,32) | PRIORITY(2);
-	sprites[start+2+o].attribute2 = statusCrew(pl->crew,24) | PRIORITY(2);
-	sprites[start+3+o].attribute2 = statusCrew(pl->crew,16) | PRIORITY(2);
-	sprites[start+4+o].attribute2 = statusCrew(pl->crew,8) | PRIORITY(2);
-	sprites[start+5+o].attribute2 = statusCrew(pl->crew,0) | PRIORITY(2);
+	s16 p = (pl->ship==PROBE)?pl->SpriteStart+312:crew1;
+	sprites[start+o].attribute2 = statusCrew(pl->crew,40,p) | PRIORITY(2);
+	sprites[start+1+o].attribute2 = statusCrew(pl->crew,32,p) | PRIORITY(2);
+	sprites[start+2+o].attribute2 = statusCrew(pl->crew,24,p) | PRIORITY(2);
+	sprites[start+3+o].attribute2 = statusCrew(pl->crew,16,p) | PRIORITY(2);
+	sprites[start+4+o].attribute2 = statusCrew(pl->crew,8,p) | PRIORITY(2);
+	sprites[start+5+o].attribute2 = statusCrew(pl->crew,0,p) | PRIORITY(2);
 }
 
 void UpdateBatt(pPlayer pl)

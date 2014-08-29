@@ -192,7 +192,7 @@ void SetMelnorme(pPlayer pl)
 		pl->firebatt=WEAPON_ENERGY_COST;
 		pl->specbatt=SPECIAL_ENERGY_COST;
 
-		pl->offset=16;
+		pl->offset=15;
 
 		pl->batt_wait=ENERGY_WAIT;
 		pl->turn_wait=TURN_WAIT;
@@ -209,9 +209,8 @@ void SetMelnorme(pPlayer pl)
 		pl->fspecsprite=5+o;
 		pl->lspecsprite=12+o;
 
-		pl->range=1440;
-
-	pl->fireangle=45;
+	
+	pl->range=PUMPUP_SPEED*PUMPUP_LIFE;
 
 	pl->firefunc=&FireMelnorme;
 	pl->specfunc=&SpecialMelnorme;
@@ -265,6 +264,11 @@ int SpecialMelnorme(pPlayer pl)
 
 		pl->weapon[b].xpos = pl->xpos-((s32)(pl->offset * SIN[pl->angle])>>8);
 		pl->weapon[b].ypos = pl->ypos+((s32)(pl->offset * COS[pl->angle])>>8);
+
+		#ifdef MISSILE_START
+		pl->weapon[b].xpos-=pl->weapon[b].xspeed;
+		pl->weapon[b].ypos+=pl->weapon[b].yspeed;
+		#endif
 
 		drawOnScreen(&pl->weapon[b].xscreen,&pl->weapon[b].yscreen,
 			pl->weapon[b].xpos,pl->weapon[b].ypos,screenx,screeny,pl->weapon[b].size);
@@ -480,7 +484,7 @@ void PostMelnorme(pPlayer p)
 			else if (p->charging<90)
 			{
 				p->weapon[p->currentweapon].size=16;
-				p->weapon[p->currentweapon].damage=-2*PUMPUP_DAMAGE; //guess				
+				p->weapon[p->currentweapon].damage=-2*PUMPUP_DAMAGE; 				
 				p->weapon[p->currentweapon].turn_wait=!p->weapon[p->currentweapon].turn_wait;
 				if (p->weapon[p->currentweapon].turn_wait)
 					sprite=p->SpriteStart+116;
@@ -489,7 +493,7 @@ void PostMelnorme(pPlayer p)
 			}
 			else if (p->charging<135)
 			{
-				p->weapon[p->currentweapon].damage=-3*PUMPUP_DAMAGE; //guess			
+				p->weapon[p->currentweapon].damage=-4*PUMPUP_DAMAGE; 		
 				p->weapon[p->currentweapon].turn_wait=!p->weapon[p->currentweapon].turn_wait;
 				if (p->weapon[p->currentweapon].turn_wait)
 					sprite=p->SpriteStart+132;
@@ -498,7 +502,7 @@ void PostMelnorme(pPlayer p)
 			}
 			else
 			{
-				p->weapon[p->currentweapon].damage=-4*PUMPUP_DAMAGE; //guess			
+				p->weapon[p->currentweapon].damage=-8*PUMPUP_DAMAGE; 			
 				p->weapon[p->currentweapon].turn_wait=!p->weapon[p->currentweapon].turn_wait;
 				if (p->weapon[p->currentweapon].turn_wait)
 					sprite=p->SpriteStart+148;

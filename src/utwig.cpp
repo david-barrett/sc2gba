@@ -33,6 +33,7 @@
 #define UTWIG_OFFSET 9
 #define MISSILE_SPEED 30 //DISPLAY_TO_WORLD (30)
 #define MISSILE_LIFE 10
+#define MISSILE_RANGE  MISSILE_SPEED*MISSILE_LIFE
 
 #define MISSILE_DAMAGE 1
 
@@ -59,9 +60,12 @@ void LoadUtwig(s16 SpriteStart)
   	{
        		OAMData[loop] = utwigData[loop-OAMStart];
        		OAMData[loop+512] = utwig_outData[loop-OAMStart];
+	}
+
+	for(loop = OAMStart; loop < OAMStart+32; loop++)     
        		OAMData[loop+1024] = utwig_fireData[loop-OAMStart];
 
-   	}
+ 
 
    	for (loop=OAMStart ;loop<OAMStart+1024;loop++)
 	{
@@ -127,9 +131,7 @@ void SetUtwig(pPlayer pl)
 	pl->fspecsprite=5+o;
 	pl->lspecsprite=12+o;
 
-	pl->range=200;
-
-	pl->fireangle=45;
+	pl->range=MISSILE_RANGE;
 
 	pl->firefunc=&FireUtwig;
 	pl->specfunc=&SpecialUtwig;
@@ -164,7 +166,9 @@ int FireUtwig(pPlayer pl)
 	s16 b;
 	int ret=0;
 
-
+	
+	for (int i=0;i<6;i++)
+	{
 	b= nextWeapon(pl);
 	if (b>=0)
 	{
@@ -175,7 +179,7 @@ int FireUtwig(pPlayer pl)
 	pl->weapon[b].parent=pl;
 	pl->weapon[b].damageparent=0;
 
-	pl->weapon[b].size=32;
+	pl->weapon[b].size=8;
 	pl->weapon[b].angle = pl->angle;
 
 	s32 speed=20;
@@ -185,19 +189,45 @@ int FireUtwig(pPlayer pl)
 	//pl->weapon[b].xpos = pl->xpos+((52 * (s32)SIN[pl->angle+(i==0?-30:+30)])>>8)/3;
 	//pl->weapon[b].ypos = pl->ypos-((52 * (s32)COS[pl->angle+(i==0?-30:+30)])>>8)/3;
 
-	pl->weapon[b].xpos = pl->xpos+((52 * (s32)SIN[pl->angle])>>8)/3;
-	pl->weapon[b].ypos = pl->ypos-((52 * (s32)COS[pl->angle])>>8)/3;
+	s16 angle;
+
+	if (i==0)
+		angle=ModifyAngle(pl->angle,-55);
+	else if (i==1)
+		angle=ModifyAngle(pl->angle,-35);
+	else if (i==2)
+		angle=ModifyAngle(pl->angle,-10);
+	else if (i==3)
+		angle=ModifyAngle(pl->angle,15);
+	else if (i==4)
+		angle=ModifyAngle(pl->angle,45);
+	else if (i==5)
+		angle=ModifyAngle(pl->angle,65);
+
+
+
+	pl->weapon[b].xpos = pl->xpos+((52 * (s32)SIN[angle])>>8)/3;
+	pl->weapon[b].ypos = pl->ypos-((52 * (s32)COS[angle])>>8)/3;
+
+	#ifdef MISSILE_START
+	pl->weapon[b].xpos-=pl->weapon[b].xspeed;
+	pl->weapon[b].ypos+=pl->weapon[b].yspeed;
+	#endif
 
 	drawOnScreen(&pl->weapon[b].xscreen,&pl->weapon[b].yscreen,
 		pl->weapon[b].xpos,pl->weapon[b].ypos,screenx,screeny,pl->weapon[b].size);
 
 	sprites[pl->weapon[b].sprite].attribute0 = COLOR_256 | SQUARE | ROTATION_FLAG | SIZE_DOUBLE | MODE_TRANSPARENT | pl->weapon[b].yscreen;	//setup sprite info, 256 colour, shape and y-coord
-    sprites[pl->weapon[b].sprite].attribute1 = SIZE_32| ROTDATA(pl->weapon[b].sprite) | pl->weapon[b].xscreen;
+    sprites[pl->weapon[b].sprite].attribute1 = SIZE_8| ROTDATA(pl->weapon[b].sprite) | pl->weapon[b].xscreen;
     sprites[pl->weapon[b].sprite].attribute2 = pl->SpriteStart+64 | PRIORITY(1);
 
-    ret=1;
-	play_sfx(&utwig_fire,pl->plr-1);
+    ret++;
 	}
+	}
+	if (ret>0)//should always be!
+		play_sfx(&utwig_fire,pl->plr-1);
+	
+	
 	return ret;
 }
 
@@ -325,7 +355,7 @@ void RestoreGFXUtwig(pPlayer p)
 			if(p->weapon[i].type==SIMPLE)
 			{
 			sprites[p->weapon[i].sprite].attribute0 = COLOR_256 | SQUARE | ROTATION_FLAG | SIZE_DOUBLE | MODE_TRANSPARENT | 160;	//setup sprite info, 256 colour, shape and y-coord
-			sprites[p->weapon[i].sprite].attribute1 = SIZE_32 | ROTDATA(p->weapon[i].sprite) | 240;
+			sprites[p->weapon[i].sprite].attribute1 = SIZE_8 | ROTDATA(p->weapon[i].sprite) | 240;
    			sprites[p->weapon[i].sprite].attribute2 = p->SpriteStart+64 | PRIORITY(1);
 			}
 		}

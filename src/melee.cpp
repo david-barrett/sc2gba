@@ -398,7 +398,7 @@ void MoveBullets(pPlayer pl)
 		{
 
 			if (pl->weapon[i].type==SIMPLE||pl->weapon[i].type==ILWRATHFIRE
-				||pl->weapon[i].type==LASER)
+				||pl->weapon[i].type==LASER||pl->weapon[i].type==RECOIL)
 			{
 				if (pl->weapon[i].type==ILWRATHFIRE)
 					DrawExplosion(&pl->weapon[i]);
@@ -515,7 +515,8 @@ void DetectBullets(pPlayer pl)
 
 
 			if (pl->weapon[i].type==SIMPLE||pl->weapon[i].type==ILWRATHFIRE
-				||pl->weapon[i].type==LASER)
+				||pl->weapon[i].type==LASER||pl->weapon[i].type==BLADES
+				||pl->weapon[i].type==RECOIL)
 			{
 				target=(pPlayer)pl->weapon[i].target;
 /*
@@ -548,10 +549,17 @@ void DetectBullets(pPlayer pl)
 */
 				if (DetectWeaponToShip(target,&pl->weapon[i]))
 		//		if (Intercept (&o1 , &o2,1,0))
-				{
+				{					
+					if (pl->weapon[i].type==RECOIL)
+					{				
+						target->xspeed+=pl->weapon[i].xspeed;
+						target->yspeed+=pl->weapon[i].yspeed;
+					}
 					ModifyCrew(target,pl->weapon[i].damage);
 					if (pl->weapon[i].type!=LASER)
 						CreateExplosion(&pl->weapon[i],5);/*
+
+					
 					else
 					{
 						s8 d=nextWeapon(pl);
@@ -559,6 +567,7 @@ void DetectBullets(pPlayer pl)
 							CreateExplosion(&pl->weapon[d],5);
 					}*/
 					stop=0;
+					
 				}
 
 
@@ -640,7 +649,7 @@ void DetectBullets(pPlayer pl)
 						dist = distanceBetweenPoints(pl->weapon[i].xpos,pl->weapon[i].ypos,
 							asteroids[j].xpos,asteroids[j].ypos);
 
-						if (dist<(pl->weapon[i].size+25)/2)
+						if (dist<((pl->weapon[i].size+25)>>1)&&asteroids[j].life>0)
 						{
 						//	pl->weapon[i].life=0;
 							asteroids[j].life=0;
@@ -838,106 +847,13 @@ void setScreen(pPlayer p1,pPlayer p2,Bg* bg0,Bg* bg1)
 		scale = 0.5;
 
 	}
-	/*
+	//3DO zoom
 	else if (scaled&&d<320)
 	{
-		zoom=256+(s16)(double(d-160)*32);
-		scale=0.9-(double(d-160)*0.04);
-	}
-	*/
-	//scaled zoom 320-160
-	else if (scaled&&d<170)
-	{
-			zoom=256+32;//512
-			scale = 0.86;
-	}
-	else if (scaled&&d<180)
-	{
-			zoom=256+64;//512
-			scale = 0.82;
-	}
-	else if (scaled&&d<190)
-	{
-		zoom=256+64+32;//512
-		scale = 0.78;
-	}
-	else if (scaled&&d<200)
-	{
-			zoom=256+128;
-			scale = 0.74;
-
-	}
-	else if (scaled&&d<210)
-	{
-		zoom=256+128+32;
-		scale = 0.70;
-
-	}
-	else if (scaled&&d<220)
-	{
-			zoom=256+192;
-			scale = 0.66;
-
-	}
-	else if (scaled&&d<230)
-	{
-		zoom=256+192+32;
-		scale = 0.62;
-
-	}
-	else if (scaled&&d<240)
-	{
-			zoom=1<<9;//512
-			scale = 0.58;
-
-	}
-	else if (scaled&&d<250)
-	{
-		zoom=512+32;
-		scale = 0.54;
-
-	}
-	else if (scaled&&d<260)
-	{
-		zoom=512+64;
-		scale = 0.50;
-	}
-	else if (scaled&&d<270)
-	{
-		zoom=512+64+32;
-		scale = 0.46;
-	}
-	else if (scaled&&d<280)
-	{
-		zoom=512+128;
-		scale = 0.42;
-
-	}
-	else if (scaled&&d<290)
-	{
-		zoom=512+128+32;
-		scale = 0.38;
-
-	}
-	else if (scaled&&d<300)
-	{
-		zoom=512+192;
-		scale = 0.34;
-
-	}
-	else if (scaled&&d<310)
-	{
-		zoom=512+192+32;
-		scale = 0.30;
-	}
-	else if (scaled&&d<320)
-	{
-			zoom=512+256;
-			scale = 0.26;
-
-	}
-
-	//END 3DO zoom could replace all this will scaled zoom
+		zoom=256+(s16)(double(d-160)*3.2);
+		scale=0.9-(double(d-160)*0.004);
+	}	
+	
 	else //if (d>=320)
 	{
 		zoom=768;

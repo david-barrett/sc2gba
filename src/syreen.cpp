@@ -31,8 +31,12 @@
 #define SPECIAL_WAIT 20
 
 #define SHIP_MASS 2
-#define MISSILE_SPEED DISPLAY_TO_WORLD (30)
+#define MISSILE_SPEED 30//DISPLAY_TO_WORLD (30)
 #define MISSILE_LIFE 10
+#define MISSILE_RANGE  MISSILE_SPEED*MISSILE_LIFE
+
+#define CREW_WAIT 2
+#define CREW_SPEED 2
 
 
 
@@ -126,6 +130,8 @@ int SpecialSyreen(pPlayer pl)
 		pl->weapon[b].xspeed=0;
 		pl->weapon[b].yspeed=0;
 
+		pl->weapon[b].turn_wait=CREW_WAIT;
+
 		angle=FindAngle(opp->xpos,opp->ypos,pl->xpos,pl->ypos);
 		angle=ModifyAngle(angle,((i*2)-crew_loss)*20);
 
@@ -152,7 +158,7 @@ int SpecialSyreen(pPlayer pl)
 void SetSyreen(pPlayer pl)
 {
 	pl->crew=MAX_CREW;
-		pl->maxcrew=MAX_CREW;
+		pl->maxcrew=SYREEN_MAX_CREW_SIZE;
 		pl->batt=MAX_ENERGY;
 		pl->maxbatt=MAX_ENERGY;
 
@@ -183,9 +189,7 @@ void SetSyreen(pPlayer pl)
 	pl->fspecsprite=5+o;
 	pl->lspecsprite=12+o;
 
-	pl->range=200;
-
-	pl->fireangle=45;
+	pl->range=MISSILE_RANGE;
 
 	pl->firefunc=&FireSyreen;
 	pl->specfunc=&SpecialSyreen;
@@ -235,6 +239,11 @@ int FireSyreen(pPlayer pl)
 
 	pl->weapon[b].xpos = pl->xpos+((40 * (s32)SIN[pl->angle])>>8)/3;
 	pl->weapon[b].ypos = pl->ypos-((40 * (s32)COS[pl->angle])>>8)/3;
+
+	#ifdef MISSILE_START
+	pl->weapon[b].xpos-=pl->weapon[b].xspeed;
+	pl->weapon[b].ypos+=pl->weapon[b].yspeed;
+	#endif
 
 	drawOnScreen(&pl->weapon[b].xscreen,&pl->weapon[b].yscreen,
 		pl->weapon[b].xpos,pl->weapon[b].ypos,screenx,screeny,pl->weapon[b].size);
@@ -319,13 +328,37 @@ void MoveCrew(pWeapon ur)
 		play_sfx(&syreen_pickup,parent->plr-1);
 		ur->life=0;
 	}
-	else if (DetectWeaponToShip(target,ur)==1)
+	else if (DetectWeaponToShip(target,ur)==1&&(!(target->ship_flags & CREW_IMMUNE)))
 	{
 		//attach
 		ModifyCrew(target,1);
 		play_sfx(&syreen_pickup,parent->plr-1);
 		ur->life=0;
 	}
+
+	
+
+	if (ur->turn_wait==0)
+	{
+		
+		ur->turn_wait=CREW_WAIT;
+	s16 angle=parent->crew>0?FindAngle(ur->xpos,ur->ypos,parent->xpos,parent->ypos):FindAngle(ur->xpos,ur->ypos,target->xpos,target->ypos);
+
+	
+	
+	ur->xspeed = ((CREW_SPEED) * (s32)SIN[angle])>>8;
+	ur->yspeed = ((CREW_SPEED) * (s32)COS[angle])>>8;
+
+	//always do
+	ur->xpos+=ur->xspeed;
+	ur->ypos-=ur->yspeed;
+	
+	
+	}
+	else 
+		ur->turn_wait--;
+	
+	
 
 
 }
