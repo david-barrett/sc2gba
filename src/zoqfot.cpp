@@ -12,13 +12,11 @@
 #include "zoqfot_sfx.h"
 
 #include "zoqfotpilot.h"
-/*
 #include "zoqfotpilotl.h"
 #include "zoqfotpilotr.h"
 #include "zoqfotpilott.h"
 #include "zoqfotpilotf.h"
 #include "zoqfotpilots.h"
-*/
 
 extern s32 screenx,screeny;
 extern pOAMEntry sprites;
@@ -40,7 +38,7 @@ extern s32 zoom;
 void RotateSprite(int rotDataIndex, s32 angle, s32 x_scale,s32 y_scale);
 
 #define MAX_CREW 10
-#define MAX_ENERGY 10
+#define MAX_ENERGY 10 
 #define ENERGY_REGENERATION 1
 #define WEAPON_ENERGY_COST 1
 #define SPECIAL_ENERGY_COST (MAX_ENERGY * 3 / 4)
@@ -87,21 +85,23 @@ void LoadZoqfot(s16 SpriteStart)
 	{
 			OAMData[loop+1024+512+32] = zoqfotpilotData[loop-OAMStart];
 	}
-/*
-	for (loop=OAMStart ;loop<OAMStart+512;loop++)
-	{
-		OAMData[loop+(1024*2)+64] = zoqfotpilotlData[loop-OAMStart];
-		OAMData[loop+(1024*2)+64+512] = zoqfotpilotrData[loop-OAMStart];
-	}
 
 	for (loop=OAMStart ;loop<OAMStart+256;loop++)
 	{
-		OAMData[loop+(1024*3)+64] = zoqfotpilottData[loop-OAMStart];
-		OAMData[loop+(1024*3)+64+256] = zoqfotpilotfData[loop-OAMStart];
-		OAMData[loop+(1024*3)+64+512] = zoqfotpilotsData[loop-OAMStart];
+		OAMData[loop+(1024*2)+512+32] = zoqfotpilotlData[loop-OAMStart];
+		OAMData[loop+(1024*2)+512+32+256] = zoqfotpilotrData[loop-OAMStart];
+	}
+
+	for (loop=OAMStart ;loop<OAMStart+512;loop++)
+		OAMData[loop+(1024*3)+32] = zoqfotpilottData[loop-OAMStart];
+
+	for (loop=OAMStart ;loop<OAMStart+256;loop++)
+	{
+		OAMData[loop+(1024*3)+32+512] = zoqfotpilotfData[loop-OAMStart];
+		OAMData[loop+(1024*3)+32+256+512] = zoqfotpilotsData[loop-OAMStart];
 
 	}
-*/
+
 }
 
 int FireZoqfot(pPlayer pl)
@@ -196,16 +196,16 @@ void SetZoqFot(pPlayer pl)
 	pl->mass=SHIP_MASS;
 
 	pl->pilot_sprite=(1024+32+512)/16;
-	pl->pilots[0].x=240;
-	pl->pilots[0].y=160;
-	pl->pilots[1].x=240;
-	pl->pilots[1].y=160;
-	pl->pilots[2].x=240;
-	pl->pilots[2].y=160;
-	pl->pilots[3].x=240;
-	pl->pilots[3].y=160;
-	pl->pilots[4].x=240;
-	pl->pilots[4].y=160;
+	pl->pilots[0].x=18;
+	pl->pilots[0].y=1;
+	pl->pilots[1].x=15;
+	pl->pilots[1].y=0;
+	pl->pilots[2].x=511;
+	pl->pilots[2].y=0;
+	pl->pilots[3].x=25;
+	pl->pilots[3].y=0;
+	pl->pilots[4].x=41;
+	pl->pilots[4].y=0;
 
 }
 void DrawTongue(pPlayer pl)
@@ -226,8 +226,8 @@ void DrawTongue(pPlayer pl)
 		pl->weapon[b].yspeed=0;
 
 
-		pl->weapon[b].xpos = pl->xpos+((s32)(pl->offset * SIN[pl->angle])>>8);
-		pl->weapon[b].ypos = pl->ypos-((s32)(pl->offset * COS[pl->angle])>>8);
+		pl->weapon[b].xpos = pl->xpos+((s32)((pl->offset+3) * SIN[pl->angle])>>8);
+		pl->weapon[b].ypos = pl->ypos-((s32)((pl->offset+3) * COS[pl->angle])>>8);
 
 		drawOnScreen(&pl->weapon[b].xscreen,&pl->weapon[b].yscreen,
 			pl->weapon[b].xpos,pl->weapon[b].ypos,screenx,screeny,pl->weapon[b].size);
@@ -318,25 +318,25 @@ void SetZoqfotPilot(pPlayer pl)
 	//setup pilot
 	int off=(pl->plr==1)?0:6;
 
-	sprites[43+off].attribute0 = COLOR_256 | SQUARE  | 160;
+	sprites[43+off].attribute0 = COLOR_256 | TALL  | 160;
 	sprites[43+off].attribute1 = SIZE_32 | 240;
 	sprites[43+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+64 | PRIORITY(2);
 
-	sprites[44+off].attribute0 = COLOR_256 | SQUARE  | 160;
+	sprites[44+off].attribute0 = COLOR_256 | TALL  | 160;
 	sprites[44+off].attribute1 = SIZE_32 | 240;
-	sprites[44+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+96 | PRIORITY(2);
+	sprites[44+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+80 | PRIORITY(2);
 
-	sprites[45+off].attribute0 = COLOR_256 | WIDE  | 160;
+	sprites[45+off].attribute0 = COLOR_256 | SQUARE  | 160;
 	sprites[45+off].attribute1 = SIZE_32 | 240;
-	sprites[45+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+128 | PRIORITY(2);
+	sprites[45+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+96 | PRIORITY(2);
 
 	sprites[46+off].attribute0 = COLOR_256 |WIDE  | 160;
 	sprites[46+off].attribute1 = SIZE_32 | 240;
-	sprites[46+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+128+16 | PRIORITY(2);
+	sprites[46+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+128 | PRIORITY(2);
 
 	sprites[47+off].attribute0 = COLOR_256 | WIDE  | 160;
 	sprites[47+off].attribute1 = SIZE_32 | 240;
-	sprites[47+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+128+32 | PRIORITY(2);
+	sprites[47+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+128+16 | PRIORITY(1);
 }
 
 void RestoreGFXZoqfot(pPlayer p)

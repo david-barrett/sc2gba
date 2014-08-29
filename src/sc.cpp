@@ -34,6 +34,7 @@ s8 demo;
 s8 planet;
 s8 sound;
 s8 scaled;
+s8 v3do;
 
 //create the rotation and scaling array (overlaps the OAMEntry array memory)
 pRotData rotData;// = (pRotData)sprites;
@@ -133,6 +134,8 @@ int main()
 
 	sprites=(pOAMEntry)malloc(sizeof(OAMEntry)*128);
 	state=1;
+
+	v3do=1;
 
 	pilot=1;
 	aiskill=GOOD;

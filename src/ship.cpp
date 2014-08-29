@@ -14,6 +14,7 @@ extern pRotData rotData;
 extern int* KEYS;
 
 extern s8 pilot;
+extern s8 v3do;
 
 
 extern pTrail trails;
@@ -144,11 +145,28 @@ void TurnRight(pPlayer pl)//, int i)
 {
 	if (pl->turn_turn==0)
 	{
-	pl->turn_turn=pl->turn_wait;
-	pl->actualangle++;
-	if(pl->actualangle==16)
-		pl->actualangle=0;
-	pl->angle=(pl->actualangle*45)>>1;
+		pl->turn_turn=pl->turn_wait;
+		if (pl->scrambled)
+		{
+			if (v3do)
+				return;//ship will spin
+			else //do opposite
+			{
+				pl->actualangle--;
+				if(pl->actualangle==-1)
+					pl->actualangle=15;
+				pl->angle=(pl->actualangle*45)>>1;
+
+			}			
+		}
+		else		
+		{
+			
+			pl->actualangle++;
+			if(pl->actualangle==16)
+				pl->actualangle=0;
+			pl->angle=(pl->actualangle*45)>>1;
+		}
 	}
 }
 
@@ -156,14 +174,29 @@ void TurnLeft(pPlayer pl)//,int i)
 {
 	if (pl->turn_turn==0)
 	{
-	pl->turn_turn=pl->turn_wait;
-	pl->actualangle--;
-	if(pl->actualangle==-1)
-		pl->actualangle=15;
-	pl->angle=(pl->actualangle*45)>>1;
+		pl->turn_turn=pl->turn_wait;
+		if (pl->scrambled)
+		{
+			if (v3do)
+				return;//ship will spin
+			else //do opposite
+			{
+				pl->actualangle++;
+			if(pl->actualangle==16)
+				pl->actualangle=0;
+			pl->angle=(pl->actualangle*45)>>1;
+
+			}			
+		}
+		else		
+		{
+			pl->actualangle--;
+			if(pl->actualangle==-1)
+				pl->actualangle=15;
+			pl->angle=(pl->actualangle*45)>>1;			
+			
+		}
 	}
-
-
 }
 
 void GetInput(pPlayer pl)

@@ -11,6 +11,8 @@ extern skill aiskill;
 extern s8 demo;
 extern s8 planet;
 
+int Available(s16 selected);
+
 void Demo(pPlayer p1,pPlayer p2,pBg bg0,pBg bg1)
 {
 
@@ -29,7 +31,7 @@ void Demo(pPlayer p1,pPlayer p2,pBg bg0,pBg bg1)
 					p1->ai=aiskill;
 					p2->ai=aiskill;
 				}
-
+/*
 				if (demo==1)
 				{
 					p1->ship=INTRUDER;
@@ -83,6 +85,22 @@ void Demo(pPlayer p1,pPlayer p2,pBg bg0,pBg bg1)
 				demo++;
 				if (demo==10)
 					demo=1;
+*/
+				do
+				{
+					p1->ship=ran(0,24);
+					if (!Available(p1->ship))
+						p1->ship=-1;
+				}
+				while(p1->ship==-1);
+
+				do
+				{
+					p2->ship=ran(0,24);
+					if (!Available(p2->ship))
+						p2->ship=-1;
+				}
+				while(p2->ship==-1);
 
 				SetNew(p1);
 				SetNew(p2);

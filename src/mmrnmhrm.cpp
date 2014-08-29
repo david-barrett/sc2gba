@@ -15,13 +15,11 @@
 #include "mmrnmhrm_sfx.h"
 
 #include "mmrnmhrmpilot.h"
-/*
 #include "mmrnmhrmpilotl.h"
-#include "mmrnmhrmpilotr.h"
+//#include "mmrnmhrmpilotr.h"
 #include "mmrnmhrmpilott.h"
 #include "mmrnmhrmpilotf.h"
 #include "mmrnmhrmpilots.h"
-*/
 
 extern s32 screenx,screeny;
 extern pOAMEntry sprites;
@@ -92,21 +90,23 @@ void LoadMmrnmhrm(s16 SpriteStart)
 	{
 			OAMData[loop+1024+512+32+512] = mmrnmhrmpilotData[loop-OAMStart];
 	}
-/*
+
 	for (loop=OAMStart ;loop<OAMStart+512;loop++)
 	{
-		OAMData[loop+(1024*2)+64] = mmrnmhrmpilotlData[loop-OAMStart];
-		OAMData[loop+(1024*2)+64+512] = mmrnmhrmpilotrData[loop-OAMStart];
+		OAMData[loop+(1024*3)+32] = mmrnmhrmpilotlData[loop-OAMStart];
+		//OAMData[loop+(1024*2)+32+512] = mmrnmhrmpilotrData[loop-OAMStart];
 	}
 
 	for (loop=OAMStart ;loop<OAMStart+256;loop++)
 	{
-		OAMData[loop+(1024*3)+64] = mmrnmhrmpilottData[loop-OAMStart];
-		OAMData[loop+(1024*3)+64+256] = mmrnmhrmpilotfData[loop-OAMStart];
-		OAMData[loop+(1024*3)+64+512] = mmrnmhrmpilotsData[loop-OAMStart];
-
+		OAMData[loop+(1024*3)+32+512] = mmrnmhrmpilottData[loop-OAMStart];
+		OAMData[loop+(1024*3)+32+512+256] = mmrnmhrmpilotfData[loop-OAMStart];
 	}
-*/
+	for (loop=OAMStart ;loop<OAMStart+1024;loop++)
+		OAMData[loop+(1024*4)+32] = mmrnmhrmpilotsData[loop-OAMStart];
+
+	
+
 }
 
 int FireMmrnmhrm(pPlayer pl)
@@ -269,16 +269,16 @@ void SetMmrnmhrm(pPlayer pl)
 	pl->mass=5;
 
 	pl->pilot_sprite=(1024+512+32+512)/16;
-	pl->pilots[0].x=240;
-	pl->pilots[0].y=160;
-	pl->pilots[1].x=240;
-	pl->pilots[1].y=160;
-	pl->pilots[2].x=240;
-	pl->pilots[2].y=160;
-	pl->pilots[3].x=240;
-	pl->pilots[3].y=160;
-	pl->pilots[4].x=240;
-	pl->pilots[4].y=160;
+	pl->pilots[0].x=41;
+	pl->pilots[0].y=256;
+	pl->pilots[1].x=5;
+	pl->pilots[1].y=256;
+	pl->pilots[2].x=16;
+	pl->pilots[2].y=15;
+	pl->pilots[3].x=15;
+	pl->pilots[3].y=0;
+	pl->pilots[4].x=0;
+	pl->pilots[4].y=0;
 
 
 }
@@ -404,19 +404,19 @@ void SetMmrnmhrmPilot(pPlayer pl)
 
 	sprites[44+off].attribute0 = COLOR_256 | SQUARE  | 160;
 	sprites[44+off].attribute1 = SIZE_32 | 240;
-	sprites[44+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+96 | PRIORITY(2);
+	sprites[44+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+64 | PRIORITY(2);
 
-	sprites[45+off].attribute0 = COLOR_256 | WIDE  | 160;
+	sprites[45+off].attribute0 = COLOR_256 | TALL  | 160;
 	sprites[45+off].attribute1 = SIZE_32 | 240;
-	sprites[45+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+128 | PRIORITY(2);
+	sprites[45+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+96 | PRIORITY(2);
 
-	sprites[46+off].attribute0 = COLOR_256 |WIDE  | 160;
+	sprites[46+off].attribute0 = COLOR_256 |TALL  | 160;
 	sprites[46+off].attribute1 = SIZE_32 | 240;
-	sprites[46+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+128+16 | PRIORITY(2);
+	sprites[46+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+112 | PRIORITY(1);
 
-	sprites[47+off].attribute0 = COLOR_256 | WIDE  | 160;
-	sprites[47+off].attribute1 = SIZE_32 | 240;
-	sprites[47+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+128+32 | PRIORITY(2);
+	sprites[47+off].attribute0 = COLOR_256 | TALL  | 160;
+	sprites[47+off].attribute1 = SIZE_64 | 240;
+	sprites[47+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+128 | PRIORITY(2);
 }
 
 void MoveMmrnmhrmMissile(pWeapon ur)

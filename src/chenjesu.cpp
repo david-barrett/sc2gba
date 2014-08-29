@@ -6,19 +6,17 @@
 #include "chenjesu_out.h"
 #include "chenjesu_dogi.h"
 #include "chenjesu_splinter.h"
-#include "chenjesu_bullet.h"
+#include "chenjesu_fire.h"
 
 
 #include "chenjesu_sfx.h"
 
 #include "chenjesupilot.h"
-/*
 #include "chenjesupilotl.h"
 #include "chenjesupilotr.h"
 #include "chenjesupilott.h"
 #include "chenjesupilotf.h"
 #include "chenjesupilots.h"
-*/
 
 extern s32 screenx,screeny;
 extern pOAMEntry sprites;
@@ -71,17 +69,19 @@ void LoadChenjesu(s16 SpriteStart)
 	s16 loop;
 	for(loop = OAMStart; loop < OAMStart+512; loop++)               //load sprite image data
   	{
-       		OAMData[loop] = chenjesuData[loop-OAMStart];
-       		OAMData[loop+512] = chenjesu_outData[loop-OAMStart];
-   	}
-   	for(loop = OAMStart; loop < OAMStart+128; loop++)               //load sprite image data
-   	{
-		OAMData[loop+1024] = chenjesu_dogiData[loop-OAMStart]; //loads some garb
-		OAMData[loop+1024+128] = chenjesu_bulletData[loop-OAMStart]; //loads some garb
-   	}
+     
+		OAMData[loop] = chenjesuData[loop-OAMStart];
+     	OAMData[loop+512] = chenjesu_outData[loop-OAMStart];
+ 
+		OAMData[loop+1024] = chenjesu_dogiData[loop-OAMStart]; 
+	}
+
 
    	for(loop = OAMStart; loop < OAMStart+32; loop++)               //load sprite image data
-		OAMData[loop+1024+256] = chenjesu_splinterData[loop-OAMStart]; //loads some garb
+	{
+		OAMData[loop+1024+512] = chenjesu_fireData[loop-OAMStart]; //loads some garb
+		OAMData[loop+1024+512+32] = chenjesu_splinterData[loop-OAMStart]; //loads some garb
+	}
 
 
 
@@ -89,23 +89,18 @@ void LoadChenjesu(s16 SpriteStart)
 
    	for (loop=OAMStart ;loop<OAMStart+1024;loop++)
 	{
-			OAMData[loop+1024+256+32] = chenjesupilotData[loop-OAMStart];
-	}
-/*
-	for (loop=OAMStart ;loop<OAMStart+512;loop++)
-	{
-		OAMData[loop+(1024*2)+64] = chenjesupilotlData[loop-OAMStart];
-		OAMData[loop+(1024*2)+64+512] = chenjesupilotrData[loop-OAMStart];
+			OAMData[loop+1024+512+64] = chenjesupilotData[loop-OAMStart];
 	}
 
 	for (loop=OAMStart ;loop<OAMStart+256;loop++)
 	{
+		OAMData[loop+(1024*2)+64+512] = chenjesupilotlData[loop-OAMStart];		
+		OAMData[loop+(1024*2)+64+512+256] = chenjesupilotrData[loop-OAMStart];	
 		OAMData[loop+(1024*3)+64] = chenjesupilottData[loop-OAMStart];
 		OAMData[loop+(1024*3)+64+256] = chenjesupilotfData[loop-OAMStart];
 		OAMData[loop+(1024*3)+64+512] = chenjesupilotsData[loop-OAMStart];
 
 	}
-*/
 }
 
 int FireChenjesu(pPlayer pl)
@@ -122,7 +117,7 @@ int FireChenjesu(pPlayer pl)
 	pl->weapon[b].parent=pl;
 	pl->weapon[b].damageparent=0;
 
-	pl->weapon[b].size=16;
+	pl->weapon[b].size=8;
 	pl->weapon[b].angle = pl->angle;
 
 	pl->weapon[b].xspeed=((s32)(MISSILE_SPEED * SIN[pl->angle])>>8);
@@ -136,8 +131,8 @@ int FireChenjesu(pPlayer pl)
 		pl->weapon[b].xpos,pl->weapon[b].ypos,screenx,screeny,pl->weapon[b].size);
 
 	sprites[pl->weapon[b].sprite].attribute0 = COLOR_256 | SQUARE | ROTATION_FLAG | SIZE_DOUBLE | MODE_TRANSPARENT | pl->weapon[b].yscreen;	//setup sprite info, 256 colour, shape and y-coord
-	sprites[pl->weapon[b].sprite].attribute1 = SIZE_16 | ROTDATA(pl->weapon[b].sprite) | pl->weapon[b].xscreen;
-	sprites[pl->weapon[b].sprite].attribute2 = pl->SpriteStart+72 | PRIORITY(1);
+	sprites[pl->weapon[b].sprite].attribute1 = SIZE_8 | ROTDATA(pl->weapon[b].sprite) | pl->weapon[b].xscreen;
+	sprites[pl->weapon[b].sprite].attribute2 = pl->SpriteStart+96 | PRIORITY(1);
 
 	play_sfx(&chenjesu_fire,pl->plr-1);
 
@@ -171,7 +166,7 @@ int CreateSplinter(pPlayer pl,s16 x,s16 y,s16 a,s8 b)
 
 	sprites[pl->weapon[b].sprite].attribute0 = COLOR_256 | SQUARE | ROTATION_FLAG | SIZE_DOUBLE | MODE_TRANSPARENT | pl->weapon[b].yscreen;	//setup sprite info, 256 colour, shape and y-coord
 	sprites[pl->weapon[b].sprite].attribute1 = SIZE_8 | ROTDATA(pl->weapon[b].sprite) | pl->weapon[b].xscreen;
-	sprites[pl->weapon[b].sprite].attribute2 = pl->SpriteStart+80 | PRIORITY(1);
+	sprites[pl->weapon[b].sprite].attribute2 = pl->SpriteStart+98 | PRIORITY(1);
 	return 1;
 
 }
@@ -224,17 +219,17 @@ void SetChenjesu(pPlayer pl)
 	pl->ship_flags = FIRES_FORE | SEEKING_SPECIAL | SEEKING_WEAPON;
 	pl->mass=SHIP_MASS;
 
-	pl->pilot_sprite=(1024+256+32)/16;
-	pl->pilots[0].x=240;
-	pl->pilots[0].y=160;
-	pl->pilots[1].x=240;
-	pl->pilots[1].y=160;
-	pl->pilots[2].x=240;
-	pl->pilots[2].y=160;
-	pl->pilots[3].x=240;
-	pl->pilots[3].y=160;
-	pl->pilots[4].x=240;
-	pl->pilots[4].y=160;
+	pl->pilot_sprite=(1024+512+64)/16;
+	pl->pilots[0].x=27;
+	pl->pilots[0].y=2;
+	pl->pilots[1].x=21;
+	pl->pilots[1].y=1;
+	pl->pilots[2].x=16;
+	pl->pilots[2].y=10;
+	pl->pilots[3].x=25;
+	pl->pilots[3].y=17;
+	pl->pilots[4].x=3;
+	pl->pilots[4].y=0;
 
 	pl->charging=0;
 	for (int i=8;i<12;i++)
@@ -257,7 +252,7 @@ int SpecialChenjesu(pPlayer pl)
 			pl->weapon[b].parent=pl;
 			pl->weapon[b].damageparent=0;
 
-			pl->weapon[b].size=16;
+			pl->weapon[b].size=32;
 			pl->weapon[b].angle = 0;
 
 			pl->weapon[b].xspeed=0;
@@ -271,7 +266,7 @@ int SpecialChenjesu(pPlayer pl)
 				pl->weapon[b].xpos,pl->weapon[b].ypos,screenx,screeny,pl->weapon[b].size);
 
 		 	sprites[pl->weapon[b].sprite].attribute0 = COLOR_256 | SQUARE | ROTATION_FLAG | SIZE_DOUBLE | MODE_TRANSPARENT | pl->weapon[b].yscreen;	//setup sprite info, 256 colour, shape and y-coord
-			sprites[pl->weapon[b].sprite].attribute1 = SIZE_16 | ROTDATA(pl->weapon[b].sprite) | pl->weapon[b].xscreen;
+			sprites[pl->weapon[b].sprite].attribute1 = SIZE_32 | ROTDATA(pl->weapon[b].sprite) | pl->weapon[b].xscreen;
 			sprites[pl->weapon[b].sprite].attribute2 = pl->SpriteStart+64 | PRIORITY(1);
 			ret=1;
 			play_sfx(&chenjesu_dogi,pl->plr-1);
@@ -428,25 +423,25 @@ void SetChenjesuPilot(pPlayer pl)
 	//setup pilot
 	int off=(pl->plr==1)?0:6;
 
-	sprites[43+off].attribute0 = COLOR_256 | SQUARE  | 160;
+	sprites[43+off].attribute0 = COLOR_256 | TALL  | 160;
 	sprites[43+off].attribute1 = SIZE_32 | 240;
 	sprites[43+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+64 | PRIORITY(2);
 
-	sprites[44+off].attribute0 = COLOR_256 | SQUARE  | 160;
+	sprites[44+off].attribute0 = COLOR_256 | TALL  | 160;
 	sprites[44+off].attribute1 = SIZE_32 | 240;
-	sprites[44+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+96 | PRIORITY(2);
+	sprites[44+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+80 | PRIORITY(2);
 
-	sprites[45+off].attribute0 = COLOR_256 | WIDE  | 160;
+	sprites[45+off].attribute0 = COLOR_256 | TALL  | 160;
 	sprites[45+off].attribute1 = SIZE_32 | 240;
-	sprites[45+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+128 | PRIORITY(2);
+	sprites[45+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+96 | PRIORITY(2);
 
-	sprites[46+off].attribute0 = COLOR_256 |WIDE  | 160;
+	sprites[46+off].attribute0 = COLOR_256 |TALL  | 160;
 	sprites[46+off].attribute1 = SIZE_32 | 240;
-	sprites[46+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+128+16 | PRIORITY(2);
+	sprites[46+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+112 | PRIORITY(2);
 
 	sprites[47+off].attribute0 = COLOR_256 | WIDE  | 160;
 	sprites[47+off].attribute1 = SIZE_32 | 240;
-	sprites[47+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+128+32 | PRIORITY(2);
+	sprites[47+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+128 | PRIORITY(2);
 }
 
 void MoveDogi(pWeapon ur)
@@ -488,7 +483,7 @@ void RestoreGFXChenjesu(pPlayer p)
 			if(p->weapon[i].type==DOGI)
 			{
 			sprites[p->weapon[i].sprite].attribute0 = COLOR_256 | SQUARE | ROTATION_FLAG | SIZE_DOUBLE | MODE_TRANSPARENT | 160;	//setup sprite info, 256 colour, shape and y-coord
-			sprites[p->weapon[i].sprite].attribute1 = SIZE_16 | ROTDATA(p->weapon[i].sprite) | 240;
+			sprites[p->weapon[i].sprite].attribute1 = SIZE_32 | ROTDATA(p->weapon[i].sprite) | 240;
    			sprites[p->weapon[i].sprite].attribute2 = p->SpriteStart+64 | PRIORITY(1);
 			}
 		}
@@ -513,6 +508,10 @@ void PostChenjesu(pPlayer p)
 			CreateSplinter(p,x,y,a,i);
 		}
 
+	}
+	else if (p->weapon[0].life<=0)
+	{
+		p->charging=0;
 	}
 
 	for (int i=8;i<12;i++)

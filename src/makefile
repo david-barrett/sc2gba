@@ -3,7 +3,7 @@ OBJCOPY= objcopy
 SRC=/gba/sc2gba/src
 IFLAGS  = -I$(SRC)/gfx -I$(SRC) -I$(SRC)/sound -I$(SRC)/text -I$(SRC)/ships -I$(SRC)/bg \
 	-I$(SRC)/ships/androsyn -I$(SRC)/ships/arilou -I$(SRC)/ships/blackurq -I$(SRC)/ships/chenjesu \
-	-I$(SRC)/ships/chmmr -I$(SRC)/ships/druudge -I$(SRC)/ships/human -I$(SRC)/ships/ilwrath \
+	-I$(SRC)/ships/chmmr -I$(SRC)/ships/druuge -I$(SRC)/ships/human -I$(SRC)/ships/ilwrath \
 	-I$(SRC)/ships/melnorme -I$(SRC)/ships/mmrnmhrm -I$(SRC)/ships/mycon -I$(SRC)/ships/orz \
 	-I$(SRC)/ships/pkunk -I$(SRC)/ships/probe -I$(SRC)/ships/shofixti -I$(SRC)/ships/spathi \
 	-I$(SRC)/ships/supox -I$(SRC)/ships/syreen -I$(SRC)/ships/thradd -I$(SRC)/ships/umgah \
@@ -45,6 +45,7 @@ CPPSOURCES = sc.cpp \
 	zoqfot.cpp \
 	thradd.cpp \
 	utwig.cpp \
+	melnorme.cpp \
 	sfx.cpp \
 	cyborg.cpp \
 	menu.cpp \

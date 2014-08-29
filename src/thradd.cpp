@@ -5,17 +5,17 @@
 
 #include "thradd_out.h"
 #include "thradd_bullet.h"
+#include "thradd_flame.h"
 
 #include "thradd_sfx.h"
 
 #include "thraddpilot.h"
-/*
 #include "thraddpilotl.h"
 #include "thraddpilotr.h"
 #include "thraddpilott.h"
 #include "thraddpilotf.h"
 #include "thraddpilots.h"
-*/
+
 
 extern s32 screenx,screeny;
 extern pOAMEntry sprites;
@@ -65,38 +65,39 @@ void LoadThradd(s16 SpriteStart)
 {
 	s16 OAMStart=16*SpriteStart;
 	s16 loop;
-	for(loop = OAMStart; loop < OAMStart+512; loop++)               //load sprite image data
+	for(loop = OAMStart; loop < OAMStart+512; loop++)          
   	{
        		OAMData[loop] = thraddData[loop-OAMStart];
        		OAMData[loop+512] = thradd_outData[loop-OAMStart];
    	}
 
-   	for(loop = OAMStart; loop < OAMStart+32; loop++)               //load sprite image data
+   	for(loop = OAMStart; loop < OAMStart+128; loop++)          
    	{
-		OAMData[loop+1024] = thradd_bulletData[loop-OAMStart]; //loads some garb
+		OAMData[loop+1024] = thradd_bulletData[loop-OAMStart]; 
+		OAMData[loop+1024+128] = thradd_flameData[loop-OAMStart]; 
    	}
 
    	//pilot
 
    	for (loop=OAMStart ;loop<OAMStart+1024;loop++)
 	{
-			OAMData[loop+1024+32] = thraddpilotData[loop-OAMStart];
-	}
-/*
-	for (loop=OAMStart ;loop<OAMStart+512;loop++)
-	{
-		OAMData[loop+(1024*2)+64] = thraddpilotlData[loop-OAMStart];
-		OAMData[loop+(1024*2)+64+512] = thraddpilotrData[loop-OAMStart];
+			OAMData[loop+1024+256] = thraddpilotData[loop-OAMStart];
 	}
 
 	for (loop=OAMStart ;loop<OAMStart+256;loop++)
 	{
-		OAMData[loop+(1024*3)+64] = thraddpilottData[loop-OAMStart];
-		OAMData[loop+(1024*3)+64+256] = thraddpilotfData[loop-OAMStart];
-		OAMData[loop+(1024*3)+64+512] = thraddpilotsData[loop-OAMStart];
-
+		OAMData[loop+(1024*2)+256] = thraddpilotlData[loop-OAMStart];
+		OAMData[loop+(1024*2)+512] = thraddpilotrData[loop-OAMStart];			
+		OAMData[loop+(1024*2)+512+256] = thraddpilottData[loop-OAMStart];
 	}
-*/
+
+	for (loop=OAMStart ;loop<OAMStart+512;loop++)	
+		OAMData[loop+(1024*3)] = thraddpilotfData[loop-OAMStart];
+	for (loop=OAMStart ;loop<OAMStart+128;loop++)
+		OAMData[loop+(1024*3)+512] = thraddpilotsData[loop-OAMStart];
+
+	
+
 }
 
 int FireThradd(pPlayer pl)
@@ -113,7 +114,7 @@ int FireThradd(pPlayer pl)
 	pl->weapon[b].parent=pl;
 	pl->weapon[b].damageparent=0;
 
-	pl->weapon[b].size=8;
+	pl->weapon[b].size=16;
 	pl->weapon[b].angle = 0;
 	pl->weapon[b].actualangle = 0;
 
@@ -128,7 +129,7 @@ int FireThradd(pPlayer pl)
 		pl->weapon[b].xpos,pl->weapon[b].ypos,screenx,screeny,pl->weapon[b].size);
 
 	sprites[pl->weapon[b].sprite].attribute0 = COLOR_256 | SQUARE | ROTATION_FLAG | SIZE_DOUBLE | MODE_TRANSPARENT | pl->weapon[b].yscreen;	//setup sprite info, 256 colour, shape and y-coord
-	sprites[pl->weapon[b].sprite].attribute1 = SIZE_8 | ROTDATA(pl->weapon[b].sprite) | pl->weapon[b].xscreen;
+	sprites[pl->weapon[b].sprite].attribute1 = SIZE_16 | ROTDATA(pl->weapon[b].sprite) | pl->weapon[b].xscreen;
 	sprites[pl->weapon[b].sprite].attribute2 = pl->SpriteStart+64 | PRIORITY(1);
 
 	play_sfx(&thradd_bullet,pl->plr-1);
@@ -190,17 +191,17 @@ void SetThradd(pPlayer pl)
 	pl->ship_flags = FIRES_FORE ;
 	pl->mass=SHIP_MASS;
 
-	pl->pilot_sprite=(1024+32)/16;
-	pl->pilots[0].x=240;
-	pl->pilots[0].y=160;
-	pl->pilots[1].x=240;
-	pl->pilots[1].y=160;
-	pl->pilots[2].x=240;
-	pl->pilots[2].y=160;
-	pl->pilots[3].x=240;
-	pl->pilots[3].y=160;
-	pl->pilots[4].x=240;
-	pl->pilots[4].y=160;
+	pl->pilot_sprite=(1024+256)/16;
+	pl->pilots[0].x=43;
+	pl->pilots[0].y=5;
+	pl->pilots[1].x=43;
+	pl->pilots[1].y=2;
+	pl->pilots[2].x=27;
+	pl->pilots[2].y=15;
+	pl->pilots[3].x=3;
+	pl->pilots[3].y=0;
+	pl->pilots[4].x=23;
+	pl->pilots[4].y=13;
 
 	pl->currentweapon=0;
 
@@ -239,7 +240,7 @@ int SpecialThradd(pPlayer pl)
 
 	sprites[pl->weapon[b].sprite].attribute0 = COLOR_256 | SQUARE | ROTATION_FLAG | SIZE_DOUBLE | MODE_TRANSPARENT | pl->weapon[b].yscreen;	//setup sprite info, 256 colour, shape and y-coord
 	sprites[pl->weapon[b].sprite].attribute1 = SIZE_16 | ROTDATA(pl->weapon[b].sprite) | pl->weapon[b].xscreen;
-	sprites[pl->weapon[b].sprite].attribute2 = FireSprite1+4 | PRIORITY(1);
+	sprites[pl->weapon[b].sprite].attribute2 = pl->SpriteStart+72 | PRIORITY(1);
 
 	pl->maxspeed=SPECIAL_MAX_THRUST;
 	pl->accel_inc=SPECIAL_THRUST_INCREMENT;
@@ -268,25 +269,25 @@ void SetThraddPilot(pPlayer pl)
 	//setup pilot
 	int off=(pl->plr==1)?0:6;
 
-	sprites[43+off].attribute0 = COLOR_256 | SQUARE  | 160;
+	sprites[43+off].attribute0 = COLOR_256 | WIDE | 160;
 	sprites[43+off].attribute1 = SIZE_32 | 240;
 	sprites[43+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+64 | PRIORITY(2);
 
-	sprites[44+off].attribute0 = COLOR_256 | SQUARE  | 160;
+	sprites[44+off].attribute0 = COLOR_256 | WIDE  | 160;
 	sprites[44+off].attribute1 = SIZE_32 | 240;
-	sprites[44+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+96 | PRIORITY(2);
+	sprites[44+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+80 | PRIORITY(2);
 
-	sprites[45+off].attribute0 = COLOR_256 | WIDE  | 160;
+	sprites[45+off].attribute0 = COLOR_256 | TALL  | 160;
 	sprites[45+off].attribute1 = SIZE_32 | 240;
-	sprites[45+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+128 | PRIORITY(2);
+	sprites[45+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+96 | PRIORITY(1);
 
-	sprites[46+off].attribute0 = COLOR_256 |WIDE  | 160;
+	sprites[46+off].attribute0 = COLOR_256 |SQUARE  | 160;
 	sprites[46+off].attribute1 = SIZE_32 | 240;
-	sprites[46+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+128+16 | PRIORITY(2);
+	sprites[46+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+112 | PRIORITY(2);
 
-	sprites[47+off].attribute0 = COLOR_256 | WIDE  | 160;
-	sprites[47+off].attribute1 = SIZE_32 | 240;
-	sprites[47+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+128+32 | PRIORITY(2);
+	sprites[47+off].attribute0 = COLOR_256 | SQUARE | 160;
+	sprites[47+off].attribute1 = SIZE_16 | 240;
+	sprites[47+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+144 | PRIORITY(2);
 }
 
 void RestoreGFXThradd(pPlayer p)

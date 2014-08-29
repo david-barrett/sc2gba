@@ -5,18 +5,16 @@
 
 #include "utwig_out.h"
 #include "utwig_fire.h"
-#include "utwig_shield.h"
+//#include "utwig_shield.h"
 
 #include "utwig_sfx.h"
 
 #include "utwigpilot.h"
-/*
 #include "utwigpilotl.h"
 #include "utwigpilotr.h"
 #include "utwigpilott.h"
 #include "utwigpilotf.h"
 #include "utwigpilots.h"
-*/
 
 #define MAX_CREW 20
 #define MAX_ENERGY 20
@@ -61,33 +59,35 @@ void LoadUtwig(s16 SpriteStart)
   	{
        		OAMData[loop] = utwigData[loop-OAMStart];
        		OAMData[loop+512] = utwig_outData[loop-OAMStart];
-       		OAMData[loop+1024] = utwig_shieldData[loop-OAMStart];
-       		OAMData[loop+1024+512] = utwig_fireData[loop-OAMStart];
+       		OAMData[loop+1024] = utwig_fireData[loop-OAMStart];
 
    	}
 
    	for (loop=OAMStart ;loop<OAMStart+1024;loop++)
 	{
-			OAMData[loop+2048+32] = utwigpilotData[loop-OAMStart];
-	//		OAMData[loop+(1024*2)+512+32] = utwigpilotlData[loop-OAMStart];
-	//		OAMData[loop+(1024*3)+512+32] = utwigpilotrData[loop-OAMStart];
+			OAMData[loop+1024+512] = utwigpilotData[loop-OAMStart];
 	}
-/*
-	for (loop=OAMStart ;loop<OAMStart+128;loop++)
+	for (loop=OAMStart ;loop<OAMStart+256;loop++)
 	{
-	//	OAMData[loop+(1024*4)+512+32] = utwigpilottData[loop-OAMStart];
-	//	OAMData[loop+(1024*4)+512+32+128] = utwigpilotfData[loop-OAMStart];
+			OAMData[loop+(1024*2)+512] = utwigpilotlData[loop-OAMStart];
+			OAMData[loop+(1024*2)+512+256] = utwigpilotrData[loop-OAMStart];
 	}
-	for (loop=OAMStart ;loop<OAMStart+64;loop++)
-	//	OAMData[loop+(1024*4)+512+32+256] = utwigpilotsData[loop-OAMStart];
 
-*/
+	for (loop=OAMStart ;loop<OAMStart+1024;loop++)
+		OAMData[loop+(1024*3)] = utwigpilottData[loop-OAMStart];
+
+	for (loop=OAMStart ;loop<OAMStart+64;loop++)
+		OAMData[loop+(1024*4)] = utwigpilotfData[loop-OAMStart];
+	
+	for (loop=OAMStart ;loop<OAMStart+32;loop++)
+		OAMData[loop+(1024*4)+64] = utwigpilotsData[loop-OAMStart];
+
 }
 
 int SpecialUtwig(pPlayer pl)
 {
-	pl->shield=6;
-	sprites[(pl->plr==1)?0:13].attribute2 = pl->SpriteStart+64 | PRIORITY(1);
+	pl->shield=SPECIAL_WAIT;
+//	sprites[(pl->plr==1)?0:13].attribute2 = pl->SpriteStart+32 | PRIORITY(1);
 	play_sfx(&utwig_shield,pl->plr-1);
 	return 1;
 }
@@ -143,17 +143,17 @@ void SetUtwig(pPlayer pl)
 
 	pl->ship_flags = FIRES_FORE | POINT_DEFENSE | SHIELD_DEFENSE;
 
-	pl->pilot_sprite=(2048)/16;
-	pl->pilots[0].x=240;
-	pl->pilots[0].y=160;
-	pl->pilots[1].x=240;
-	pl->pilots[1].y=160;
-	pl->pilots[2].x=240;
-	pl->pilots[2].y=160;
-	pl->pilots[3].x=240;
-	pl->pilots[3].y=160;
-	pl->pilots[4].x=240;
-	pl->pilots[4].y=160;
+	pl->pilot_sprite=(1024+512)/16;
+	pl->pilots[0].x=27;
+	pl->pilots[0].y=15;
+	pl->pilots[1].x=4;
+	pl->pilots[1].y=15;
+	pl->pilots[2].x=0;
+	pl->pilots[2].y=1;
+	pl->pilots[3].x=24;
+	pl->pilots[3].y=5;
+	pl->pilots[4].x=28;
+	pl->pilots[4].y=19;
 
 
 }
@@ -193,7 +193,7 @@ int FireUtwig(pPlayer pl)
 
 	sprites[pl->weapon[b].sprite].attribute0 = COLOR_256 | SQUARE | ROTATION_FLAG | SIZE_DOUBLE | MODE_TRANSPARENT | pl->weapon[b].yscreen;	//setup sprite info, 256 colour, shape and y-coord
     sprites[pl->weapon[b].sprite].attribute1 = SIZE_32| ROTDATA(pl->weapon[b].sprite) | pl->weapon[b].xscreen;
-    sprites[pl->weapon[b].sprite].attribute2 = pl->SpriteStart+96 | PRIORITY(1);
+    sprites[pl->weapon[b].sprite].attribute2 = pl->SpriteStart+64 | PRIORITY(1);
 
     ret=1;
 	play_sfx(&utwig_fire,pl->plr-1);
@@ -278,36 +278,42 @@ void SetUtwigPilot(pPlayer pl)
 	int off=(pl->plr==1)?0:6;
 
 	sprites[43+off].attribute0 = COLOR_256 | TALL  | 160;
-	sprites[43+off].attribute1 = SIZE_64 | 240;
+	sprites[43+off].attribute1 = SIZE_32 | 240;
 	sprites[43+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+64 | PRIORITY(2);
 
 	sprites[44+off].attribute0 = COLOR_256 | TALL  | 160;
-	sprites[44+off].attribute1 = SIZE_64 | 240;
-	sprites[44+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+128 | PRIORITY(2);
+	sprites[44+off].attribute1 = SIZE_32 | 240;
+	sprites[44+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+80 | PRIORITY(2);
 
-	sprites[45+off].attribute0 = COLOR_256 | SQUARE  | 160;
-	sprites[45+off].attribute1 = SIZE_16 | 240;
-	sprites[45+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+128+64 | PRIORITY(2);
+	sprites[45+off].attribute0 = COLOR_256 | TALL  | 160;
+	sprites[45+off].attribute1 = SIZE_64 | 240;
+	sprites[45+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+96 | PRIORITY(2);
 
-	sprites[46+off].attribute0 = COLOR_256 | SQUARE  | 160;
-	sprites[46+off].attribute1 = SIZE_16 | 240;
-	sprites[46+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+128+64+8 | PRIORITY(2);
+	sprites[46+off].attribute0 = COLOR_256 | TALL  | 160;
+	sprites[46+off].attribute1 = SIZE_8 | 240;
+	sprites[46+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+160 | PRIORITY(1);
 
-	sprites[47+off].attribute0 = COLOR_256 | WIDE  | 160;
+	sprites[47+off].attribute0 = COLOR_256 | SQUARE  | 160;
 	sprites[47+off].attribute1 = SIZE_8 | 240;
-	sprites[47+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+128+64+16 | PRIORITY(2);
+	sprites[47+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+164 | PRIORITY(1);
 }
 
 void PostUtwig(pPlayer pl)
 {
-	if (pl->shield>0)
-	{
+	if (pl->shield>0)	
 		pl->shield--;
-		if (pl->shield==0)
-		{
+
+	if (pl->charging>0)
+	{
+		pl->charging--;
+		if (pl->charging==0)
 			sprites[(pl->plr==1)?0:13].attribute2 = pl->SpriteStart | PRIORITY(1);
-		}
+		else
+			sprites[(pl->plr==1)?0:13].attribute2 = pl->SpriteStart+32 | PRIORITY(1);
 	}
+
+
+	
 }
 
 void RestoreGFXUtwig(pPlayer p)
@@ -320,7 +326,7 @@ void RestoreGFXUtwig(pPlayer p)
 			{
 			sprites[p->weapon[i].sprite].attribute0 = COLOR_256 | SQUARE | ROTATION_FLAG | SIZE_DOUBLE | MODE_TRANSPARENT | 160;	//setup sprite info, 256 colour, shape and y-coord
 			sprites[p->weapon[i].sprite].attribute1 = SIZE_32 | ROTDATA(p->weapon[i].sprite) | 240;
-   			sprites[p->weapon[i].sprite].attribute2 = p->SpriteStart+96 | PRIORITY(1);
+   			sprites[p->weapon[i].sprite].attribute2 = p->SpriteStart+64 | PRIORITY(1);
 			}
 		}
 	}

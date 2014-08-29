@@ -24,6 +24,7 @@ extern int* KEYS;
 extern s8 pilot;
 extern s8 demo;
 extern s8 scaled;
+extern s8 v3do;
 
 
 pTrail trails;

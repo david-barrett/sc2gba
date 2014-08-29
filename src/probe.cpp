@@ -11,13 +11,11 @@
 #include "probe_sfx.h"
 
 #include "probepilot.h"
-/*
 #include "probepilotl.h"
 #include "probepilotr.h"
 #include "probepilott.h"
 #include "probepilotf.h"
 #include "probepilots.h"
-*/
 
 extern s32 screenx,screeny;
 extern pOAMEntry sprites;
@@ -75,21 +73,23 @@ void LoadProbe(s16 SpriteStart)
 	{
 			OAMData[loop+1024+512] = probepilotData[loop-OAMStart];
 	}
-/*
-	for (loop=OAMStart ;loop<OAMStart+512;loop++)
+
+	for (loop=OAMStart ;loop<OAMStart+64;loop++)
 	{
-		OAMData[loop+(1024*2)+64] = probepilotlData[loop-OAMStart];
+		OAMData[loop+(1024*2)+512] = probepilotlData[loop-OAMStart];
 		OAMData[loop+(1024*2)+64+512] = probepilotrData[loop-OAMStart];
 	}
 
-	for (loop=OAMStart ;loop<OAMStart+256;loop++)
+	for (loop=OAMStart ;loop<OAMStart+256;loop++)	
+		OAMData[loop+(1024*2)+128+512] = probepilottData[loop-OAMStart];
+
+	for (loop=OAMStart ;loop<OAMStart+1024;loop++)
 	{
-		OAMData[loop+(1024*3)+64] = probepilottData[loop-OAMStart];
-		OAMData[loop+(1024*3)+64+256] = probepilotfData[loop-OAMStart];
-		OAMData[loop+(1024*3)+64+512] = probepilotsData[loop-OAMStart];
+		OAMData[loop+(1024*2)+128+512+256] = probepilotfData[loop-OAMStart];
+		OAMData[loop+(1024*3)+128+512+256] = probepilotsData[loop-OAMStart];
 
 	}
-*/
+
 }
 
 int FireProbe(pPlayer pl)
@@ -182,16 +182,16 @@ void SetProbe(pPlayer pl)
 	pl->mass=SHIP_MASS;
 
 	pl->pilot_sprite=(1024+512)/16;
-	pl->pilots[0].x=240;
-	pl->pilots[0].y=160;
-	pl->pilots[1].x=240;
-	pl->pilots[1].y=160;
-	pl->pilots[2].x=240;
-	pl->pilots[2].y=160;
-	pl->pilots[3].x=240;
-	pl->pilots[3].y=160;
-	pl->pilots[4].x=240;
-	pl->pilots[4].y=160;
+	pl->pilots[0].x=47;
+	pl->pilots[0].y=1;
+	pl->pilots[1].x=9;
+	pl->pilots[1].y=0;
+	pl->pilots[2].x=15;
+	pl->pilots[2].y=14;
+	pl->pilots[3].x=4;
+	pl->pilots[3].y=4;
+	pl->pilots[4].x=511;
+	pl->pilots[4].y=5;
 
 	pl->charging=0;
 	for (int i=8;i<12;i++)
@@ -264,25 +264,25 @@ void SetProbePilot(pPlayer pl)
 	//setup pilot
 	int off=(pl->plr==1)?0:6;
 
-	sprites[43+off].attribute0 = COLOR_256 | SQUARE  | 160;
-	sprites[43+off].attribute1 = SIZE_32 | 240;
+	sprites[43+off].attribute0 = COLOR_256 | WIDE  | 160;
+	sprites[43+off].attribute1 = SIZE_8 | 240;
 	sprites[43+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+64 | PRIORITY(2);
 
-	sprites[44+off].attribute0 = COLOR_256 | SQUARE  | 160;
-	sprites[44+off].attribute1 = SIZE_32 | 240;
-	sprites[44+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+96 | PRIORITY(2);
+	sprites[44+off].attribute0 = COLOR_256 | WIDE  | 160;
+	sprites[44+off].attribute1 = SIZE_8 | 240;
+	sprites[44+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+68 | PRIORITY(2);
 
-	sprites[45+off].attribute0 = COLOR_256 | WIDE  | 160;
+	sprites[45+off].attribute0 = COLOR_256 | TALL  | 160;
 	sprites[45+off].attribute1 = SIZE_32 | 240;
-	sprites[45+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+128 | PRIORITY(2);
+	sprites[45+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+72 | PRIORITY(2);
 
-	sprites[46+off].attribute0 = COLOR_256 |WIDE  | 160;
-	sprites[46+off].attribute1 = SIZE_32 | 240;
-	sprites[46+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+128+16 | PRIORITY(2);
+	sprites[46+off].attribute0 = COLOR_256 |TALL  | 160;
+	sprites[46+off].attribute1 = SIZE_64 | 240;
+	sprites[46+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+88 | PRIORITY(1);
 
-	sprites[47+off].attribute0 = COLOR_256 | WIDE  | 160;
-	sprites[47+off].attribute1 = SIZE_32 | 240;
-	sprites[47+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+128+32 | PRIORITY(2);
+	sprites[47+off].attribute0 = COLOR_256 | TALL  | 160;
+	sprites[47+off].attribute1 = SIZE_64 | 240;
+	sprites[47+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+152 | PRIORITY(1);
 }
 
 void RestoreGFXProbe(pPlayer p)
@@ -303,10 +303,10 @@ void PostProbe(pPlayer p)
 		//p->thrust_turn=p->thrust_wait*2;
 
 	}
-
+/*
 	p->xpos+=(s32)(p->maxspeed*SIN[p->angle])>>8;
 	p->ypos-=(s32)(p->maxspeed*COS[p->angle])>>8;
-
+*/
 	p->drawangle++;
 	if (p->drawangle==16)
 		p->drawangle=0;

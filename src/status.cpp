@@ -471,6 +471,7 @@ void ModifyCrew(pPlayer p, int i,int ignoreshield)
 	else if (p->ship==JUGGER)//bit hacky
 	{
 		ModifyBatt(p,(-1*i));
+		p->charging=2;//very hacky
 	}
 }
 

@@ -4,21 +4,21 @@
 #include "sincosrad.h"
 
 #include "shofixti_out.h"
-#include "shofixti_bullet.h"
-#include "shofixti_exp1.h"
-#include "shofixti_exp2.h"
+#include "shofixti_fire.h"
+#include "shofixti_exp3.h"
+#include "shofixti_exp2b.h"
 
 
 #include "shofixti_sfx.h"
 
 #include "shofixtipilot.h"
-/*
 #include "shofixtipilotl.h"
 #include "shofixtipilotr.h"
 #include "shofixtipilott.h"
 #include "shofixtipilotf.h"
-#include "shofixtipilots.h"
-*/
+#include "shofixtipilots1.h"
+#include "shofixtipilots2.h"
+#include "shofixtipilots3.h"
 
 extern s32 screenx,screeny;
 extern pOAMEntry sprites;
@@ -60,6 +60,8 @@ void RotateSprite(int rotDataIndex, s32 angle, s32 x_scale,s32 y_scale);
 #define DESTRUCT_RANGE 180
 #define MAX_DESTRUCTION (DESTRUCT_RANGE / 10)
 
+#define ps 2080
+
 
 void LoadShofixti(s16 SpriteStart)
 {
@@ -67,40 +69,41 @@ void LoadShofixti(s16 SpriteStart)
 	s16 loop;
 	for(loop = OAMStart; loop < OAMStart+512; loop++)               //load sprite image data
   	{
-       		OAMData[loop] = shofixtiData[loop-OAMStart];
-       		OAMData[loop+512] = shofixti_outData[loop-OAMStart];
-       		OAMData[loop+512+512] = shofixti_exp1Data[loop-OAMStart];
-       		OAMData[loop+512+512+512] = shofixti_exp2Data[loop-OAMStart];
-   	}
+       	OAMData[loop] = shofixtiData[loop-OAMStart];
+       	OAMData[loop+512] = shofixti_outData[loop-OAMStart];
+       	OAMData[loop+512+512] = shofixti_exp3Data[loop-OAMStart];           //load sprite image data
+       	OAMData[loop+512+512+512] = shofixti_exp2bData[loop-OAMStart];
+	}
+   	
    	for(loop = OAMStart; loop < OAMStart+32; loop++)               //load sprite image data
    	{
-		OAMData[loop+2048] = shofixti_bulletData[loop-OAMStart]; //loads some garb
+		OAMData[loop+2048] = shofixti_fireData[loop-OAMStart]; //loads some garb
    	}
+	
 
 	//pilot
 
    	for (loop=OAMStart ;loop<OAMStart+1024;loop++)
 	{
-			OAMData[loop+2048+32] = shofixtipilotData[loop-OAMStart];
+			OAMData[loop+ps] = shofixtipilotData[loop-OAMStart];
 	}
-/*
+
 	for (loop=OAMStart ;loop<OAMStart+128;loop++)
 	{
-		OAMData[loop+(1024*2)+128+512] = shofixtipilotlData[loop-OAMStart];
-		OAMData[loop+(1024*2)+256+512] = shofixtipilotrData[loop-OAMStart];
+		OAMData[loop+ps+1024] = shofixtipilotlData[loop-OAMStart];
+		OAMData[loop+ps+1024+128] = shofixtipilotrData[loop-OAMStart];
 	}
 
-	for (loop=OAMStart ;loop<OAMStart+32;loop++)
+	for (loop=OAMStart ;loop<OAMStart+512;loop++)
 	{
-		OAMData[loop+(1024*2)+256+512+128] = shofixtipilottData[loop-OAMStart];
+		OAMData[loop+ps+1024+256] = shofixtipilottData[loop-OAMStart];
 	}
-	for (loop=OAMStart ;loop<OAMStart+256;loop++)
+	for (loop=OAMStart ;loop<OAMStart+128;loop++)
 	{
-		OAMData[loop+(1024*2)+256+512+128+32] = shofixtipilotfData[loop-OAMStart];
-		OAMData[loop+(1024*3)+128+32] = shofixtipilotsData[loop-OAMStart];
+		OAMData[loop+1024+256+512+ps] = shofixtipilotfData[loop-OAMStart];		
 
 	}
-	*/
+
 
 }
 
@@ -197,15 +200,15 @@ void SetShofixti(pPlayer pl)
 	pl->ship_flags = FIRES_FORE ;
 	pl->mass=SHIP_MASS;
 
-	pl->pilot_sprite=(2048+32)/16;
-	pl->pilots[0].x=240;
-	pl->pilots[0].y=160;
-	pl->pilots[1].x=240;
-	pl->pilots[1].y=160;
-	pl->pilots[2].x=240;
-	pl->pilots[2].y=160;
-	pl->pilots[3].x=240;
-	pl->pilots[3].y=160;
+	pl->pilot_sprite=ps/16;
+	pl->pilots[0].x=7;
+	pl->pilots[0].y=8;
+	pl->pilots[1].x=3;
+	pl->pilots[1].y=8;
+	pl->pilots[2].x=14;
+	pl->pilots[2].y=1;
+	pl->pilots[3].x=43;
+	pl->pilots[3].y=10;
 	pl->pilots[4].x=240;
 	pl->pilots[4].y=160;
 
@@ -216,13 +219,16 @@ void SetShofixti(pPlayer pl)
 
 int SpecialShofixti(pPlayer pl)
 {
-
+	s16 loop;
+	s32 OAMStart=pl->SpriteStart*16;
 	pl->destruct++;
+	//bit ineffient load the pilot this way but...
 	if (pl->destruct==1)
 	{
 		if (pilot)
 		{
-		//change status
+		for (loop=OAMStart ;loop<OAMStart+1024;loop++)
+			OAMData[loop+ps] = shofixtipilots1Data[loop-OAMStart];
 		}
 	}
 	else if (pl->destruct==2)
@@ -230,10 +236,14 @@ int SpecialShofixti(pPlayer pl)
 			if (pilot)
 			{
 			//change status
+			for (loop=OAMStart ;loop<OAMStart+1024;loop++)
+				OAMData[loop+ps] = shofixtipilots2Data[loop-OAMStart];
 			}
 	}
 	else if (pl->destruct==3)
 	{
+		for (loop=OAMStart ;loop<OAMStart+1024;loop++)
+			OAMData[loop+ps] = shofixtipilots3Data[loop-OAMStart];
 		//detonate
 		ModifyCrew(pl,MAX_CREW*-1);
 		ModifyBatt(pl,MAX_ENERGY*-1);
@@ -342,16 +352,14 @@ void SetShofixtiPilot(pPlayer pl)
 	sprites[44+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+72 | PRIORITY(2);
 
 	sprites[45+off].attribute0 = COLOR_256 | SQUARE | 160;
-	sprites[45+off].attribute1 = SIZE_8 | 240;
+	sprites[45+off].attribute1 = SIZE_32 | 240;
 	sprites[45+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+80 | PRIORITY(2);
 
-	sprites[46+off].attribute0 = COLOR_256 |WIDE  | 160;
-	sprites[46+off].attribute1 = SIZE_32 | 240;
-	sprites[46+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+82 | PRIORITY(2);
+	sprites[46+off].attribute0 = COLOR_256 |SQUARE  | 160;
+	sprites[46+off].attribute1 = SIZE_16 | 240;
+	sprites[46+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+112 | PRIORITY(2);
 
-	sprites[47+off].attribute0 = COLOR_256 | WIDE  | 160;
-	sprites[47+off].attribute1 = SIZE_32 | 240;
-	sprites[47+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+98 | PRIORITY(2);
+	
 }
 
 
@@ -378,12 +386,32 @@ void RestoreGFXShofixti(pPlayer p)
 void Postshofixti(pPlayer pl)
 {
 	if (pl->destruct>2)
-	{
-		//RotateSprite(pl->plr==1?0:13, pl->angle, (s32)(double(zoom)/2.5), (s32)(double(zoom)/2.5));
-		RotateSprite(pl->plr==1?0:13, pl->angle, zoom>>1, zoom>>1);
+	{		
 		pl->destruct++;
-		if (pl->destruct==8)
+		if (pl->destruct<5)
+		{
+			//outline
+			sprites[pl->plr==1?0:13].attribute2 = pl->SpriteStart+32| PRIORITY(0);
+		}
+		else if (pl->destruct<11)
+		{
 			sprites[pl->plr==1?0:13].attribute2 = pl->SpriteStart+96 | PRIORITY(0);
+			RotateSprite(pl->plr==1?0:13, pl->angle, (s32)(zoom/(1+(pl->destruct-4)*0.3)), (s32)(zoom/(1+(pl->destruct-4)*0.3)));
+		}
+		else if (pl->destruct==11)
+		{
+			sprites[pl->plr==1?0:13].attribute2 = pl->SpriteStart+96 | PRIORITY(0);
+			RotateSprite(pl->plr==1?0:13, pl->angle, zoom>>2, zoom>>2);
+		}
+		else if (pl->destruct<18)
+		{
+			sprites[pl->plr==1?0:13].attribute2 = pl->SpriteStart+96 | PRIORITY(0);
+			RotateSprite(pl->plr==1?0:13, pl->angle, (s32)(zoom/(4-(pl->destruct-11)*0.4)), (s32)(zoom/(4-(pl->destruct-11)*0.4)));
+		}
+
+		else if (pl->destruct>17)
+			sprites[pl->plr==1?0:13].attribute2 = pl->SpriteStart+64 | PRIORITY(0);
+
 	}
 
 }

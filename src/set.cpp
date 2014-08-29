@@ -140,7 +140,7 @@ void SetShip(pPlayer pl)
 			SetThradd(pl);
 			break;
 		case TRADER:
-			//SetMelnorme(pl);
+			SetMelnorme(pl);
 			break;
 		case TRANSFORMER:
 			SetMmrnmhrm(pl);

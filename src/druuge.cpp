@@ -10,13 +10,13 @@
 #include "druuge_sfx.h"
 
 #include "druugepilot.h"
-/*
+
 #include "druugepilotl.h"
 #include "druugepilotr.h"
 #include "druugepilott.h"
 #include "druugepilotf.h"
 #include "druugepilots.h"
-*/
+
 
 extern s32 screenx,screeny;
 extern pOAMEntry sprites;
@@ -79,21 +79,25 @@ void LoadDruuge(s16 SpriteStart)
 	{
 			OAMData[loop+1024+32] = druugepilotData[loop-OAMStart];
 	}
-/*
-	for (loop=OAMStart ;loop<OAMStart+512;loop++)
+
+	for (loop=OAMStart ;loop<OAMStart+64;loop++)
 	{
-		OAMData[loop+(1024*2)+64] = druugepilotlData[loop-OAMStart];
-		OAMData[loop+(1024*2)+64+512] = druugepilotrData[loop-OAMStart];
+		OAMData[loop+(1024*2)+32] = druugepilotlData[loop-OAMStart];
+		OAMData[loop+(1024*2)+64+32] = druugepilotrData[loop-OAMStart];
 	}
 
 	for (loop=OAMStart ;loop<OAMStart+256;loop++)
-	{
-		OAMData[loop+(1024*3)+64] = druugepilottData[loop-OAMStart];
-		OAMData[loop+(1024*3)+64+256] = druugepilotfData[loop-OAMStart];
-		OAMData[loop+(1024*3)+64+512] = druugepilotsData[loop-OAMStart];
 
-	}
-*/
+		OAMData[loop+(1024*2)+128+32] = druugepilottData[loop-OAMStart];
+
+	for (loop=OAMStart ;loop<OAMStart+128;loop++)
+		OAMData[loop+(1024*2)+128+256+32] = druugepilotfData[loop-OAMStart];
+
+	for (loop=OAMStart ;loop<OAMStart+256;loop++)
+		OAMData[loop+(1024*2)+128+256+128+32] = druugepilotsData[loop-OAMStart];
+
+
+
 }
 
 int FireDruuge(pPlayer pl)
@@ -190,23 +194,23 @@ void SetDruuge(pPlayer pl)
 	pl->mass=SHIP_MASS;
 
 	pl->pilot_sprite=(1024+32)/16;
-	pl->pilots[0].x=240;
-	pl->pilots[0].y=160;
-	pl->pilots[1].x=240;
-	pl->pilots[1].y=160;
-	pl->pilots[2].x=240;
-	pl->pilots[2].y=160;
-	pl->pilots[3].x=240;
-	pl->pilots[3].y=160;
-	pl->pilots[4].x=240;
-	pl->pilots[4].y=160;
+	pl->pilots[0].x=30;
+	pl->pilots[0].y=16;
+	pl->pilots[1].x=40;
+	pl->pilots[1].y=15;
+	pl->pilots[2].x=46;
+	pl->pilots[2].y=1;
+	pl->pilots[3].x=32;
+	pl->pilots[3].y=1;
+	pl->pilots[4].x=3;
+	pl->pilots[4].y=0;
 
 
 }
 
 int SpecialDruuge(pPlayer pl)
 {
-	if (pl->crew>1)
+	if (pl->crew>1&&pl->crew<MAX_CREW)
 	{
 		ModifyCrew(pl,-1);
 		play_sfx(&druuge_furnace,pl->plr-1);
@@ -272,25 +276,25 @@ void SetDruugePilot(pPlayer pl)
 	//setup pilot
 	int off=(pl->plr==1)?0:6;
 
-	sprites[43+off].attribute0 = COLOR_256 | SQUARE  | 160;
-	sprites[43+off].attribute1 = SIZE_32 | 240;
+	sprites[43+off].attribute0 = COLOR_256 | WIDE  | 160;
+	sprites[43+off].attribute1 = SIZE_8 | 240;
 	sprites[43+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+64 | PRIORITY(2);
 
-	sprites[44+off].attribute0 = COLOR_256 | SQUARE  | 160;
-	sprites[44+off].attribute1 = SIZE_32 | 240;
-	sprites[44+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+96 | PRIORITY(2);
+	sprites[44+off].attribute0 = COLOR_256 | WIDE  | 160;
+	sprites[44+off].attribute1 = SIZE_8 | 240;
+	sprites[44+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+68 | PRIORITY(2);
 
 	sprites[45+off].attribute0 = COLOR_256 | WIDE  | 160;
 	sprites[45+off].attribute1 = SIZE_32 | 240;
-	sprites[45+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+128 | PRIORITY(2);
+	sprites[45+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+72 | PRIORITY(2);
 
-	sprites[46+off].attribute0 = COLOR_256 |WIDE  | 160;
-	sprites[46+off].attribute1 = SIZE_32 | 240;
-	sprites[46+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+128+16 | PRIORITY(2);
+	sprites[46+off].attribute0 = COLOR_256 |SQUARE  | 160;
+	sprites[46+off].attribute1 = SIZE_16 | 240;
+	sprites[46+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+88 | PRIORITY(2);
 
-	sprites[47+off].attribute0 = COLOR_256 | WIDE  | 160;
+	sprites[47+off].attribute0 = COLOR_256 | TALL  | 160;
 	sprites[47+off].attribute1 = SIZE_32 | 240;
-	sprites[47+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+128+32 | PRIORITY(2);
+	sprites[47+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+96 | PRIORITY(2);
 }
 
 void RestoreGFXDruuge(pPlayer p)

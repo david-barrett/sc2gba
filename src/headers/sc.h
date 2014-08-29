@@ -403,7 +403,8 @@ enum type
 	BUBBLE,
 	MISSILE,
 	DOGI,
-	FLAME
+	FLAME,
+	CONFUSE
 
 };
 

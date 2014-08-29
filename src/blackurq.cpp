@@ -5,19 +5,17 @@
 
 #include "blackurq_out.h"
 #include "blackurq_blade.h"
-//#include "blackurq_fire.h"
+#include "blackurq_fire.h"
 
 
 #include "blackurq_sfx.h"
 
 #include "blackurqpilot.h"
-/*
 #include "blackurqpilotl.h"
 #include "blackurqpilotr.h"
 #include "blackurqpilott.h"
 #include "blackurqpilotf.h"
 #include "blackurqpilots.h"
-*/
 
 extern s32 screenx,screeny;
 extern pOAMEntry sprites;
@@ -74,7 +72,7 @@ void LoadBlackurq(s16 SpriteStart)
    	for(loop = OAMStart; loop < OAMStart+128; loop++)               //load sprite image data
    	{
 		OAMData[loop+1024] = blackurq_bladeData[loop-OAMStart]; //loads some garb
-		//OAMData[loop+1024+128] = blackurq_fireData[loop-OAMStart]; //loads some garb
+		OAMData[loop+1024+128] = blackurq_fireData[loop-OAMStart]; //loads some garb
    	}
 
    	//pilot
@@ -83,21 +81,23 @@ void LoadBlackurq(s16 SpriteStart)
 	{
 			OAMData[loop+1024+256] = blackurqpilotData[loop-OAMStart];
 	}
-/*
+
 	for (loop=OAMStart ;loop<OAMStart+512;loop++)
 	{
-		OAMData[loop+(1024*2)+64] = blackurqpilotlData[loop-OAMStart];
-		OAMData[loop+(1024*2)+64+512] = blackurqpilotrData[loop-OAMStart];
+		OAMData[loop+(1024*2)+256] = blackurqpilotlData[loop-OAMStart];
+		OAMData[loop+(1024*2)+256+512] = blackurqpilotrData[loop-OAMStart];
 	}
 
-	for (loop=OAMStart ;loop<OAMStart+256;loop++)
+	for (loop=OAMStart ;loop<OAMStart+128;loop++)
 	{
-		OAMData[loop+(1024*3)+64] = blackurqpilottData[loop-OAMStart];
-		OAMData[loop+(1024*3)+64+256] = blackurqpilotfData[loop-OAMStart];
-		OAMData[loop+(1024*3)+64+512] = blackurqpilotsData[loop-OAMStart];
+		OAMData[loop+(1024*3)+256] = blackurqpilottData[loop-OAMStart];
+		OAMData[loop+(1024*3)+128+256] = blackurqpilotfData[loop-OAMStart];
+	}
+	for (loop=OAMStart ;loop<OAMStart+1024;loop++)
+	{
+		OAMData[loop+(1024*3)+512] = blackurqpilotsData[loop-OAMStart];
 
 	}
-*/
 }
 
 int FireBlackurq(pPlayer pl)
@@ -224,16 +224,16 @@ void SetBlackurq(pPlayer pl)
 	pl->mass=SHIP_MASS;
 
 	pl->pilot_sprite=(1024+256)/16;
-	pl->pilots[0].x=240;
-	pl->pilots[0].y=160;
-	pl->pilots[1].x=240;
-	pl->pilots[1].y=160;
-	pl->pilots[2].x=240;
-	pl->pilots[2].y=160;
-	pl->pilots[3].x=240;
-	pl->pilots[3].y=160;
-	pl->pilots[4].x=240;
-	pl->pilots[4].y=160;
+	pl->pilots[0].x=28;
+	pl->pilots[0].y=0;
+	pl->pilots[1].x=3;
+	pl->pilots[1].y=0;
+	pl->pilots[2].x=25;
+	pl->pilots[2].y=9;
+	pl->pilots[3].x=17;
+	pl->pilots[3].y=23;
+	pl->pilots[4].x=0;
+	pl->pilots[4].y=0;
 
 	pl->charging=0;
 	pl->currentweapon=0;
@@ -267,9 +267,9 @@ int SpecialBlackurq(pPlayer pl)
 
 		 	sprites[pl->weapon[b].sprite].attribute0 = COLOR_256 | SQUARE | ROTATION_FLAG | SIZE_DOUBLE | MODE_TRANSPARENT | pl->weapon[b].yscreen;	//setup sprite info, 256 colour, shape and y-coord
 			sprites[pl->weapon[b].sprite].attribute1 = SIZE_16 | ROTDATA(pl->weapon[b].sprite) | pl->weapon[b].xscreen;
-			//sprites[pl->weapon[b].sprite].attribute2 = pl->SpriteStart+80 | PRIORITY(1);
+			sprites[pl->weapon[b].sprite].attribute2 = pl->SpriteStart+72 | PRIORITY(1);
 			//tmp use exp
-			sprites[pl->weapon[b].sprite].attribute2 = FireSprite1+4 | PRIORITY(1);//4or12or16
+			//sprites[pl->weapon[b].sprite].attribute2 = FireSprite1+4 | PRIORITY(1);//4or12or16
 
 
 		}
@@ -413,17 +413,17 @@ void SetBlackurqPilot(pPlayer pl)
 	sprites[44+off].attribute1 = SIZE_32 | 240;
 	sprites[44+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+96 | PRIORITY(2);
 
-	sprites[45+off].attribute0 = COLOR_256 | WIDE  | 160;
-	sprites[45+off].attribute1 = SIZE_32 | 240;
+	sprites[45+off].attribute0 = COLOR_256 | SQUARE  | 160;
+	sprites[45+off].attribute1 = SIZE_16 | 240;
 	sprites[45+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+128 | PRIORITY(2);
 
-	sprites[46+off].attribute0 = COLOR_256 |WIDE  | 160;
-	sprites[46+off].attribute1 = SIZE_32 | 240;
-	sprites[46+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+128+16 | PRIORITY(2);
+	sprites[46+off].attribute0 = COLOR_256 |TALL  | 160;
+	sprites[46+off].attribute1 = SIZE_16 | 240;
+	sprites[46+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+128+8 | PRIORITY(2);
 
-	sprites[47+off].attribute0 = COLOR_256 | WIDE  | 160;
-	sprites[47+off].attribute1 = SIZE_32 | 240;
-	sprites[47+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+128+32 | PRIORITY(2);
+	sprites[47+off].attribute0 = COLOR_256 | TALL  | 160;
+	sprites[47+off].attribute1 = SIZE_64 | 240;
+	sprites[47+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+128+16 | PRIORITY(2);
 }
 
 void RestoreGFXBlackurq(pPlayer p)
