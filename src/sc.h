@@ -10,6 +10,10 @@
 #include "bg.h"
 #include "keypad.h"     //button registers
 #include "shipgfx.h"
+#include "sfx.h"
+
+//#include "gfx/gfx.h"
+//#include "gfx/gfx_symbols.h"
 
 //define the screen width and height values to be used
 #define SCREEN_WIDTH	240
@@ -327,7 +331,7 @@ void print(char *s);
 
 
 int aidospecial(pPlayer);
-void ModifyCrew(pPlayer,int);
+void ModifyCrew(pPlayer,int,int ignoreshield=0);
 void ModifyBatt(pPlayer,int);
 
 s32 distanceBetweenPoints(s32 xpos1,s32 ypos1,s32 xpos2,s32 ypos2);
@@ -338,8 +342,7 @@ void LoadDreadnaught(s16 OAMStart, s16 SpriteStart);
 s16 FindAngle(s32 x,s32 y, s32 ox, s32 oy);
 
 int ran(int min, int max);
-
-int DeathFury(pPlayer pl);
+int ModifyAngle(s16 a,int o);
 
 const s32 planetx=1000;
 const s32 planety=1000;
@@ -352,6 +355,10 @@ void LoadAsteroid(s16 OAMStart);
 
 int nextSpec(pPlayer pl);
 int nextSpecSprite(pPlayer pl);
+void InterruptProcess(void);
+int InRange(s32 xpos,s32 ypos,s32 txpos,s32 typos,s16 range);
+int DetectWeaponToShip(pPlayer p,pWeapon w);
+
 
 //hope to some of these later
 
@@ -371,6 +378,14 @@ void SetDreadnaught(pPlayer pl);
 int FightersFire(pWeapon f,s16 angle);
 int SpecialDreadnaught(pPlayer pl);
 void LoadDreadnaught(s16 OAMStart, s16 SpriteStart);
+void MoveURFighters(pWeapon ur);
+
+//yehat
+int aiSpecialYehat(pPlayer ai);
+int FireYehat(pPlayer pl);
+void SetYehat(pPlayer pl);
+int SpecialYehat(pPlayer pl);
+void LoadYehat(s16 OAMStart, s16 SpriteStart);
 #endif
 
 /*128 sprites first 32 rotate

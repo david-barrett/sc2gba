@@ -78,6 +78,9 @@ void ReallyLoadShip(s16 ship,s16 OAMStart, s16 SpriteStart)
 	//LoadDreadnaught(OAMStart,SpriteStart);
 		LoadFury(OAMStart,SpriteStart);
 		break;
+	case TERMINATOR:
+		LoadYehat(OAMStart,SpriteStart);
+		break;
 	default:;
 	}
 }

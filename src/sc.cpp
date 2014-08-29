@@ -12,9 +12,18 @@
 #include "sprite.h"
 #include "sincosrad.h"
 #include "bg.h"
+//#include "interrupts.h"
 
 //#include "sc2title.h"
 #include "sc2titles.h"
+
+//sound
+#include "sfx.h"
+#include "bullhorn.h"
+#include "sound/urquan-ditty.h"
+
+typedef void (*fnptr)(void);
+#define REG_INTMAIN *(fnptr*)(0x03fffffc)
 
 #include<math.h>
 #include<stdlib.h>
@@ -53,7 +62,9 @@ void ChooseShips(pPlayer pl, pPlrList list)
 	//cheating
 	for (int i=0;i<14;i++)
 	{
-		if  (i%2==0)
+		if  (i%3==0)
+			list[i].ship=TERMINATOR;
+		else if  (i%2==0)
 			list[i].ship=DREADNAUGHT;
 		else
 			list[i].ship=FURY;
@@ -128,7 +139,7 @@ int ChooseNextShip(pPlayer pl, pPlrList list)
 	sprites[57].attribute0 = COLOR_256 | SQUARE | MODE_TRANSPARENT |x;
     sprites[57].attribute1 = SIZE_32 | x;
 
-	do
+   	do
 	{
     	WaitForVsync();
 		CopyOAM();
@@ -307,6 +318,10 @@ p1->ypos = 1623;
 p2->xpos = 1562;	//variables to hold position of sprite on screen
 p2->ypos = 1577;
 
+	//switch on interupts for timers 0 & 1
+	REG_IE=0x0008 | 0x0010;
+    REG_IME=1;
+    REG_INTMAIN= InterruptProcess;
 
 for (int i=0;i<12;i++)
 {
@@ -366,16 +381,29 @@ for (int i=0;i<12;i++)
 		{
 		for(loop = 0; loop < 256; loop++)          //load the sprite palette into memory
 			OBJPaletteMem[loop] = sc2titlesPalette[loop];
+		//	OBJPaletteMem[loop] = gfx_palette[loop];
+
 		for(loop = OAMTitleStart; loop < OAMTitleStart+1024; loop++)               //load sprite image data
 		{
 			OAMData[loop] = sc2titlesData[loop-OAMTitleStart];
 		}
+	/*	for(loop = 0; loop < 7472; loop++)               //load sprite image data
+				{
+					OAMData[loop] = gfx_data[loop];
+		}*/
+
 		sprites[30].attribute0 = COLOR_256 | TALL | ROTATION_FLAG | SIZE_DOUBLE | MODE_TRANSPARENT | 20;	//setup sprite info, 256 colour, shape and y-coord
 		sprites[30].attribute1 = SIZE_64 | ROTDATA(30) | 50;            //size 32x32 and x-coord
 		sprites[30].attribute2 = SpriteTitleStart | PRIORITY(1); //pointer to tile where sprite starts
+		//sprites[30].attribute2 = SC2TITLE_START | PRIORITY(1); //pointer to tile where sprite starts
 		RotateSprite(30, 0, 128,128);
 		WaitForVsync();
 		CopyOAM();
+
+		 //test sound
+		init_sfx_system();
+		play_sfx(&urquan_ditty,1);
+
 		while (*KEYS & KEY_START);
 		sprites[30].attribute0 = COLOR_256 | SQUARE | ROTATION_FLAG | SIZE_DOUBLE | MODE_TRANSPARENT | 20;	//setup sprite info, 256 colour, shape and y-coord
 		sprites[30].attribute1 = SIZE_8 | ROTDATA(30) | 50;
@@ -388,7 +416,7 @@ for (int i=0;i<12;i++)
 		p2->ai=STANDARD;
 		//p1->ai=STANDARD;
 		p2->ai=AWESOME;
-		//p2->ai=DISABLED;
+		p2->ai=DISABLED;
 
 		ChooseShips(p1,plist1);
 		ChooseShips(p2,plist2);

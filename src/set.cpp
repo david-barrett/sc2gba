@@ -58,5 +58,8 @@ void SetShip(pPlayer pl)
 		case FURY:
 			SetFury(pl);
 			break;
+		case TERMINATOR:
+			SetYehat(pl);
+			break;
 	}
 }

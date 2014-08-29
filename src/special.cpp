@@ -29,6 +29,9 @@ int Special(pPlayer pl)
 		case FURY:
 			ret=SpecialFury(pl);
 			break;
+		case TERMINATOR:
+				ret=SpecialYehat(pl);
+				break;
 		default:
 			break;
 		}
@@ -76,6 +79,9 @@ int aidospecial(pPlayer pl)
 				break;
 			case FURY:
 				ret=aiSpecialFury(pl);
+				break;
+			case TERMINATOR:
+				ret=aiSpecialYehat(pl);
 				break;
 			default:
 				break;

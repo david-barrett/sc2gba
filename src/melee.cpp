@@ -203,6 +203,7 @@ void GenerateStart(pPlayer p)
 //Copy our sprite array to OAM
 void CopyOAM()
 {
+	/*
 	u16 loop;
 	u16* temp;
 	temp = (u16*)sprites;
@@ -210,6 +211,11 @@ void CopyOAM()
 	{
 		OAM[loop] = temp[loop];
 	}
+	*/
+	//try this - eventually replace CopyOAM with this...
+	REG_DMA3SAD = (u32)sprites;
+	REG_DMA3DAD = (u32)OAM;
+	REG_DMA3CNT = 128 * 4 |DMA_16NOW;
 }
 
 //Set sprites to off screen
@@ -468,119 +474,6 @@ int InRange(s32 xpos,s32 ypos,s32 txpos,s32 typos,s16 range)
 }
 
 
-void MoveURFighters(pWeapon ur)
-{
-	s16 angle;
-	pPlayer target=(pPlayer)ur->target;
-
-	pPlayer parent=(pPlayer)ur->parent;
-	ur->status--;
-
-	//if out too long return
-	if (ur->status==0)
-	{
-		//been out too long die
-		ur->life=0;
-		MoveOffscreen(&sprites[ur->sprite]);
-		parent->fighters--;
-		return;
-	}
-	if (target->crew==0&&ur->status>199)
-		ur->status=199;
-	if (ur->status<200)
-	{
-		//if reached mother ship dock
-		if (DetectWeaponToShip(parent,ur)==1)
-		{
-			ur->life=-1;
-			parent->fighters--;
-			//mothership crew++;
-			ModifyCrew(parent,1);
-			MoveOffscreen(&sprites[ur->sprite]);
-			return;
-		}
-		//desired angle = mothership
-		angle = FindAngle(ur->xpos,ur->ypos,parent->xpos,parent->ypos);
-
-	}
-	else
-	{
-
-		//if in range fire
-		if (InRange(ur->xpos,ur->ypos,target->xpos,target->ypos,8+(target->offset/2)))//calc dist from target
-		{
-			if (ur->status%3==0) //otherwise const firing
-			{
-				//fire -
-				FightersFire(ur,FindAngle(ur->xpos,ur->ypos,target->xpos,target->ypos));
-			}
-			angle=target->angle; // turn to match target angle;
-		}
-		else // not in range
-		{
-
-			// turn towards opp
-			angle = FindAngle(ur->xpos,ur->ypos,target->xpos,target->ypos);
-
-		}
-	}
-
-	int ret=TurnAngle(angle,ur->angle,15);
-	if (ret==0)
-	{
-		s32 x = ((6) * (s32)SIN[ur->angle])>>8;
-				s32 y = ((6) * (s32)COS[ur->angle])>>8;
-
-				ur->xspeed = (ur->xspeed + x)/2;
-		ur->yspeed = (ur->yspeed + y)/2;
-	}
-	else if (ret<0)
-		{
-			ur->angle-=15;
-					if (ur->angle<0)
-			ur->angle+=360;
-	}
-	else if (ret>0)
-		{
-			ur->angle+=15;
-					if (ur->angle>360)
-			ur->angle-=360;
-	}
-/*
-	//now calc if should turn
-	s32 a = angle+360;
-	s32 b = ur->angle+360;
-
-	if (a<b)
-	{
-		ur->angle-=15;
-							if (ur->angle<0)
-			ur->angle+=360
-	}
-	else if (b<a)
-	{
-		ur->angle+=15;
-		if (ur->angle>360)
-			ur->angle-=360;
-	}
-
-
-	//if facing right way thrust
-	s16 a1 = 360+angle;
-	s16 a2 = 360+ur->angle;
-	if (a1>a2-30&&a1<a2+30)//thrust if going roughly the right way
-	{
-		s32 x = ((3) * (s32)SIN[ur->angle])>>8;
-		s32 y = ((3) * (s32)COS[ur->angle])>>8;
-
-		ur->xspeed = (ur->xspeed + x)/2;
-		ur->yspeed = (ur->yspeed + y)/2;
-	}
-*/
-	//always do
-	ur->xpos+=ur->xspeed;
-	ur->ypos-=ur->yspeed;
-}
 
 void MoveBullets(pPlayer pl)
 {
@@ -754,6 +647,16 @@ void Regen(pPlayer pl)
 	{
 		pl->batt_turn=pl->batt_wait*5;
 		ModifyBatt(pl,1);
+	}
+
+	if (pl->ship==TERMINATOR&&pl->shield>0)
+	{
+		pl->shield--;
+		if (pl->shield==0)
+		{
+			pl->spriteoffset=0;
+			sprites[(pl->plr=1)?0:13].attribute2 = pl->SpriteStart+pl->spriteoffset | PRIORITY(1);
+		}
 	}
 
 }
@@ -1177,6 +1080,15 @@ void DrawTrails()
 
 }
 
+int ModifyAngle(s16 a,int o)
+{
+	s16 r = a+o;
+	if (r>360)
+		r-=360;
+	else if (r<0)
+		r+=360;
+	return r;
+}
 
 
 int CreateActualOutline(s32 xpos,s32 ypos,s16 angle,pWeapon w,s32 SpriteStart)
@@ -1424,7 +1336,7 @@ void CalcPlanet(pPlayer pl)
 	s16 dist=distanceBetweenPoints(pl->xpos,pl->ypos,planetx,planety);
 	if (dist<(pl->offset+64)/2)
 	{
-		ModifyCrew(pl,-2);
+		ModifyCrew(pl,-2,1);
 		Bounce(pl);
 	}
 	//gravity
@@ -1480,7 +1392,7 @@ void Melee(pPlayer p1,pPlayer p2,Bg *bg0, Bg *bg1)
 	LoadPlanet(OAMPlanetSprite);
 	LoadAsteroid(OAMAsteroidStart);
 
-	p1->crew=1;
+	//p1->crew=1;
 
 	InitializeSprites();                       //set all sprites off screen (stops artifact)
 
@@ -1496,11 +1408,11 @@ void Melee(pPlayer p1,pPlayer p2,Bg *bg0, Bg *bg1)
 		//create pl1 + pl2
        	sprites[0].attribute0 = COLOR_256 | SQUARE | ROTATION_FLAG | SIZE_DOUBLE | MODE_TRANSPARENT | p1->yscreen;	//setup sprite info, 256 colour, shape and y-coord
         sprites[0].attribute1 = SIZE_32 | ROTDATA(0) | p1->xscreen;            //size 32x32 and x-coord
-        sprites[0].attribute2 = p1->SpriteStart | PRIORITY(1);                      //pointer to tile where sprite starts
+        sprites[0].attribute2 = p1->SpriteStart+p1->spriteoffset | PRIORITY(1);                      //pointer to tile where sprite starts
 
 		sprites[13].attribute0 = COLOR_256 | SQUARE | ROTATION_FLAG | SIZE_DOUBLE | MODE_TRANSPARENT |p2->yscreen;//setup sprite info, 256 colour, shape and y-coord
         sprites[13].attribute1 = SIZE_32 | ROTDATA(13) | p2->xscreen;           //size 16x16 and x-coord
-        sprites[13].attribute2 = p2->SpriteStart | PRIORITY(1);     //pointer to tile where sprite starts
+        sprites[13].attribute2 = p2->SpriteStart+p2->spriteoffset | PRIORITY(1);     //pointer to tile where sprite starts
 /*
         //test loop
         	zoom=100;

@@ -458,13 +458,16 @@ void UpdateBatt(pPlayer pl)
 
 
 
-void ModifyCrew(pPlayer p, int i)
+void ModifyCrew(pPlayer p, int i,int ignoreshield)
 {
+	if (!p->shield&&!ignoreshield)
+	{
 	p->crew+=i;
 	if (p->crew>p->maxcrew)
 		p->crew=p->maxcrew;
 
 	UpdateCrew(p);
+	}
 }
 
 void ModifyBatt(pPlayer p, int i)

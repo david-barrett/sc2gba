@@ -26,6 +26,9 @@ void Fire(pPlayer pl)
 		case FURY:
 			ret=FireFury(pl);
 			break;
+		case TERMINATOR:
+			ret=FireYehat(pl);
+			break;
 		default:
 			break;
 		}

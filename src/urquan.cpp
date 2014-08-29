@@ -8,6 +8,12 @@
 #include "gfx/urquan_fighters.h"
 #include "gfx/urquan_fighters_fire.h"
 
+#include "sound/urquan-fusion.h"
+#include "sound/urquan-fighter.h"
+#include "sound/urquan-recover.h"
+#include "sound/urquan_launch.h"
+
+
 extern s32 screenx,screeny;
 extern pOAMEntry sprites;
 extern double scale;
@@ -98,7 +104,11 @@ int SpecialDreadnaught(pPlayer pl)
 	    res+=1;
 	    pl->fighters++;
 		}
+
+
 	}
+	if (res>0)
+		play_sfx(&UrQuan_Launch,pl->plr-1);
 	return res;
 }
 
@@ -131,6 +141,7 @@ int FightersFire(pWeapon f,s16 angle)
 	    sprites[pl->weapon[b].sprite].attribute2 = pl->SpriteStart+74 | PRIORITY(0);
 
 	    ModifyCrew(target,-1);
+	    play_sfx(&UrQuan_Fighter,pl->plr-1);
 		return 1;
 	}
 	return 0;
@@ -203,6 +214,7 @@ int FireDreadnaught(pPlayer pl)
     sprites[pl->weapon[b].sprite].attribute1 = SIZE_16 | ROTDATA(pl->weapon[b].sprite) | pl->weapon[b].xscreen;
     sprites[pl->weapon[b].sprite].attribute2 = pl->SpriteStart+64 | PRIORITY(1);
 
+	play_sfx(&UrQuan_Fusion,pl->plr-1);
     return 1;
 	}
 	return 0;
@@ -215,3 +227,120 @@ int aiSpecialDreadnaught(pPlayer ai)
 	else
 		return 0;
 }
+
+void MoveURFighters(pWeapon ur)
+{
+	s16 angle;
+	pPlayer target=(pPlayer)ur->target;
+
+	pPlayer parent=(pPlayer)ur->parent;
+	ur->status--;
+
+	//if out too long return
+	if (ur->status==0)
+	{
+		//been out too long die
+		ur->life=0;
+		MoveOffscreen(&sprites[ur->sprite]);
+		parent->fighters--;
+
+		return;
+	}
+	if (target->crew==0&&ur->status>199)
+		ur->status=199;
+	if (ur->status<200)
+	{
+		//if reached mother ship dock
+		if (DetectWeaponToShip(parent,ur)==1)
+		{
+			ur->life=-1;
+			parent->fighters--;
+			//mothership crew++;
+			ModifyCrew(parent,1);
+			MoveOffscreen(&sprites[ur->sprite]);
+			play_sfx(&UrQuan_Recover,parent->plr-1);
+			return;
+		}
+		//desired angle = mothership
+		angle = FindAngle(ur->xpos,ur->ypos,parent->xpos,parent->ypos);
+
+	}
+	else
+	{
+
+		//if in range fire
+		if (InRange(ur->xpos,ur->ypos,target->xpos,target->ypos,8+(target->offset/2)))//calc dist from target
+		{
+			if (ur->status%3==0) //otherwise const firing
+			{
+				//fire -
+				FightersFire(ur,FindAngle(ur->xpos,ur->ypos,target->xpos,target->ypos));
+			}
+			angle=target->angle; // turn to match target angle;
+		}
+		else // not in range
+		{
+
+			// turn towards opp
+			angle = FindAngle(ur->xpos,ur->ypos,target->xpos,target->ypos);
+
+		}
+	}
+
+	int ret=TurnAngle(angle,ur->angle,15);
+	if (ret==0)
+	{
+		s32 x = ((6) * (s32)SIN[ur->angle])>>8;
+				s32 y = ((6) * (s32)COS[ur->angle])>>8;
+
+				ur->xspeed = (ur->xspeed + x)/2;
+		ur->yspeed = (ur->yspeed + y)/2;
+	}
+	else if (ret<0)
+		{
+			ur->angle-=15;
+					if (ur->angle<0)
+			ur->angle+=360;
+	}
+	else if (ret>0)
+		{
+			ur->angle+=15;
+					if (ur->angle>360)
+			ur->angle-=360;
+	}
+/*
+	//now calc if should turn
+	s32 a = angle+360;
+	s32 b = ur->angle+360;
+
+	if (a<b)
+	{
+		ur->angle-=15;
+							if (ur->angle<0)
+			ur->angle+=360
+	}
+	else if (b<a)
+	{
+		ur->angle+=15;
+		if (ur->angle>360)
+			ur->angle-=360;
+	}
+
+
+	//if facing right way thrust
+	s16 a1 = 360+angle;
+	s16 a2 = 360+ur->angle;
+	if (a1>a2-30&&a1<a2+30)//thrust if going roughly the right way
+	{
+		s32 x = ((3) * (s32)SIN[ur->angle])>>8;
+		s32 y = ((3) * (s32)COS[ur->angle])>>8;
+
+		ur->xspeed = (ur->xspeed + x)/2;
+		ur->yspeed = (ur->yspeed + y)/2;
+	}
+*/
+	//always do
+	ur->xpos+=ur->xspeed;
+	ur->ypos-=ur->yspeed;
+}
+
