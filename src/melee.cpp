@@ -23,6 +23,7 @@ extern int* KEYS;
 
 extern s8 pilot;
 extern s8 demo;
+extern s8 scaled;
 
 
 pTrail trails;
@@ -31,6 +32,7 @@ pAsteroid asteroids;
 int turn;
 
 s16 planet_screenx,planet_screeny;
+extern s32 planetx,planety;
 
 
 
@@ -59,10 +61,10 @@ char s[100];
 void
 print(char *s)
 {
-/*
+
     asm volatile ("mov r0, %0;" "swi 0xff0000;":        // warning! will crash on hardware!
                   :"r" (s):"r0");
-*/
+
 }
 
 
@@ -124,7 +126,7 @@ print(s32 num)
 		{
 			int off=(int)pow(double(10),double(digits-1));//(10^(digits-1));
 
-			if (num>off)
+			if (num>=off)
 			{
 				int tmp=num/off;
 
@@ -694,13 +696,33 @@ void shifteverythingx(pPlayer p1,pPlayer p2,int shift)
 	{
 		trails[i].xpos+=shift;
 	}
+
 	//asteroids
+	for (i=0;i<5;i++)
+	{
+		asteroids[i].xpos+=shift;
+		/*
+		if (asteroids[i].xpos<screenx-(960+64))
+						{
+							asteroids[i].xpos+=(1919+64);
+
+						}
+						else if (asteroids[i].xpos>screenx+(960+64))
+						{
+							asteroids[i].xpos-=(1919+64);
+
+						}
+		*/
+	}
+
+	//planet
+	planetx+=shift;
 }
 
 void shifteverythingy(pPlayer p1,pPlayer p2,int shift)
 {
 	//shift everything except the planet
-
+print("shift everythiny y s");
 	p1->ypos+=shift;
 	p2->ypos+=shift;
 	screeny+=shift;
@@ -715,6 +737,27 @@ void shifteverythingy(pPlayer p1,pPlayer p2,int shift)
 		trails[i].ypos+=shift;
 	}
 	//asteroids
+	for (i=0;i<5;i++)
+	{
+		asteroids[i].ypos+=shift;
+		/*
+				if (asteroids[i].ypos<screencentrey-(640+64))
+				{
+
+					asteroids[i].ypos+=(1279+64);
+				}
+				else if (asteroids[i].ypos>screencentrex+(640+64))
+				{
+
+					asteroids[i].ypos-=(1279+64);
+
+		}*/
+	}
+
+	//planet
+	planety+=shift;
+
+	print("shift everythiny y e");
 }
 
 
@@ -761,13 +804,103 @@ void setScreen(pPlayer p1,pPlayer p2,Bg* bg0,Bg* bg1)
 		zoom = 1<<8; //256
 		scale = 1;
 	}
-	else if (d < 320) //needs calc
+	// PC ZOOM
+	else if (d < 320&&!scaled) //needs calc
 	{
 		zoom=1<<9;//512
 		scale = 0.5;
 
 	}
-	else
+	//scaled zoom 320-160
+
+	else if (scaled&&d<180)
+	{
+			zoom=256+64;//512
+			scale = 0.82;
+	}
+	else if (scaled&&d<190)
+	{
+		zoom=256+64+32;//512
+		scale = 0.78;
+	}
+	else if (scaled&&d<200)
+	{
+			zoom=256+128;
+			scale = 0.74;
+
+	}
+	else if (scaled&&d<210)
+	{
+		zoom=256+128+32;
+		scale = 0.70;
+
+	}
+	else if (scaled&&d<220)
+	{
+			zoom=256+192;
+			scale = 0.66;
+
+	}
+	else if (scaled&&d<230)
+	{
+		zoom=256+192+32;
+		scale = 0.62;
+
+	}
+	else if (scaled&&d<240)
+	{
+			zoom=1<<9;//512
+			scale = 0.58;
+
+	}
+	else if (scaled&&d<250)
+	{
+		zoom=512+32;
+		scale = 0.54;
+
+	}
+	else if (scaled&&d<260)
+	{
+		zoom=512+64;
+		scale = 0.50;
+	}
+	else if (scaled&&d<270)
+	{
+		zoom=512+64+32;
+		scale = 0.46;
+	}
+	else if (scaled&&d<280)
+	{
+		zoom=512+128;
+		scale = 0.42;
+
+	}
+	else if (scaled&&d<290)
+	{
+		zoom=512+128+32;
+		scale = 0.38;
+
+	}
+	else if (scaled&&d<300)
+	{
+		zoom=512+192;
+		scale = 0.34;
+
+	}
+	else if (scaled&&d<310)
+	{
+		zoom=512+192+32;
+		scale = 0.30;
+	}
+	else if (scaled&&d<320)
+	{
+			zoom=512+256;
+			scale = 0.26;
+
+	}
+
+	//END PC zoom could replace all this will scaled zoom
+	else //if (d>=320)
 	{
 		zoom=768;
 		scale = 0.25;
@@ -820,61 +953,93 @@ void setScreen(pPlayer p1,pPlayer p2,Bg* bg0,Bg* bg1)
 			print("\nscreen x=");
 			print(screenx);
 			#endif
-			if (screenx<planetx)
-				shifteverythingx(p1,p2,800);
+
+			if (screenx<screencentrex)
+			{
+				p1->xpos+=960;
+				p2->xpos+=960;
+				screenx+=960;
+			//	shifteverythingx(p1,p2,959);
+			}
 			else
-				shifteverythingx(p1,p2,-800);
+			{
+				screenx-=960;
+				p1->xpos-=960;
+				p2->xpos-=960;
+			//	shifteverythingx(p1,p2,-959);
+			}
+
+
 		}
+
 		if (yswap==0&&(yd<-640 || yd>640))
 		{
 			yswap=5;
 			swap(&p1->ypos,&p2->ypos);
 			#ifdef DEBUG
-			print("\nbefore about to add/minus 500 screen y=");
+			print("\nbefore flipabout to add/minus 500 screen y=");
 			print(screeny);
 			#endif
-			if (screeny<planety)
-				shifteverythingy(p1,p2,500);
+
+			if (screeny<screencentrey)
+			{
+
+				p1->ypos+=640;
+				p2->ypos+=640;
+				screeny+=640;
+		//		shifteverythingy(p1,p2,639);
+			}
 			else
-				shifteverythingy(p1,p2,-500);
+			{
+
+				screeny-=640;
+				p1->ypos-=640;
+				p2->ypos-=640;
+				//shifteverythingy(p1,p2,-639);
+			}
+			#ifdef DEBUG
+			print("\nafter flip y=");
+			print(screeny);
+			#endif
+
 		}
 
-		if (screenx<planetx-960)
+		if (screenx<screencentrex-960)
 		{
 			#ifdef DEBUG
 			print("\nshift x+");
 			print("\nscreen x=");
 			print(screenx);
 			#endif
-			shifteverythingx(p1,p2,800);
+			shifteverythingx(p1,p2,1700);
 		}
-		else if (screenx>planetx+960)
+		else if (screenx>screencentrex+960)
 		{
 			#ifdef DEBUG
 			print("\nshift x-");
 			print("\nscreen x=");
 			print(screenx);
 			#endif
-			shifteverythingx(p1,p2,-800);
+			shifteverythingx(p1,p2,-1700);
 		}
 
-		if (screeny<planety-640)
+		if (screeny<screencentrey-640)
 		{
 			#ifdef DEBUG
 			print("\nshift y+");
 				print("\nscreen now y=");
 			print(screeny);
 			#endif
-			shifteverythingy(p1,p2,500);
+			shifteverythingy(p1,p2,1100);
 		}
-		else if (screeny>planety+640)
+		else if (screeny>screencentrey+640)
 		{
 			#ifdef DEBUG
 			print("\nshift y-");
 				print("\nscreen now y=");
 			print(screeny);
 			#endif
-			shifteverythingy(p1,p2,-500);
+			shifteverythingy(p1,p2,-1100);
 		}
 
 
@@ -1028,6 +1193,9 @@ void Melee(pPlayer p1,pPlayer p2,Bg *bg0, Bg *bg1)
 			asteroids->life=-1;
 		}
 	}
+
+	planetx=screencentrex;
+	planety=screencentrey;
 
 
 	SetupBackground(bg0,bg1);
@@ -1371,13 +1539,17 @@ sprites[58].attribute2 = PauseSpriteStart+48 | PRIORITY(0);
 				*/
 
 			}
+			setScreen(p1,p2,bg0,bg1);
+
+
   			//asteroids
   			ProcessAsteroids(p1,p2);
   			//planet
+  			DrawPlanet();
   			CalcPlanet(p1);
   			CalcPlanet(p2);
 
-			setScreen(p1,p2,bg0,bg1);
+
 
 			MoveBullets(p1);
 
@@ -1402,7 +1574,7 @@ sprites[58].attribute2 = PauseSpriteStart+48 | PRIORITY(0);
 			DetectBullets(p2);
 
 			DrawTrails();
-			DrawPlanet();
+
 
 			//UpdateStatus();  now we only update when changed
 /*

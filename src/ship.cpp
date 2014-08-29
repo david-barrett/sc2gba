@@ -25,6 +25,8 @@ extern s32 zoom,screenx,screeny;
 
 extern double scale;
 
+extern s32 planetx,planety;
+
 const s8 EXPX[12] = {5,-10,9,-2,7,0,-6,4,-12,13,-14,8};
 const s8 EXPY[12] = {-7,0,-15,12,-5,4,-9,10,-4,9,-2,4};
 
@@ -86,7 +88,13 @@ void GenerateStart(pPlayer p,s32 range)
 		//print("\ndist:=");
 		//print(dist);
 		if (dist<200)
-			good=1;
+		{
+			p->xpos=opp->xpos-rand+(rand<0?50:-50);
+
+			p->ypos=opp->ypos-rand+(rand<0?50:-50);
+
+				//good=1;
+		}
 	}while(good);
 	good=0;
 		for (int i=0;i<6;i++)
@@ -409,7 +417,6 @@ void Bounce(pPlayer pl)
 
 void ProcessPlayer(pPlayer pl)
 {
-
 	pl->ship_input_state=0;
 	int off=0;
 	int x=509;

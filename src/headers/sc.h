@@ -14,7 +14,7 @@
 #include "sfx.h"
 #include "TektronicWave.h"
 
-//#define DEBUG 1
+#define DEBUG 1
 
 
 //#include "gfx/gfx.h"
@@ -403,7 +403,7 @@ const s16 SpriteStatusStart = 964;  //size 54
 //menus
 const s16 SpriteTitleStart = 640;
 const s16 SpriteAllShips = 0;
-const s16 SpriteLettersStart=928;
+const s16 SpriteLettersStart=950;
 
 
 void Thrust(pPlayer plr);
@@ -430,6 +430,9 @@ void SetNew(pPlayer pl);
 void LoadExp(s16 OAMStart);
 void LoadTrail(s16 OAMStart);
 void LoadPlanet(s16 OAMStart);
+void LoadBattle();
+
+
 
 void CreateTrail(pPlayer);
 int FightersFire(pWeapon f,s16 angle);
@@ -452,8 +455,8 @@ void Regen(pPlayer pl);
 void DrawTrails();
 
 
-const s32 planetx=3000;
-const s32 planety=3000;
+const s32 screencentrex=3000;
+const s32 screencentrey=3000;
 const s32  centrex=120;
 const s32  centrey=80;
 void GenerateStart(pPlayer p,s32 range=1180);

@@ -25,6 +25,7 @@
 s16 TurnShip (pPlayer ai, s16 angle);
 extern pAsteroid asteroids;
 extern s16 planet_screenx,planet_screeny;
+extern s32 planetx,planety;
 
 void Pursue (pPlayer ShipPtr, pObject obj);
 void Entice (pPlayer ShipPtr, pObject obj);
@@ -671,19 +672,36 @@ Pursue (pPlayer ShipPtr, pObject obj)
 			if (ShipPtr->ManeuverabilityIndex >= MEDIUM_SHIP)
 			{
 
-				//UWORD fire_flags;
-				//COUNT facing;
+				u8 fire_flags;
+				COUNT facing;
 
-				//for (fire_flags = FIRES_FORE, facing = EvalDescPtr->facing;
+				//for (fire_flags = FIRES_FORE, facing = enemyShipPtr->angle;
 				//		fire_flags <= FIRES_LEFT;
-				//		fire_flags <<= 1, facing += QUADRANT)
-				//{
+				//		fire_flags <<= 1, ModifyAngle(facing,90))
+				for (int i=0;i<3;i++)
+				{
+					if (i==2)
+					{
+						fire_flags=FIRES_RIGHT;
+						facing=ModifyAngle(enemyShipPtr->angle,90);
+					}
+					else if (i==1)
+					{
+						fire_flags=FIRES_LEFT;
+						facing=ModifyAngle(enemyShipPtr->angle,-90);
+					}
+					else
+					{
+						fire_flags=FIRES_FORE;
+						facing=enemyShipPtr->angle;
+					}
+
 					if
 					(
 							// he's dangerous in this direction
-						//(ship_flags & fire_flags) && //asume only forward fire enimies
+						(ShipPtr->ship_flags & fire_flags) && //asume only forward fire enimies
 							// he's facing direction you want to go
-							(TurnAngle(desired_turn_angle,enemyShipPtr->angle,90)==0)
+							(TurnAngle(desired_turn_angle,facing,90)==0)
 
 						&& (
 							// he's moving
@@ -702,7 +720,7 @@ Pursue (pPlayer ShipPtr, pObject obj)
 
 					//	break;
 					}
-				//}
+				}
 			}
 
 			if (desired_thrust_angle != desired_turn_angle

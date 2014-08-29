@@ -107,11 +107,11 @@ int SpecialSyreen(pPlayer pl)
 		pl->weapon[b].xspeed=0;
 		pl->weapon[b].yspeed=0;
 
+		angle=FindAngle(opp->xpos,opp->ypos,pl->xpos,pl->ypos);
+		angle=ModifyAngle(angle,((i*2)-crew_loss)*20);
 
-		angle=ModifyAngle(opp->angle,((i*2)-crew_loss)*20);
-
-		pl->weapon[b].xpos = opp->xpos-((s32)(opp->offset * SIN[angle])>>8);
-		pl->weapon[b].ypos = opp->ypos+((s32)(opp->offset * COS[angle])>>8);
+		pl->weapon[b].xpos = opp->xpos+((s32)(opp->offset*3 * SIN[angle])>>8);
+		pl->weapon[b].ypos = opp->ypos-((s32)(opp->offset*3 * COS[angle])>>8);
 
 		drawOnScreen(&pl->weapon[b].xscreen,&pl->weapon[b].yscreen,
 			pl->weapon[b].xpos,pl->weapon[b].ypos,screenx,screeny,pl->weapon[b].size);

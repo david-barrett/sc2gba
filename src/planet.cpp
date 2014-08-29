@@ -26,6 +26,8 @@ extern double scale;
 
 extern s32 zoom,screenx,screeny;
 
+extern s32 planetx,planety;
+
 
 void CreateAsteroid(int i)
 {
@@ -121,26 +123,26 @@ void ProcessAsteroids(pPlayer p1,pPlayer p2)
 
 		if (asteroids[i].life>0)
 		{
-		if (asteroids[i].xpos<screenx-600)
+		if (asteroids[i].xpos<screenx-(512))
 		{
-			asteroids[i].xpos+=1100;
+			asteroids[i].xpos+=(992);
 			asteroids[i].xspeed*=-1;
 		}
-		else if (asteroids[i].xpos>screenx+600)
+		else if (asteroids[i].xpos>screenx+512)
 		{
-			asteroids[i].xpos-=1100;
+			asteroids[i].xpos-=992;
 			asteroids[i].xspeed*=-1;
 		}
 
-		if (asteroids[i].ypos<screeny-350)
+		if (asteroids[i].ypos<screeny-352)
 		{
-			asteroids[i].xspeed*=-1;
-			asteroids[i].ypos+=700;
+			asteroids[i].yspeed*=-1;
+			asteroids[i].ypos+=672;
 		}
-		else if (asteroids[i].xpos>screenx+350)
+		else if (asteroids[i].ypos>screeny+352)
 		{
-			asteroids[i].xspeed*=-1;
-			asteroids[i].ypos-=700;
+			asteroids[i].yspeed*=-1;
+			asteroids[i].ypos-=672;
 		}
 
 
@@ -207,6 +209,19 @@ void ProcessAsteroids(pPlayer p1,pPlayer p2)
 
 void DrawPlanet()
 {
+	if (planetx<screencentrex-(960+128))
+		planetx+=(1920);
+
+	else if (planetx>screencentrex+(960+128))
+		planetx-=(1920);
+
+
+	if (planety<screencentrey-(640+128))
+		planety+=(1280);
+	else if (planety>screencentrey+(640+128))
+		planety-=(1280);
+
+
 	drawOnScreen(&planet_screenx,&planet_screeny,planetx,planety,screenx,screeny,64);
 	RotateSprite(31, 0, zoom, zoom);
 	sprites[31].attribute0 = COLOR_256 | SQUARE | ROTATION_FLAG | SIZE_DOUBLE | MODE_TRANSPARENT | planet_screeny;	//setup sprite info, 256 colour, shape and y-coord

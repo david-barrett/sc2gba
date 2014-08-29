@@ -30,6 +30,7 @@
 #include "pause4.h"
 
 #include "blankship.h"
+#include "battle.h"
 
 //extern u16* OAMData;
 extern u16* OAM;
@@ -154,6 +155,17 @@ void LoadShip(pPlayer pl)
 	ReallyLoadShip(pl->ship,pl->OAMStart,pl->SpriteStart);
 }
 */
+
+
+void LoadBattle()
+{
+	for(s16 loop = SpriteAllShips; loop < SpriteAllShips+512; loop++)               //load sprite image data
+  	{
+		OAMData[loop+13312] = battleData[loop-SpriteAllShips];
+	}
+
+}
+
 void LoadAllShips(s16 OAMStart)
 {
 	s16 loop;
@@ -188,7 +200,6 @@ void LoadAllShips(s16 OAMStart)
 			OAMData[loop+13312] = questionData[loop-OAMStart];
 			OAMData[loop+13824] = crossData[loop-OAMStart];
 			OAMData[loop+14336] = blankshipData[loop-OAMStart];
-
 	}
 }
 

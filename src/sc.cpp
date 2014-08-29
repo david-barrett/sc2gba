@@ -33,12 +33,13 @@ skill aiskill=GOOD;
 s8 demo;
 s8 planet;
 s8 sound;
+s8 scaled;
 
 //create the rotation and scaling array (overlaps the OAMEntry array memory)
 pRotData rotData;// = (pRotData)sprites;
 
 extern const unsigned short sc2title[];
-
+s32 planetx,planety;
 
 int* KEYS =  (int*)0x04000130;
 unsigned long state;
@@ -161,6 +162,8 @@ int main()
 	else
 		sound=0;
 
+	scaled=pSaveMemory[3];
+
 	p1=(pPlayer)malloc(sizeof(Player));
 	p2=(pPlayer)malloc(sizeof(Player));
 	bg0=(pBg)malloc(sizeof(Bg));
@@ -182,6 +185,8 @@ p1->SpriteStart =P1_SpriteStart;
 p2->SpriteStart =P2_SpriteStart;
 
 planet=0;
+	planetx=screencentrex;
+	planety=screencentrey;
 
 //tests
 p1->xpos = 3638;	//variables to hold position of sprite on screen

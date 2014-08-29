@@ -27,6 +27,7 @@ extern s8 pilot;
 extern skill aiskill;
 extern s8 sound;
 extern u8 *pSaveMemory;
+extern s8 scaled;
 
 void LoadLetters(s16 spriteStart)
 {
@@ -105,17 +106,19 @@ void DrawNumber(int num,s16 sprite,  s16 x, s16 y)
 void DrawLargeNumber(int num,s16 sprite, s16 x, s16 y,s16 digits)
 {
 
+	int off;
 	while(digits>1)
 	{
-		int off=(int)pow(double(10),double(digits-1));//(10^(digits-1));
+		off=(int)pow(double(10),double(digits-1));//(10^(digits-1));
 
-		if (num>off)
+		if (num>=off)
 		{
-			int tmp=num/off;
+			int tmp=(s32)(double(num)/double(off));
 
 			DrawNumber(tmp,sprite,x,y);
 			num=num-(tmp*off);
 		}
+
 		else
 			DrawNumber(0,sprite,x,y);
 		x+=10;
@@ -147,6 +150,22 @@ if (pilot)
 	}
 }
 
+void scaleoption(int x,int y)
+{
+if (!scaled)
+	{
+		DrawLetter('p',68,x,y);
+		DrawLetter('c',69,x+10,y);
+		DrawLetter('e',70,240,160);
+	}
+	else
+	{
+		DrawNumber(3,68,x,y);
+		DrawLetter('d',69,x+10,y);
+		DrawLetter('o',70,x+20,y);
+	}
+}
+
 void soundoption(int x,int y)
 {
 if (sound)
@@ -157,9 +176,9 @@ if (sound)
 	}
 	else
 	{
-		DrawLetter('o',63,x,y);
-		DrawLetter('f',64,x+10,y);
-		DrawLetter('f',65,x+20,y);
+		DrawLetter('o',60,x,y);
+		DrawLetter('f',61,x+10,y);
+		DrawLetter('f',62,x+20,y);
 	}
 }
 
@@ -213,7 +232,7 @@ void skilloption(int x,int y)
 
 void options()
 {
-	int x=70,y=100,ay=y,exit=y+36;
+	int x=70,y=95,ay=y,exit=y+48;
 	DrawLetter('p',31,x,y);
 	DrawLetter('i',32,x+10,y);
 	DrawLetter('l',33,x+20,y);
@@ -224,7 +243,7 @@ void options()
 
 	DrawLetter('a',45,x,y+12);
 	DrawLetter('i',46,x+10,y+12);
-	skilloption(x+35,y+12);
+	skilloption(x+25,y+12);
 
 	DrawLetter('s',55,x,y+24);
 	DrawLetter('o',56,x+10,y+24);
@@ -232,6 +251,12 @@ void options()
 	DrawLetter('n',58,x+30,y+24);
 	DrawLetter('d',59,x+40,y+24);
 	soundoption(x+55,y+24);
+
+	DrawLetter('z',63,x,y+36);
+	DrawLetter('o',64,x+10,y+36);
+	DrawLetter('o',65,x+20,y+36);
+	DrawLetter('m',66,x+30,y+36);
+	scaleoption(x+50,y+36);
 
 	DrawLetter('e',40,x,exit);
 	DrawLetter('x',41,x+10,exit);
@@ -287,12 +312,27 @@ void options()
 							aiskill=DISABLED;
 						else if (aiskill==DISABLED)
 							aiskill=WEAK;
-						skilloption(x+35,y+12);
+						skilloption(x+25,y+12);
+						WaitForVsync();
+						CopyOAM();
+						for (int i=0;i<100;i++)
+							WaitForVsync();
 					}
 					else if (ay==y+24)
 					{
 						sound=!sound;
 						soundoption(x+55,y+24);
+						WaitForVsync();
+						CopyOAM();
+						for (int i=0;i<100;i++)
+							WaitForVsync();
+					}
+					else if (ay==y+36)
+					{
+						scaled=!scaled;
+						scaleoption(x+50,y+36);
+						WaitForVsync();
+						CopyOAM();
 						for (int i=0;i<100;i++)
 							WaitForVsync();
 					}
@@ -328,9 +368,11 @@ void options()
 			else
 				pSaveMemory[2]=1;
 
+			pSaveMemory[3]=scaled;
 
 
-			for (int i=31;i<66;i++)
+
+			for (int i=31;i<71;i++)
 				MoveSprite(&sprites[i],240,160);
 
 			for (int i=0;i<80;i++)
@@ -544,6 +586,5 @@ void DrawTitle()
 			DrawLetter('t',40,155,110);
 			WaitForVsync();
 			CopyOAM();
-
 
 }
