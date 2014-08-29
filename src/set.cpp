@@ -3,6 +3,8 @@
 #include "sc.h"
 #include "sincosrad.h"
 
+extern pOAMEntry sprites;
+
 void SetNew(pPlayer pl)
 {
 	//set random loc && facing
@@ -17,8 +19,11 @@ void SetNew(pPlayer pl)
 	pl->xspeed=0;
 	pl->yspeed=0;
 
-	for (int i=0;i<15;i++)
+	for (int i=0;i<12;i++)
+	{
 		pl->weapon[i].life=-1;
+		MoveOffscreen(&sprites[pl->weapon[i].sprite]);
+	}
 
 	pl->warp=6;
 	pl->xspeed = ((20) * (s32)SIN[pl->angle])>>8;

@@ -98,7 +98,7 @@ void LoadFury(s16 OAMStart, s16 SpriteStart)
        	OAMData[loop] = pkunkData[loop-OAMStart];
        	OAMData[loop+512] = pkunk_outData[loop-OAMStart];
 	}
-    for(loop = OAMStart; loop < OAMStart+512; loop++)               //load sprite image data
+    for(loop = OAMStart; loop < OAMStart+32; loop++)               //load sprite image data
 	{
 		OAMData[loop+1024] = pkunk_fireData[loop-OAMStart]; //loads some garbv
     }
@@ -114,6 +114,7 @@ void ReallyLoadShip(s16 ship,s16 OAMStart, s16 SpriteStart)
 		LoadDreadnaught(OAMStart,SpriteStart);
 		break;
 	case FURY:
+	//LoadDreadnaught(OAMStart,SpriteStart);
 		LoadFury(OAMStart,SpriteStart);
 		break;
 	default:;

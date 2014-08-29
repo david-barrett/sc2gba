@@ -152,7 +152,7 @@ int ChooseNextShip(pPlayer pl, pPlrList list)
 			x=x+34;
 			MoveSprite(&sprites[57],x,y);
 		}
-		if(!(*KEYS & KEY_A)||!(*KEYS & KEY_B))                	//if the A key is pressed
+		if(!(*KEYS & KEY_A))//||!(*KEYS & KEY_B))                	//if the A key is pressed
 		{
 			print("button pressed");
 				//found=0;
@@ -214,12 +214,15 @@ int ChooseNextShip(pPlayer pl, pPlrList list)
 pBg bg0;
 pBg bg1;
 
-
+pPlayer p1;
+pPlayer p2;
 
 //int turn;
 
 FIXED SIN2[360];	    //Look-Up Tabless for sign and cosign
 FIXED COS2[360];
+
+FIXED ATAN[360];
 
 //double scale;
 
@@ -271,17 +274,43 @@ int main()
 {
 	u32 loop;       //generic loop variable
 	KEYS =  (int*)0x04000130;
-	pPlayer p1;
-	pPlayer p2;
 
 	sprites=(pOAMEntry)malloc(sizeof(OAMEntry)*128);
+	if (sprites==NULL)
+		print("sprites null");
+	else
+		print("sprites ok");
+
 	state=1;
+
+	sprites->attribute0=5;
+	print("sprites a0 ");
+	print(sprites->attribute0);
+	print("sprites[0] a0 ");
+	print(sprites[0].attribute0);
 
 
 	p1=(pPlayer)malloc(sizeof(Player));
+	if (p1==NULL)
+			print("p1 null");
+		else
+		print("p1 ok");
 	p2=(pPlayer)malloc(sizeof(Player));
+	if (p2==NULL)
+			print("p2 null");
+		else
+		print("p2 ok");
 	bg0=(pBg)malloc(sizeof(Bg));
+	if (bg0==NULL)
+			print("bg0 null");
+		else
+		print("bg0 ok");
 	bg1=(pBg)malloc(sizeof(Bg));
+	if (bg1==NULL)
+			print("bg1 null");
+		else
+		print("bg1 ok");
+
 	rotData = (pRotData)sprites;
 
 	pPlrList plist2=(pPlrList)malloc(sizeof(PlrList)*14);
@@ -293,6 +322,28 @@ int main()
 	p2->opp=(void*)p1;
 
 
+p1->xpos = 2038;	//variables to hold position of sprite on screen
+p1->ypos = 2023;
+p1->angle = 305;
+p1->thrustangle = 305;
+p1->xspeed =0;
+p1->yspeed =0;
+p1->speed =0;
+p1->ship = DREADNAUGHT;
+p1->ship = FURY;
+
+
+
+
+p2->xpos = 1962;	//variables to hold position of sprite on screen
+p2->ypos = 1977;
+p2->angle = 0;
+p2->xspeed =0;
+p2->yspeed =0;
+p1->speed =0;
+p2->ship = FURY;
+//p2->ship = DREADNAUGHT;
+
 
 p1->OAMStart =P1_OAMStart;
 p1->SpriteStart =P1_SpriteStart;
@@ -302,10 +353,10 @@ p2->SpriteStart =P2_SpriteStart;
 
 
 //tests
-p1->xpos = 1638;	//variables to hold position of sprite on screen
-p1->ypos = 1623;
-p2->xpos = 1562;	//variables to hold position of sprite on screen
-p2->ypos = 1577;
+p1->xpos = 2038;	//variables to hold position of sprite on screen
+p1->ypos = 2023;
+p2->xpos = 1962;	//variables to hold position of sprite on screen
+p2->ypos = 1977;
 
 
 for (int i=0;i<12;i++)
@@ -339,6 +390,8 @@ for (int i=0;i<12;i++)
 	{
 		SIN2[loop] = (FIXED)(sin(RADIAN(loop)) * 256);  //sin and cos are computed and cast to fixed							//fixed
 		COS2[loop] = (FIXED)(cos(RADIAN(loop)) * 256);
+		ATAN[loop] = (FIXED)(atan(RADIAN(loop)) * 256);
+
 	}
 
 
@@ -388,7 +441,7 @@ for (int i=0;i<12;i++)
 		p2->ai=STANDARD;
 		//p1->ai=STANDARD;
 		//p1->ai=AWESOME;
-		//p2->ai=DISABLED;
+		p2->ai=DISABLED;
 
 		ChooseShips(p1,plist1);
 		ChooseShips(p2,plist2);
@@ -406,14 +459,12 @@ for (int i=0;i<12;i++)
 		SetShip(p2);
 		SetNew(p1);
 		SetNew(p2);
-		/*
 		LoadPal();
 		LoadShip(p1);
 		LoadShip(p2);
 		LoadExp(OAMFireSprite1,FireSprite1);
 		LoadTrail(OAMTrailSprite);
-		LoadPlanet(OAMPlanetSprite);
-		*/
+
 
 		do
 		{

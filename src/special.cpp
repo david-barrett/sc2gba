@@ -163,8 +163,8 @@ int FightersFire(pWeapon f,s16 angle)
 
 int SpecialFury(pPlayer pl)
 {
-	//int r = ran(10);
-	if (turn == 5)
+	int r = ran(0,9);
+	if (r<3)
 	{
 		ModifyCrew(pl,4);
 	}

@@ -300,15 +300,16 @@ int TurnAngle(s16 yourangle, s16 desiredangle,s8 );
 void print(char *s);
 void print(s32 s);
 void LoadDreadnaught(s16 OAMStart, s16 SpriteStart);
-
+s16 FindAngle(s32 x,s32 y, s32 ox, s32 oy);
 
 int ran(int min, int max);
 
 int DeathFury(pPlayer pl);
 
-const s32 planetx=2100;
-const s32 planety=2100;
+const s32 planetx=1000;
+const s32 planety=1000;
 void GenerateStart(pPlayer p);
+void MoveOffscreen(OAMEntry* sp);
 #endif
 
 /*128 sprites first 32 rotate

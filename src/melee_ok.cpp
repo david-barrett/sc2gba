@@ -54,10 +54,10 @@ char s[100];
 void
 print(char *s)
 {
-/*
+
     asm volatile ("mov r0, %0;" "swi 0xff0000;":        // warning! will crash on hardware!
                   :"r" (s):"r0");
-*/
+
 }
 
 
@@ -129,40 +129,14 @@ print(s32 s)
 }
 
 void GenerateStart(pPlayer p)
-{   //y=640
-	//x=960
-	int good=0;
+{
+	int good=1;
 	do
 	{
-		pPlayer opp=(pPlayer)p->opp;
-	//	p->angle=ran(0,359);
-		/*
-		s32 rand=ran(0,1820)-910;//960-50 *2
-		p->xpos=opp->xpos+rand+(rand<0?-50:50);
-		rand=ran(0,1180)-590;//960-50 *2
-		p->ypos=opp->ypos+rand+(rand<0?-50:50);
-		*/
+		p->angle=ran(0,359);
+		p->xpos=ran(0,4000);
+		p->ypos=ran(0,4000);
 
-		s32 rand=ran(0,1180)-590;//960-50 *2
-		p->xpos=opp->xpos+rand+(rand<0?-50:50);
-
-		p->ypos=opp->ypos+rand+(rand<0?-50:50);
-
-		s16 dist=distanceBetweenPoints(p->xpos,p->ypos,planetx,planety);
-					//if (dist<(p->offset+64)/2)
-		if (dist<100)
-		{
-						//bad try again
-						good=1;
-						break;
-	}
-		//s16 angle = FindAngle(p->xpos,p->ypos,planetx,planety);
-
-	//	p->angle=angle+(angle>180)?-180:180;
-	p->angle=FindAngle(planetx,planety,p->xpos,p->ypos);
-
-
-/*
 		s32 xspeed = ((20) * (s32)SIN[p->angle])>>8;
 	    s32 yspeed = ((20) * (s32)COS[p->angle])>>8;
 	    s32 xpos = p->xpos;
@@ -181,7 +155,6 @@ void GenerateStart(pPlayer p)
 			xpos+=xspeed;
 			ypos+=yspeed;
 		}
-	*/
 	}
 	while(good);
 }
@@ -375,7 +348,6 @@ void GetInput(pPlayer pl)
 	}
 	if(!(*KEYS & KEY_START))                //if the START key is pressed
 	{
-		for(int i=0;i<100;i++);
 		do
 		{
 		}while(!(*KEYS & KEY_START));
@@ -591,7 +563,7 @@ void MoveBullets(pPlayer pl)
 			sprites[pl->weapon[i].sprite].attribute0 = 160;  //y to > 159
 			sprites[pl->weapon[i].sprite].attribute1 = 240; //x to > 239
 			sprites[pl->weapon[i].sprite].attribute2 = 0;
-			//MoveSprite(&sprites[pl->weapon[i].sprite], pl->weapon[i].xscreen, pl->weapon[i].yscreen);
+			MoveSprite(&sprites[pl->weapon[i].sprite], pl->weapon[i].xscreen, pl->weapon[i].yscreen);
 			//RotateSprite(pl->weapon[i].sprite, pl->weapon[i].angle, zoom,zoom);
 			pl->weapon[i].life--;
 			print("\ndestroyed weapon ");
@@ -763,52 +735,13 @@ s32 distanceBetweenPoints(s32 xpos1,s32 ypos1,s32 xpos2,s32 ypos2)
 	return z;
 }
 
-inline void findCentre(s32 *x,s32 *y,pPlayer p1,pPlayer p2)
+void findCentre(s32 *x,s32 *y,pPlayer p1,pPlayer p2)
 {
 	*x = ((p1->xpos+p2->xpos)/2);//-32;
 	*y = ((p1->ypos+p2->ypos)/2);//-32;
+
+
 }
-
-void shifteverythingx(pPlayer p1,pPlayer p2,int shift)
-{
-	//shift everything except the planet
-
-	p1->xpos+=shift;
-	p2->xpos+=shift;
-	screenx+=shift;
-	int i;
-	for (i=0;i<12;i++)
-	{
-		p1->weapon[i].xpos+=shift;
-		p2->weapon[i].xpos+=shift;
-	}
-	for (i=0;i<10;i++)
-	{
-		trails[i].xpos+=shift;
-	}
-	//asteroids
-}
-
-void shifteverythingy(pPlayer p1,pPlayer p2,int shift)
-{
-	//shift everything except the planet
-
-	p1->ypos+=shift;
-	p2->ypos+=shift;
-	screeny+=shift;
-	int i;
-	for (i=0;i<12;i++)
-	{
-		p1->weapon[i].ypos+=shift;
-		p2->weapon[i].ypos+=shift;
-	}
-	for (i=0;i<10;i++)
-	{
-		trails[i].ypos+=shift;
-	}
-	//asteroids
-}
-
 
 void setScreen(pPlayer p1,pPlayer p2,Bg* bg0,Bg* bg1)
 {
@@ -862,63 +795,45 @@ void setScreen(pPlayer p1,pPlayer p2,Bg* bg0,Bg* bg1)
 
 		s32 xd = p1->xpos-p2->xpos;
 		if (xd<-960 || xd>960)
-		{
-			if (screenx>1000)
-				shifteverythingx(p1,p2,-500);
-			else
-				shifteverythingx(p1,p2,500);
 			swap(&p1->xpos,&p2->xpos);
-		}
 		s32 yd = p1->ypos-p2->ypos;
 		if (yd<-640 || yd>640)
-		{
 			swap(&p1->ypos,&p2->ypos);
-			if (screeny>1000)
-				shifteverythingy(p1,p2,-500);
-			else
-				shifteverythingy(p1,p2,500);
-		}
 
 	}
 
-
-
-	// want to reset so values dont overflow
-
-	if(screenx<50)
-		shifteverythingx(p1,p2,1600);
-	if (screenx>1950)
-		shifteverythingx(p1,p2,-1600);
-	if(screeny<50)
-		shifteverythingy(p1,p2,1600);
-	if (screeny>1950)
-		shifteverythingy(p1,p2,-1600);
-/*
-	if(p1->xpos>8000||
-		p2->xpos>8000)
-	{
-		shifteverythingx(p1,p2,-6000);
-	}
-	if (p1->ypos>8000||
-		p2->ypos>8000)
-
-	{
-		shifteverythingy(p1,p2,-6000);
-	}
-	if(p1->xpos<0||
-		p2->xpos<0)
-	{
-		shifteverythingx(p1,p2,6000);
-	}
-	if(p1->ypos<0||
-		p2->ypos<0)
-	{
-		shifteverythingy(p1,p2,6000);
-	}
-
-*/
 	drawOnScreen(&p1->xscreen,&p1->yscreen,p1->xpos,p1->ypos,screenx,screeny,32,1);
 	drawOnScreen(&p2->xscreen,&p2->yscreen,p2->xpos,p2->ypos,screenx,screeny,32,1);
+
+	// want to reset so values dont overflow
+	/*
+	if(p1->xpos>2000||
+		p2->xpos>2000)
+	{
+		p1->xpos-=1000;
+		p2->xpos-=1000;
+	}
+	if (p1->ypos>2000||
+		p2->ypos>2000)
+
+	{
+		p1->ypos-=1000;
+		p2->ypos-=1000;
+	}
+	if(p1->xpos<-2000||
+		p2->xpos<-2000)
+	{
+		p1->xpos+=1000;
+		p2->xpos+=1000;
+	}
+	if(p1->ypos<-2000||
+		p2->ypos<-2000)
+	{
+		p1->ypos+=1000;
+		p2->ypos+=1000;
+	}
+	*/
+
 }
 
 void drawOnScreen(s16* x,s16* y,s32 xpos,s32 ypos, s16 screenx, s16 yscreen,s16 size,s16 pl)
@@ -951,7 +866,7 @@ void drawOnScreen(s16* x,s16* y,s32 xpos,s32 ypos, s16 screenx, s16 yscreen,s16 
 
 
 }
-/*
+
 int CanHitOpp(pPlayer pl)
 {
 	pPlayer opp = (pPlayer)pl->opp;
@@ -969,7 +884,7 @@ int CanHitOpp(pPlayer pl)
 	}
 	return 0;
 }
-*/
+
 int TurnAngle(s16 yourangle, s16 desiredangle,s8 precision)
 {
 	//takes your angle, the angle you want and possilbe a precsion
@@ -1031,16 +946,11 @@ void aiTurn(pPlayer ai)
 
 	pPlayer opp = (pPlayer)ai->opp;
 	s16 angle = FindAngle(ai->xpos,ai->ypos,opp->xpos,opp->ypos);
-	s16 oangle = angle+(angle<180)?180:-180;
 	//s16 desangle=angle;
-
-	int x=30;
-	if (opp->ship==FURY)
-		x=100;
 
 	int InRangeToFire=InRange(ai->xpos,ai->ypos,opp->xpos,opp->ypos,ai->range);
 
-	int InRangeToBeHit=(TurnAngle(oangle,ai->angle,x)==0)&&InRange(opp->xpos,opp->ypos,ai->xpos,ai->ypos,opp->range);
+	int InRangeToBeHit=CanHitOpp(opp)&&InRange(opp->xpos,opp->ypos,ai->xpos,ai->ypos,opp->range);
 
 	if(InRangeToBeHit)
 	{
@@ -1065,7 +975,7 @@ void aiTurn(pPlayer ai)
 		//s16 a1 = 360+angle;
 		//s16 a2 = 360+ai->angle;
 
-		x=30;
+		int x=30;
 		if (ai->ship==FURY)
 			x=100;
 
@@ -1109,7 +1019,7 @@ void aiTurn(pPlayer ai)
 	}	//end if turn
 }
 
-inline int GetNextTrail(int off)
+int GetNextTrail(int off)
 {
 	for (int i=0+off;i<5+off;i++)
 	{
@@ -1227,7 +1137,7 @@ void ProcessPlayer(pPlayer pl,s8 *EndGame)
 	}
 }
 
-inline void Bounce(pPlayer pl)
+void Bounce(pPlayer pl)
 {
 	pl->xspeed*=-1;
 	pl->yspeed*=-1;
@@ -1292,6 +1202,7 @@ void Melee(pPlayer p1,pPlayer p2,Bg *bg0, Bg *bg1)
 	//try - should load in sc2.cpp but oam mem seems to be blank...
 	LoadPal();
 	LoadShip(p1);
+	//LoadDreadnaught(p1->ship,p1->OAMStart);
 	LoadShip(p2);
 	LoadExp(OAMFireSprite1,FireSprite1);
 	LoadTrail(OAMTrailSprite);
@@ -1413,7 +1324,7 @@ void Melee(pPlayer p1,pPlayer p2,Bg *bg0, Bg *bg1)
 
 			turn++;
 
-			if (turn==5)
+			if (turn==9)
 			{
 				turn=0;
 				if (p1->crew>0)
