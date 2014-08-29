@@ -17,6 +17,24 @@
 #include "vuxpilotf.h"
 #include "vuxpilots.h"
 
+#define MAX_CREW 20
+#define MAX_ENERGY 40
+#define ENERGY_REGENERATION 1
+#define WEAPON_ENERGY_COST 1
+#define SPECIAL_ENERGY_COST 2
+#define ENERGY_WAIT 8
+#define MAX_THRUST /* DISPLAY_TO_WORLD (5) */ SHIP_SPEED(21)
+#define THRUST_INCREMENT /* DISPLAY_TO_WORLD (2) */ SHIP_SPEED(7)
+#define TURN_WAIT 6
+#define THRUST_WAIT 4
+#define WEAPON_WAIT 0
+#define SPECIAL_WAIT 7
+
+#define SHIP_MASS 6
+#define WARP_OFFSET 46 /* How far outside of laser-range ship can warp in */
+#define VUX_OFFSET 12
+#define LASER_BASE 150
+#define LASER_RANGE (LASER_BASE + VUX_OFFSET)//DISPLAY_TO_WORLD (LASER_BASE + VUX_OFFSET)
 
 
 extern s32 screenx,screeny;
@@ -116,26 +134,28 @@ int SpecialVux(pPlayer pl)
 
 void SetVux(pPlayer pl)
 {
-	pl->crew=20;
-	pl->maxcrew=20;
-	pl->batt=40;
-	pl->maxbatt=40;
+		pl->crew=MAX_CREW;
+			pl->maxcrew=MAX_CREW;
+			pl->batt=MAX_ENERGY;
+			pl->maxbatt=MAX_ENERGY;
 
-	pl->maxspeed=21;
+			pl->maxspeed=MAX_THRUST;
 
-	pl->accel_inc=7;
+			pl->accel_inc=THRUST_INCREMENT;
 
-	pl->firebatt=1;
-	pl->specbatt=2;
+			pl->firebatt=WEAPON_ENERGY_COST;
+			pl->specbatt=SPECIAL_ENERGY_COST;
 
-	pl->offset=13;
 
-	pl->batt_wait=8;
-	pl->turn_wait=6;
-	pl->thrust_wait=4;
-	pl->weapon_wait=0;
-	pl->special_wait=7;
-	pl->batt_regen=1;
+
+			pl->batt_wait=ENERGY_WAIT;
+			pl->turn_wait=TURN_WAIT;
+			pl->thrust_wait=THRUST_WAIT;
+			pl->weapon_wait=WEAPON_WAIT;
+			pl->special_wait=SPECIAL_WAIT;
+			pl->batt_regen=ENERGY_REGENERATION;
+
+	pl->mass=SHIP_MASS;
 
 	s16 o = (pl->plr-1)*13;
 
@@ -146,6 +166,8 @@ void SetVux(pPlayer pl)
 	pl->lspecsprite=12+o;
 
 	pl->range=200;
+
+	pl->offset=9;
 
 	pl->fireangle=45;
 
@@ -160,7 +182,7 @@ void SetVux(pPlayer pl)
 	pl->ditty=&vux_ditty;
 
 	pl->ship_flags = FIRES_FORE | SEEKING_SPECIAL | IMMEDIATE_WEAPON;
-	pl->mass=6;
+
 
 	pl->pilot_sprite=(512+512+512+64)/16;
 	pl->pilots[0].x=3;

@@ -17,6 +17,22 @@
 #include "ilwrathpilots.h"
 
 
+#define MAX_CREW 22
+#define MAX_ENERGY 16
+#define ENERGY_REGENERATION 4
+#define WEAPON_ENERGY_COST 1
+#define SPECIAL_ENERGY_COST 3
+#define ENERGY_WAIT 4
+#define MAX_THRUST SHIP_SPEED(25)
+#define THRUST_INCREMENT SHIP_SPEED(5)
+#define TURN_WAIT 2
+#define THRUST_WAIT 0
+#define WEAPON_WAIT 0
+#define SPECIAL_WAIT 13
+
+#define SHIP_MASS 7
+#define MISSILE_LIFE 8
+
 extern s32 screenx,screeny;
 extern pOAMEntry sprites;
 extern double scale;
@@ -93,27 +109,28 @@ int SpecialIlwrath(pPlayer pl)
 
 void SetIlwrath(pPlayer pl)
 {
-	pl->crew=22;
-	pl->maxcrew=22;
-	pl->batt=16;
-	pl->maxbatt=16;
+	pl->crew=MAX_CREW;
+		pl->maxcrew=MAX_CREW;
+		pl->batt=MAX_ENERGY;
+		pl->maxbatt=MAX_ENERGY;
 
-	pl->maxspeed=25;
+		pl->maxspeed=MAX_THRUST;
 
-	pl->accel_inc=5;
+		pl->accel_inc=THRUST_INCREMENT;
 
-	pl->firebatt=1;
-	pl->specbatt=3;
+		pl->firebatt=WEAPON_ENERGY_COST;
+		pl->specbatt=SPECIAL_ENERGY_COST;
 
-	pl->offset=16;
+			pl->offset=15;
 
-	pl->batt_wait=4;
-	pl->turn_wait=2;
-	pl->thrust_wait=0;
-	pl->weapon_wait=0;
-	pl->special_wait=13;
-	pl->batt_regen=4;
+		pl->batt_wait=ENERGY_WAIT;
+		pl->turn_wait=TURN_WAIT;
+		pl->thrust_wait=THRUST_WAIT;
+		pl->weapon_wait=WEAPON_WAIT;
+		pl->special_wait=SPECIAL_WAIT;
+		pl->batt_regen=ENERGY_REGENERATION;
 
+	pl->mass=SHIP_MASS;
 	s16 o = (pl->plr-1)*13;
 
 	pl->ffiresprite=1+o;
@@ -137,7 +154,6 @@ void SetIlwrath(pPlayer pl)
 	pl->ditty=&ilwrath_ditty;
 
 	pl->ship_flags = FIRES_FORE ;
-	pl->mass=7;
 
 	pl->pilot_sprite=(1024+512)/16;
 

@@ -39,7 +39,7 @@ void PostArilou(pPlayer p);
 #define WEAPON_ENERGY_COST 2
 #define SPECIAL_ENERGY_COST 3
 #define ENERGY_WAIT 6
-#define MAX_THRUST /* DISPLAY_TO_WORLD (10) */ 40
+#define MAX_THRUST /* DISPLAY_TO_WORLD (10) */ SHIP_SPEED(40)
 #define THRUST_INCREMENT MAX_THRUST
 #define TURN_WAIT 0
 #define THRUST_WAIT 0

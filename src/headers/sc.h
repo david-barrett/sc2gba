@@ -24,6 +24,8 @@
 #define DESTROYED 2
 #define EMPTY 3
 
+#define SHIP_SPEED(x) ((x)>>1) //try
+
 
 
 typedef signed short 	COUNT;
@@ -142,6 +144,7 @@ s32 ypos ;
 s16 xscreen;
 s16 yscreen;
 s32 angle;
+s8 actualangle;
 s32 xspeed;
 s32 yspeed;
 s32 turn;
@@ -244,6 +247,7 @@ s32 ypos ;
 s16 xscreen;
 s16 yscreen;
 s32 angle;
+s8 actualangle;
 s32 thrustangle;
 
 s32 xspeed;
@@ -319,7 +323,8 @@ short blaze;//andro
 short destruct;//shofixti
 short form; //mmrnhrm
 short charging; //chenjesu/trader
-
+short drawangle;//probe
+short currentweapon;//blackurq
 
 //pPlayer opp;
 
@@ -397,7 +402,8 @@ enum type
 	BUTT,
 	BUBBLE,
 	MISSILE,
-	DOGI
+	DOGI,
+	FLAME
 
 };
 
@@ -460,8 +466,8 @@ void AddLimpet(pPlayer);
 
 
 //ships.cpp
-void TurnLeft(pPlayer,int i=15);
-void TurnRight(pPlayer,int i=15);
+void TurnLeft(pPlayer);//,int i=15);
+void TurnRight(pPlayer);//,int i=15);
 void Thrust(pPlayer);
 void Bounce(pPlayer pl);
 void ProcessPlayer(pPlayer pl);
@@ -552,7 +558,7 @@ void MoveCrew(pWeapon);
 
 void SetAndrosynth(pPlayer pl);
 void SetArilou(pPlayer pl);
-void SetBlackUrq(pPlayer pl);
+void SetBlackurq(pPlayer pl);
 void SetChenjesu(pPlayer pl);
 void SetChmmr(pPlayer pl);
 void SetSupox(pPlayer pl);
@@ -561,14 +567,14 @@ void SetUmgah(pPlayer pl);
 void SetSpathi(pPlayer pl);
 void MoveButt(pWeapon);
 void SetUtwig(pPlayer pl);
-void SetDruudge(pPlayer pl);
+void SetDruuge(pPlayer pl);
 void SetOrz(pPlayer pl);
 
 void SetMycon(pPlayer pl);
 void SetProbe(pPlayer pl);
 void SetShofixti(pPlayer pl);
 void SetZoqFot(pPlayer pl);
-void SetThrad(pPlayer pl);
+void SetThradd(pPlayer pl);
 void SetMelnorme(pPlayer pl);
 void SetMmrnmhrm(pPlayer pl);
 

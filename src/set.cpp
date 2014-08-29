@@ -87,20 +87,20 @@ void SetShip(pPlayer pl)
 			break;
 		case SKIFF :
 			SetArilou(pl);
-			break;/*
+			break;
 		case MARAUDER:
-			SetBlackUrq(pl);
-			break;*/
+			SetBlackurq(pl);
+			break;
 		case BROODHOME:
 			SetChenjesu(pl);
-			break;/*
+			break;
 		case AVATAR:
-			SetChmmr(pl);
+		//	SetChmmr(pl);
 			break;
 
 		case BLADE:
-			SetSupox(pl);
-			break;*/
+		//	SetSupox(pl);
+			break;
 		case CRUISER:
 			SetHuman(pl);
 			break;
@@ -109,39 +109,39 @@ void SetShip(pPlayer pl)
 			break;
 		case ELUDER:
 			SetSpathi(pl);
-			break;	  /*
+			break;
 		case JUGGER:
 			SetUtwig(pl);
 			break;
 
 		case MAULER:
-			SetDruudge(pl);
+			SetDruuge(pl);
 			break;
 		case NEMESIS:
-			SetOrz(pl);
-			break;*/
+		//	SetOrz(pl);
+			break;
 		case PENETRATOR:
 			SetSyreen(pl);
 			break;
 		case PODSHIP:
 			SetMycon(pl);
-			break;/*
+			break;
 		case PROBE:
 			SetProbe(pl);
 			break;
-*/
+
 		case SCOUT:
 			SetShofixti(pl);
-			break;/*
+			break;
 		case STINGER:
 			SetZoqFot(pl);
 			break;
 		case TORCH:
-			SetThrad(pl);
+			SetThradd(pl);
 			break;
 		case TRADER:
-			SetMelnorme(pl);
-			break;*/
+			//SetMelnorme(pl);
+			break;
 		case TRANSFORMER:
 			SetMmrnmhrm(pl);
 			break;

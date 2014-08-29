@@ -40,8 +40,8 @@ void Postmycon(pPlayer pl);
 #define WEAPON_ENERGY_COST 20
 #define SPECIAL_ENERGY_COST MAX_ENERGY
 #define ENERGY_WAIT 4
-#define MAX_THRUST /* DISPLAY_TO_WORLD (7) */ 27
-#define THRUST_INCREMENT /* DISPLAY_TO_WORLD (2) */ 9
+#define MAX_THRUST /* DISPLAY_TO_WORLD (7) */ SHIP_SPEED(27)
+#define THRUST_INCREMENT /* DISPLAY_TO_WORLD (2) */ SHIP_SPEED(9)
 #define TURN_WAIT 6
 #define THRUST_WAIT 6
 #define WEAPON_WAIT 5
@@ -125,7 +125,8 @@ int FireMycon(pPlayer pl)
 		pl->weapon[b].damageparent=1;
 
 		pl->weapon[b].size=16;
-		pl->weapon[b].angle = pl->angle;
+		pl->weapon[b].actualangle = pl->actualangle;
+		pl->weapon[b].angle=(pl->weapon[b].actualangle*45)>>1;
 
 		pl->weapon[b].xspeed = (MISSILE_SPEED * (s32)SIN[pl->angle])>>8;
 		pl->weapon[b].yspeed = (MISSILE_SPEED * (s32)COS[pl->angle])>>8;
@@ -166,7 +167,7 @@ void SetMycon(pPlayer pl)
 	pl->firebatt=WEAPON_ENERGY_COST;
 	pl->specbatt=SPECIAL_ENERGY_COST;
 
-	pl->offset=10;
+	pl->offset=14;
 
 	pl->batt_wait=ENERGY_WAIT;
 	pl->turn_wait=TURN_WAIT;
@@ -383,17 +384,18 @@ void  MovePlasma(pWeapon ur)
 					ur->yspeed = y;//(ur->yspeed + y)/2;
 				}
 				else if (ret<0)
-				{
-					ur->angle-=15;
-					if (ur->angle<0)
-						ur->angle+=360;
-				}
-				else if (ret>0)
-				{
-					ur->angle+=15;
-					if (ur->angle>360)
-						ur->angle-=360;
-				}
+								{
+									ur->actualangle--;
+									if (ur->actualangle==-1)
+										ur->actualangle=15;
+								}
+								else if (ret>0)
+								{
+									ur->actualangle++;
+									if (ur->actualangle==16)
+										ur->actualangle=0;
+								}
+				ur->angle=(ur->actualangle*45)>>1;
 
 
 			ur->turn_wait = TRACK_WAIT;

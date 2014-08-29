@@ -16,6 +16,24 @@
 #include "yehatpilotf.h"
 #include "yehatpilots.h"
 
+#define MAX_CREW 20
+#define MAX_ENERGY 10
+#define ENERGY_REGENERATION 2
+#define WEAPON_ENERGY_COST 1
+#define SPECIAL_ENERGY_COST 3
+#define ENERGY_WAIT 6
+#define MAX_THRUST SHIP_SPEED(30)
+#define THRUST_INCREMENT SHIP_SPEED(6)
+#define TURN_WAIT 2
+#define THRUST_WAIT 2
+#define WEAPON_WAIT 0
+#define SPECIAL_WAIT 2
+
+#define SHIP_MASS 3
+#define MISSILE_SPEED /*DISPLAY_TO_WORLD*/ (20)
+#define MISSILE_LIFE 10
+
+
 
 
 extern s32 screenx,screeny;
@@ -75,26 +93,30 @@ int SpecialYehat(pPlayer pl)
 
 void SetYehat(pPlayer pl)
 {
-	pl->crew=20;
-	pl->maxcrew=20;
-	pl->batt=10;
-	pl->maxbatt=10;
+	pl->crew=MAX_CREW;
+		pl->maxcrew=MAX_CREW;
+		pl->batt=MAX_ENERGY;
+		pl->maxbatt=MAX_ENERGY;
 
-	pl->maxspeed=30;
+		pl->maxspeed=MAX_THRUST;
 
-	pl->accel_inc=2;
+		pl->accel_inc=THRUST_INCREMENT;
 
-	pl->firebatt=1;
-	pl->specbatt=3;
+		pl->firebatt=WEAPON_ENERGY_COST;
+		pl->specbatt=SPECIAL_ENERGY_COST;
 
-	pl->offset=10;
 
-	pl->batt_wait=6;
-	pl->turn_wait=2;
-	pl->thrust_wait=2;
-	pl->weapon_wait=0;
-	pl->special_wait=2;
-	pl->batt_regen=2;
+
+		pl->batt_wait=ENERGY_WAIT;
+		pl->turn_wait=TURN_WAIT;
+		pl->thrust_wait=THRUST_WAIT;
+		pl->weapon_wait=WEAPON_WAIT;
+		pl->special_wait=SPECIAL_WAIT;
+		pl->batt_regen=ENERGY_REGENERATION;
+
+	pl->mass=SHIP_MASS;
+
+		pl->offset=10;
 
 	s16 o = (pl->plr-1)*13;
 
@@ -119,7 +141,6 @@ void SetYehat(pPlayer pl)
 	pl->ditty=&yehat_ditty;
 
 	pl->ship_flags = FIRES_FORE | SHIELD_DEFENSE;
-	pl->mass=3;
 
 	pl->pilot_sprite=(1024+512+32)/16;
 	pl->pilots[0].x=0;
@@ -159,8 +180,8 @@ int FireYehat(pPlayer pl)
 	pl->weapon[b].angle = pl->angle;
 
 	s32 speed=20;
-	pl->weapon[b].xspeed = ((speed * (s32)SIN[pl->angle])>>9);///SPEED_REDUCT;
-	pl->weapon[b].yspeed = ((speed * (s32)COS[pl->angle])>>9);///SPEED_REDUCT;
+	pl->weapon[b].xspeed = ((speed * (s32)SIN[pl->angle])>>8);///SPEED_REDUCT;
+	pl->weapon[b].yspeed = ((speed * (s32)COS[pl->angle])>>8);///SPEED_REDUCT;
 
 	//pl->weapon[b].xpos = pl->xpos+((52 * (s32)SIN[pl->angle+(i==0?-30:+30)])>>8)/3;
 	//pl->weapon[b].ypos = pl->ypos-((52 * (s32)COS[pl->angle+(i==0?-30:+30)])>>8)/3;

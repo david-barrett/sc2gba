@@ -6,7 +6,7 @@
 #include "blackurq.h"
 #include "chenjesu.h"
 #include "chmmr.h"
-#include "druudge.h"
+#include "druuge.h"
 #include "human.h"
 #include "ilwrath.h"
 #include "melnorme.h"

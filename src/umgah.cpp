@@ -16,6 +16,21 @@
 #include "umgahpilotf.h"
 #include "umgahpilots.h"
 
+#define MAX_CREW 10
+#define MAX_ENERGY 30
+#define ENERGY_REGENERATION MAX_ENERGY
+#define WEAPON_ENERGY_COST 0
+#define SPECIAL_ENERGY_COST 1
+#define ENERGY_WAIT 150
+#define MAX_THRUST /* DISPLAY_TO_WORLD (5) */ SHIP_SPEED(18)
+#define THRUST_INCREMENT /* DISPLAY_TO_WORLD (2) */ SHIP_SPEED(6)
+#define TURN_WAIT 4
+#define THRUST_WAIT 3
+#define WEAPON_WAIT 0
+#define SPECIAL_WAIT 2
+
+#define SHIP_MASS 1
+
 
 
 #define JUMP_DIST 40
@@ -85,26 +100,29 @@ int SpecialUmgah(pPlayer pl)
 
 void SetUmgah(pPlayer pl)
 {
-	pl->crew=10;
-	pl->maxcrew=10;
-	pl->batt=30;
-	pl->maxbatt=30;
+	pl->crew=MAX_CREW;
+		pl->maxcrew=MAX_CREW;
+		pl->batt=MAX_ENERGY;
+		pl->maxbatt=MAX_ENERGY;
 
-	pl->maxspeed=18;
+		pl->maxspeed=MAX_THRUST;
 
-	pl->accel_inc=6;
+		pl->accel_inc=THRUST_INCREMENT;
 
-	pl->firebatt=0;
-	pl->specbatt=1;
+		pl->firebatt=WEAPON_ENERGY_COST;
+		pl->specbatt=SPECIAL_ENERGY_COST;
 
-	pl->offset=7;
 
-	pl->batt_wait=150;
-	pl->turn_wait=4;
-	pl->thrust_wait=3;
-	pl->weapon_wait=0;
-	pl->special_wait=2;
-	pl->batt_regen=30;
+
+		pl->batt_wait=ENERGY_WAIT;
+		pl->turn_wait=TURN_WAIT;
+		pl->thrust_wait=THRUST_WAIT;
+		pl->weapon_wait=WEAPON_WAIT;
+		pl->special_wait=SPECIAL_WAIT;
+		pl->batt_regen=ENERGY_REGENERATION;
+
+	pl->mass=SHIP_MASS;
+		pl->offset=7;
 
 	s16 o = (pl->plr-1)*13;
 

@@ -39,8 +39,8 @@ void Posthuman(pPlayer pl);
 #define WEAPON_ENERGY_COST 9
 #define SPECIAL_ENERGY_COST 4
 #define ENERGY_WAIT 8
-#define MAX_THRUST /* DISPLAY_TO_WORLD (6) */ 24
-#define THRUST_INCREMENT /* DISPLAY_TO_WORLD (2) */ 3
+#define MAX_THRUST /* DISPLAY_TO_WORLD (6) */ SHIP_SPEED(24)
+#define THRUST_INCREMENT /* DISPLAY_TO_WORLD (2) */ SHIP_SPEED(3)
 #define TURN_WAIT 1
 #define THRUST_WAIT 4
 #define WEAPON_WAIT 10
@@ -115,7 +115,8 @@ int FireHuman(pPlayer pl)
 		pl->weapon[b].damageparent=0;
 
 		pl->weapon[b].size=32;
-		pl->weapon[b].angle = pl->angle;
+		pl->weapon[b].actualangle = pl->actualangle;
+		pl->weapon[b].angle=(pl->weapon[b].actualangle*45)>>1;
 
 		pl->weapon[b].xspeed = (MISSILE_SPEED * (s32)SIN[pl->angle])>>8;
 		pl->weapon[b].yspeed = (MISSILE_SPEED * (s32)COS[pl->angle])>>8;
@@ -156,7 +157,7 @@ void SetHuman(pPlayer pl)
 	pl->firebatt=WEAPON_ENERGY_COST;
 	pl->specbatt=SPECIAL_ENERGY_COST;
 
-	pl->offset=10;
+
 
 	pl->batt_wait=ENERGY_WAIT;
 	pl->turn_wait=TURN_WAIT;
@@ -164,6 +165,11 @@ void SetHuman(pPlayer pl)
 	pl->weapon_wait=WEAPON_WAIT;
 	pl->special_wait=SPECIAL_WAIT;
 	pl->batt_regen=ENERGY_REGENERATION;
+
+	pl->mass=SHIP_MASS;
+
+
+	pl->offset=14;
 
 	s16 o = (pl->plr-1)*13;
 
@@ -188,7 +194,6 @@ void SetHuman(pPlayer pl)
 	pl->ditty=&human_ditty;
 
 	pl->ship_flags = FIRES_FORE | SEEKING_WEAPON | POINT_DEFENSE;
-	pl->mass=SHIP_MASS;
 
 	pl->pilot_sprite=(1024+128+512)/16;
 	pl->pilots[0].x=37;
@@ -417,16 +422,17 @@ void  MoveHumanMissile(pWeapon ur)
 				}
 				else if (ret<0)
 				{
-					ur->angle-=15;
-					if (ur->angle<0)
-						ur->angle+=360;
+					ur->actualangle--;
+					if (ur->actualangle==-1)
+						ur->actualangle=15;
 				}
 				else if (ret>0)
 				{
-					ur->angle+=15;
-					if (ur->angle>360)
-						ur->angle-=360;
+					ur->actualangle++;
+					if (ur->actualangle==16)
+						ur->actualangle=0;
 				}
+				ur->angle=(ur->actualangle*45)>>1;
 
 
 			ur->turn_wait = TRACK_WAIT;

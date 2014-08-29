@@ -30,17 +30,11 @@ int SelectNextShip(s32 x,s32 y,s32 s,s32 d=GUARDIAN);
 
 int Available(s16 selected)
 {
-	if (selected==FURY||selected==DREADNAUGHT||
-		selected==AVENGER||selected==TERMINATOR||
-		selected==PENETRATOR||selected==INTRUDER||
-		selected==DRONE||selected==ELUDER||
-		selected==GUARDIAN||selected==PODSHIP||
-		selected==CRUISER||selected==SCOUT||
-		selected==TRANSFORMER||selected==BROODHOME||
-		selected==SKIFF)
-		return 1;
+	if (selected==AVATAR||selected==NEMESIS||
+		selected==BLADE||selected==TRADER)
+		return 0;
 
-	return 0;
+	return 1;
 }
 
 

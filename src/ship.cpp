@@ -38,7 +38,8 @@ void GenerateStart(pPlayer p,s32 range)
 	s16 dist;
 
 	pPlayer opp=(pPlayer)p->opp;
-	p->angle=ran(0,23)*15;
+	p->actualangle=ran(0,15);
+	p->angle=(p->actualangle*45)>>1;
 
 	p->xspeed = ((20) * (s32)SIN[p->angle])>>8;
 	p->yspeed = ((20) * (s32)COS[p->angle])>>8;
@@ -139,26 +140,30 @@ void DetonateShip(pPlayer pl)
 	}
 }
 
-void TurnRight(pPlayer pl, int i)
+void TurnRight(pPlayer pl)//, int i)
 {
 	if (pl->turn_turn==0)
 	{
-	pl->turn_turn==pl->turn_wait;
-	pl->angle+=i;
-	if(pl->angle>=360)
-		pl->angle-=360;;
+	pl->turn_turn=pl->turn_wait;
+	pl->actualangle++;
+	if(pl->actualangle==16)
+		pl->actualangle=0;
+	pl->angle=(pl->actualangle*45)>>1;
 	}
 }
 
-void TurnLeft(pPlayer pl,int i)
+void TurnLeft(pPlayer pl)//,int i)
 {
 	if (pl->turn_turn==0)
 	{
-	pl->turn_turn==pl->turn_wait;
-	pl->angle-=i;
-	if(pl->angle<0)
-		pl->angle+=360;;
+	pl->turn_turn=pl->turn_wait;
+	pl->actualangle--;
+	if(pl->actualangle==-1)
+		pl->actualangle=15;
+	pl->angle=(pl->actualangle*45)>>1;
 	}
+
+
 }
 
 void GetInput(pPlayer pl)
@@ -229,7 +234,7 @@ void Thrust(pPlayer plr)
 {
 	if (plr->thrust_turn==0)
 	{
-	plr->thrust_turn==plr->thrust_wait;
+	plr->thrust_turn=plr->thrust_wait;
 	s32 x,y;
 	if (plr->accel_inc == plr->maxspeed)
 	{
@@ -301,8 +306,6 @@ void Regen(pPlayer pl)
 		pl->batt_turn=pl->batt_wait*2;
 		ModifyBatt(pl,pl->batt_regen);
 	}
-
-	//if (pl->ship==TERMINATOR&&pl->shield>0)
 
 }
 

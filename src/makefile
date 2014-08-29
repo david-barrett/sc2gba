@@ -39,6 +39,12 @@ CPPSOURCES = sc.cpp \
 	mmrnmhrm.cpp \
 	chenjesu.cpp \
 	arilou.cpp \
+	probe.cpp \
+	blackurq.cpp \
+	druuge.cpp \
+	zoqfot.cpp \
+	thradd.cpp \
+	utwig.cpp \
 	sfx.cpp \
 	cyborg.cpp \
 	menu.cpp \
@@ -46,19 +52,29 @@ CPPSOURCES = sc.cpp \
 
 CSOURCES = androsynth_sfx.c \
 	arilou_sfx.c \
+	blackurq_sfx.c \
 	chenjesu_sfx.c \
+	chmmr_sfx.c \
+	druuge_sfx.c \
 	human_sfx.c \
 	ilwrath_sfx.c \
+	melnorme_sfx.c \
 	mmrnmhrm_sfx.c \
 	mycon_sfx.c \
+	orz_sfx.c \
 	pkunk_sfx.c \
+	probe_sfx.c \
 	shofixti_sfx.c \
 	spathi_sfx.c \
+	supox_sfx.c \
 	syreen_sfx.c \
+	thradd_sfx.c \
 	umgah_sfx.c \
 	urquan_sfx.c \
+	utwig_sfx.c \
 	vux_sfx.c \
-	yehat_sfx.c 
+	yehat_sfx.c \
+	zoqfot_sfx.c
 	
 	
 	

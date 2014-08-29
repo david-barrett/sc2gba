@@ -42,8 +42,8 @@ void MoveMmrnmhrmMissile(pWeapon ur);
 #define WEAPON_ENERGY_COST 1
 #define SPECIAL_ENERGY_COST MAX_ENERGY
 #define ENERGY_WAIT 6
-#define MAX_THRUST 20
-#define THRUST_INCREMENT 5
+#define MAX_THRUST SHIP_SPEED(20)
+#define THRUST_INCREMENT SHIP_SPEED (5)
 #define TURN_WAIT 2
 #define THRUST_WAIT 1
 #define WEAPON_WAIT 0
@@ -53,8 +53,8 @@ void MoveMmrnmhrmMissile(pWeapon ur);
 #define YWING_WEAPON_ENERGY_COST 1
 #define YWING_SPECIAL_ENERGY_COST MAX_ENERGY
 #define YWING_ENERGY_WAIT 6
-#define YWING_MAX_THRUST 50
-#define YWING_THRUST_INCREMENT 10
+#define YWING_MAX_THRUST SHIP_SPEED(50)
+#define YWING_THRUST_INCREMENT SHIP_SPEED(10)
 #define YWING_TURN_WAIT 14
 #define YWING_THRUST_WAIT 0
 #define YWING_WEAPON_WAIT 20
@@ -176,7 +176,21 @@ int FireMmrnmhrm(pPlayer pl)
 		pl->weapon[b].damageparent=0;
 
 		pl->weapon[b].size=8;
-		pl->weapon[b].angle = ModifyAngle(pl->angle,(i==0?-30:+30));
+		//pl->weapon[b].angle = ModifyAngle(pl->angle,(i==0?-30:+30));
+		if (i==0)
+		{
+			pl->weapon[b].actualangle = pl->actualangle-1;
+			if (pl->weapon[b].actualangle==-1)
+				pl->weapon[b].actualangle=15;
+		}
+		else
+		{
+			pl->weapon[b].actualangle = pl->actualangle+1;
+					if (pl->weapon[b].actualangle==16)
+			pl->weapon[b].actualangle=0;
+		}
+
+		pl->weapon[b].angle=(pl->weapon[b].actualangle*45)>>1;
 
 		pl->weapon[b].xspeed = ((MISSILE_SPEED) * (s32)SIN[pl->weapon[b].angle])>>8;
 		pl->weapon[b].yspeed = ((MISSILE_SPEED) * (s32)COS[pl->weapon[b].angle])>>8;
@@ -218,7 +232,7 @@ void SetMmrnmhrm(pPlayer pl)
 		pl->firebatt=WEAPON_ENERGY_COST;
 		pl->specbatt=SPECIAL_ENERGY_COST;
 
-		pl->offset=10;
+		pl->offset=12;
 
 		pl->batt_wait=ENERGY_WAIT;
 		pl->turn_wait=TURN_WAIT;
@@ -447,16 +461,17 @@ void MoveMmrnmhrmMissile(pWeapon ur)
 			}
 			else if (ret<0)
 			{
-				ur->angle-=15;
-				if (ur->angle<0)
-					ur->angle+=360;
+				ur->actualangle--;
+				if (ur->actualangle==-1)
+					ur->actualangle=15;
 			}
 			else if (ret>0)
 			{
-				ur->angle+=15;
-				if (ur->angle>360)
-					ur->angle-=360;
+				ur->actualangle++;
+				if (ur->actualangle==16)
+					ur->actualangle=0;
 			}
+			ur->angle=(ur->actualangle*45)>>1;
 
 
 		ur->turn_wait = TRACK_WAIT;

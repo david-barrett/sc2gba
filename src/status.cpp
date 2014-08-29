@@ -468,6 +468,10 @@ void ModifyCrew(pPlayer p, int i,int ignoreshield)
 
 	UpdateCrew(p);
 	}
+	else if (p->ship==JUGGER)//bit hacky
+	{
+		ModifyBatt(p,(-1*i));
+	}
 }
 
 void ModifyBatt(pPlayer p, int i)

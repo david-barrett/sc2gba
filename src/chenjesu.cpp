@@ -40,8 +40,8 @@ void PostChenjesu(pPlayer p);
 #define WEAPON_ENERGY_COST 5
 #define SPECIAL_ENERGY_COST MAX_ENERGY
 #define ENERGY_WAIT 4
-#define MAX_THRUST  /* DISPLAY_TO_WORLD (7) */ 27
-#define THRUST_INCREMENT /* DISPLAY_TO_WORLD (2) */ 3
+#define MAX_THRUST  /* DISPLAY_TO_WORLD (7) */ SHIP_SPEED(27)
+#define THRUST_INCREMENT /* DISPLAY_TO_WORLD (2) */ SHIP_SPEED(3)
 #define TURN_WAIT 6
 #define THRUST_WAIT 4
 #define WEAPON_WAIT 0
@@ -190,7 +190,7 @@ void SetChenjesu(pPlayer pl)
 		pl->firebatt=WEAPON_ENERGY_COST;
 		pl->specbatt=SPECIAL_ENERGY_COST;
 
-		pl->offset=10;
+		pl->offset=16;
 
 		pl->batt_wait=ENERGY_WAIT;
 		pl->turn_wait=TURN_WAIT;

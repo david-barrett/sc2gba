@@ -332,20 +332,17 @@ s16 FindAngle(s32 x,s32 y, s32 ox, s32 oy)
 	//75 = 68-82
 	//90 = 83-90
 
-	if (angle<=7)
+	if (angle<=11)
 		angle=0;
-	else if (angle>=8&&angle<=22)
-		angle=15;
-	else if (angle>=23&&angle<=37)
-		angle=15;
-	else if (angle>=38&&angle<=52)
+	else if (angle>=12&&angle<=33)
+		angle=45>>1;//22.5
+	else if (angle>=34&&angle<=56)
 		angle=45;
-	else if (angle>=53&&angle<=67)
-		angle=15;
-	else if (angle>=68&&angle<=82)
-		angle=75;
-	else if (angle<=90)
+	else if (angle>=57&&angle<=78)
+		angle=45+(45>>1);//67.5
+	else if (angle>=79)
 		angle=90;
+
 
 
 
@@ -1621,6 +1618,7 @@ sprites[58].attribute2 = PauseSpriteStart+48 | PRIORITY(0);
 			DrawTrails();
 
 
+
 			//UpdateStatus();  now we only update when changed
 /*
 			if (p1->crew>0)
@@ -1654,6 +1652,8 @@ sprites[58].attribute2 = PauseSpriteStart+48 | PRIORITY(0);
 					(!(*KEYS & KEY_L)) || (!(*KEYS & KEY_R)))
 				return;
 			}
+
+
 
 
 		}//end while one or both ships are destroyed

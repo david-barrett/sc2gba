@@ -22,10 +22,22 @@
 #include "urquanpilotf.h"
 #include "urquanpilots.h"
 
+#define MAX_CREW 42
+#define MAX_ENERGY 42
+#define ENERGY_REGENERATION 1
+#define WEAPON_ENERGY_COST 6
+#define SPECIAL_ENERGY_COST 8
+#define ENERGY_WAIT 4
+#define MAX_THRUST SHIP_SPEED(30)
+#define THRUST_INCREMENT SHIP_SPEED (6)
+#define TURN_WAIT 4
+#define THRUST_WAIT 6
+#define WEAPON_WAIT 6
+#define SPECIAL_WAIT 9
 
-
-
-
+#define SHIP_MASS 10
+#define MISSILE_SPEED 20 //DISPLAY_TO_WORLD (20)
+#define MISSILE_LIFE 20
 
 extern s32 screenx,screeny;
 extern pOAMEntry sprites;
@@ -102,7 +114,8 @@ int SpecialDreadnaught(pPlayer pl)
 		pl->weapon[b].parent=pl;
 		pl->weapon[b].damageparent=0;
 		//pl->weapon[b].sprite=n;
-		pl->weapon[b].angle = pl->angle;
+		pl->weapon[b].actualangle = pl->actualangle;
+		pl->weapon[b].angle=(pl->weapon[b].actualangle*45)>>1;
 		pl->weapon[b].xpos = pl->xpos+((s32)(24 * (s32)SIN[pl->angle]));
 		pl->weapon[b].ypos = pl->ypos-((s32)(24 * (s32)COS[pl->angle]));
 		pl->weapon[b].size=8;
@@ -118,6 +131,8 @@ int SpecialDreadnaught(pPlayer pl)
 		s16 a = pl->angle+e;
 		if (a>360)
 			a-=360;
+
+
 
 
 		s32 x = ((pl->offset) * (s32)SIN[a])>>7;
@@ -184,25 +199,29 @@ int FightersFire(pWeapon f,s16 angle)
 
 void SetDreadnaught(pPlayer pl)
 {
-	pl->crew=42;
-	pl->maxcrew=42;
-	pl->batt=42;
-	pl->maxbatt=42;
+		pl->crew=MAX_CREW;
+		pl->maxcrew=MAX_CREW;
+		pl->batt=MAX_ENERGY;
+		pl->maxbatt=MAX_ENERGY;
 
-	pl->maxspeed=30;
+		pl->maxspeed=MAX_THRUST;
 
-	pl->accel_inc=6;
+		pl->accel_inc=THRUST_INCREMENT;
 
-	pl->firebatt=6;
-	pl->specbatt=8;
+		pl->firebatt=WEAPON_ENERGY_COST;
+		pl->specbatt=SPECIAL_ENERGY_COST;
 
-	pl->offset=16;
 
-	pl->batt_wait=4;
-	pl->turn_wait=4;
-	pl->thrust_wait=6;
-	pl->weapon_wait=6;
-	pl->special_wait=9;
+
+		pl->batt_wait=ENERGY_WAIT;
+		pl->turn_wait=TURN_WAIT;
+		pl->thrust_wait=THRUST_WAIT;
+		pl->weapon_wait=WEAPON_WAIT;
+		pl->special_wait=SPECIAL_WAIT;
+		pl->batt_regen=ENERGY_REGENERATION;
+
+	pl->mass=SHIP_MASS;
+		pl->offset=16;
 
 	s16 o = (pl->plr-1)*13;
 
@@ -228,7 +247,6 @@ void SetDreadnaught(pPlayer pl)
 	pl->batt_regen=1;
 
 	pl->ship_flags = FIRES_FORE | SEEKING_SPECIAL;
-	pl->mass=10;
 
 	pl->pilot_sprite=1216/16;
 	pl->pilots[0].x=17;
@@ -261,11 +279,11 @@ int FireDreadnaught(pPlayer pl)
 	pl->weapon[b].angle = pl->angle;
 
 	s32 speed=40;//20;
-	pl->weapon[b].xspeed = ((speed * (s32)SIN[pl->angle])>>9);///SPEED_REDUCT;
-	pl->weapon[b].yspeed = ((speed * (s32)COS[pl->angle])>>9);///SPEED_REDUCT;
+	pl->weapon[b].xspeed = ((speed * (s32)SIN[pl->angle])>>8);///SPEED_REDUCT;
+	pl->weapon[b].yspeed = ((speed * (s32)COS[pl->angle])>>8);///SPEED_REDUCT;
 
-	pl->weapon[b].xpos = pl->xpos+((52 * (s32)SIN[pl->angle])>>8)/3;
-	pl->weapon[b].ypos = pl->ypos-((52 * (s32)COS[pl->angle])>>8)/3;
+	pl->weapon[b].xpos = pl->xpos+((pl->offset * (s32)SIN[pl->angle])>>8);//3;
+	pl->weapon[b].ypos = pl->ypos-((pl->offset * (s32)COS[pl->angle])>>8);//3;
 
 	drawOnScreen(&pl->weapon[b].xscreen,&pl->weapon[b].yscreen,
 		pl->weapon[b].xpos,pl->weapon[b].ypos,screenx,screeny,pl->weapon[b].size);
@@ -389,17 +407,18 @@ void MoveURFighters(pWeapon ur)
 		ur->yspeed = (ur->yspeed + y)/2;
 	}
 	else if (ret<0)
-		{
-			ur->angle-=15;
-					if (ur->angle<0)
-			ur->angle+=360;
-	}
-	else if (ret>0)
-		{
-			ur->angle+=15;
-					if (ur->angle>360)
-			ur->angle-=360;
-	}
+					{
+						ur->actualangle--;
+						if (ur->actualangle==-1)
+							ur->actualangle=15;
+					}
+					else if (ret>0)
+					{
+						ur->actualangle++;
+						if (ur->actualangle==16)
+							ur->actualangle=0;
+					}
+				ur->angle=(ur->actualangle*45)>>1;
 /*
 	//now calc if should turn
 	s32 a = angle+360;

@@ -17,6 +17,24 @@
 #include "spathipilotf.h"
 #include "spathipilots.h"
 
+#define MAX_CREW 30
+#define MAX_ENERGY 10
+#define ENERGY_REGENERATION 1
+#define WEAPON_ENERGY_COST 2
+#define SPECIAL_ENERGY_COST 3
+#define ENERGY_WAIT 10
+#define MAX_THRUST SHIP_SPEED(48)
+#define THRUST_INCREMENT SHIP_SPEED(12)
+#define TURN_WAIT 1
+#define THRUST_WAIT 1
+#define WEAPON_WAIT 0
+#define SPECIAL_WAIT 7
+
+#define SHIP_MASS 5
+#define MISSILE_SPEED /*DISPLAY_TO_WORLD*/ (30)
+#define MISSILE_LIFE 10
+#define MISSILE_RANGE (MISSILE_SPEED * MISSILE_LIFE)
+
 extern s32 screenx,screeny;
 extern pOAMEntry sprites;
 extern double scale;
@@ -89,6 +107,11 @@ int SpecialSpathi(pPlayer pl)
 
 		pl->weapon[b].size=8;
 		pl->weapon[b].angle = ModifyAngle(pl->angle,180);
+		pl->weapon[b].actualangle = pl->actualangle+8;
+		if (pl->weapon[b].actualangle>15)
+			pl->weapon[b].actualangle-=16;
+
+		pl->weapon[b].angle=(pl->weapon[b].actualangle*45)>>1;
 
 		pl->weapon[b].xspeed = ((DISCRIMINATOR_SPEED) * (s32)SIN[pl->weapon[b].angle])>>8;
 		pl->weapon[b].yspeed = ((DISCRIMINATOR_SPEED) * (s32)COS[pl->weapon[b].angle])>>8;
@@ -341,18 +364,18 @@ void MoveButt(pWeapon ur)
 				ur->yspeed = y;//(ur->yspeed + y)/2;
 			}
 			else if (ret<0)
-			{
-				ur->angle-=15;
-				if (ur->angle<0)
-					ur->angle+=360;
-			}
-			else if (ret>0)
-			{
-				ur->angle+=15;
-				if (ur->angle>360)
-					ur->angle-=360;
-			}
-
+							{
+								ur->actualangle--;
+								if (ur->actualangle==-1)
+									ur->actualangle=15;
+							}
+							else if (ret>0)
+							{
+								ur->actualangle++;
+								if (ur->actualangle==16)
+									ur->actualangle=0;
+							}
+				ur->angle=(ur->actualangle*45)>>1;
 
 		ur->turn_wait = TRACK_WAIT;
 	}

@@ -16,6 +16,25 @@
 #include "syreenpilotf.h"
 #include "syreenpilots.h"
 
+#define SYREEN_MAX_CREW_SIZE 42
+#define MAX_CREW 12
+#define MAX_ENERGY 16
+#define ENERGY_REGENERATION 1
+#define WEAPON_ENERGY_COST 1
+#define SPECIAL_ENERGY_COST 5
+#define ENERGY_WAIT 6
+#define MAX_THRUST /* DISPLAY_TO_WORLD (8) */ SHIP_SPEED(36)
+#define THRUST_INCREMENT /* DISPLAY_TO_WORLD (2) */ SHIP_SPEED(9);
+#define TURN_WAIT 1
+#define THRUST_WAIT 1
+#define WEAPON_WAIT 8
+#define SPECIAL_WAIT 20
+
+#define SHIP_MASS 2
+#define MISSILE_SPEED DISPLAY_TO_WORLD (30)
+#define MISSILE_LIFE 10
+
+
 
 
 extern s32 screenx,screeny;
@@ -132,26 +151,29 @@ int SpecialSyreen(pPlayer pl)
 
 void SetSyreen(pPlayer pl)
 {
-	pl->crew=12;
-	pl->maxcrew=42;
-	pl->batt=16;
-	pl->maxbatt=16;
+	pl->crew=MAX_CREW;
+		pl->maxcrew=MAX_CREW;
+		pl->batt=MAX_ENERGY;
+		pl->maxbatt=MAX_ENERGY;
 
-	pl->maxspeed=36;
+		pl->maxspeed=MAX_THRUST;
 
-	pl->accel_inc=9;
+		pl->accel_inc=THRUST_INCREMENT;
 
-	pl->firebatt=1;
-	pl->specbatt=5;
+		pl->firebatt=WEAPON_ENERGY_COST;
+		pl->specbatt=SPECIAL_ENERGY_COST;
 
-	pl->offset=15;
 
-	pl->batt_wait=6;
-	pl->turn_wait=1;
-	pl->thrust_wait=1;
-	pl->weapon_wait=8;
-	pl->special_wait=20;
-	pl->batt_regen=1;
+
+		pl->batt_wait=ENERGY_WAIT;
+		pl->turn_wait=TURN_WAIT;
+		pl->thrust_wait=THRUST_WAIT;
+		pl->weapon_wait=WEAPON_WAIT;
+		pl->special_wait=SPECIAL_WAIT;
+		pl->batt_regen=ENERGY_REGENERATION;
+
+	pl->mass=SHIP_MASS;
+		pl->offset=15;
 
 	s16 o = (pl->plr-1)*13;
 
@@ -176,7 +198,6 @@ void SetSyreen(pPlayer pl)
 	pl->ditty=&syreen_ditty;
 
 	pl->ship_flags = FIRES_FORE ;
-	pl->mass=2;
 
 	pl->pilot_sprite=(512+512+64)/16;
 	pl->pilots[0].x=34;

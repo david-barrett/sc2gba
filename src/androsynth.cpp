@@ -38,8 +38,8 @@ void PostAndro(pPlayer pl);
 #define WEAPON_ENERGY_COST 3
 #define SPECIAL_ENERGY_COST 2
 #define ENERGY_WAIT 8
-#define MAX_THRUST 24
-#define THRUST_INCREMENT 3
+#define MAX_THRUST SHIP_SPEED (24)
+#define THRUST_INCREMENT SHIP_SPEED(3)
 #define TURN_WAIT 4
 #define THRUST_WAIT 0
 #define WEAPON_WAIT 0
@@ -52,7 +52,7 @@ void PostAndro(pPlayer pl);
 #define TRACK_WAIT 2
 #define MISSILE_DAMAGE 2
 #define MISSILE_LIFE 200
-#define BLAZER_THRUST 40 //60
+#define BLAZER_THRUST SHIP_SPEED(60)
 #define BLAZER_DAMAGE 3
 #define BLAZER_MASS 1
 #define BLAZER_TURN_WAIT 0

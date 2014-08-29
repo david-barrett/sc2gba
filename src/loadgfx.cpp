@@ -176,7 +176,7 @@ void LoadAllShips(s16 OAMStart)
        		OAMData[loop+1024] = blackurqData[loop-OAMStart];
        		OAMData[loop+1536] = chenjesuData[loop-OAMStart];
        		OAMData[loop+2048] = chmmrData[loop-OAMStart];
-       		OAMData[loop+2560] = druudgeData[loop-OAMStart];
+       		OAMData[loop+2560] = druugeData[loop-OAMStart];
        		OAMData[loop+3072] = humanData[loop-OAMStart];
 			OAMData[loop+3584] = ilwrathData[loop-OAMStart];
 			OAMData[loop+4096] = melnormeData[loop-OAMStart];

@@ -586,7 +586,7 @@ TurnShip (pPlayer ai, s16 angle)
 */
 //	print("\n angle=");
 //	print(angle);
-	int ret=TurnAngle(angle,ai->angle,15);
+	int ret=TurnAngle(angle,ai->angle,23);
 	if (ret<0)
 		ai->ship_input_state |= LEFT;
 	else if (ret>0)

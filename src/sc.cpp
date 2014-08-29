@@ -320,6 +320,8 @@ for (int i=0;i<12;i++)
 		//p2->ai=AWESOME;
 		//p2->ai=DISABLED;
 
+		//p2->ai=PLAYER2;
+
 		ChooseShips(p1,plist1);
 		ChooseShips(p2,plist2);
 

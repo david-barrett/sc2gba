@@ -16,6 +16,23 @@
 #include "pkunkpilotf.h"
 #include "pkunkpilots.h"
 
+#define MAX_CREW 8
+#define MAX_ENERGY 12
+#define ENERGY_REGENERATION 0
+#define WEAPON_ENERGY_COST 1
+#define SPECIAL_ENERGY_COST 2
+#define ENERGY_WAIT 0
+#define MAX_THRUST SHIP_SPEED(64)
+#define THRUST_INCREMENT SHIP_SPEED(16)
+#define TURN_WAIT 0
+#define THRUST_WAIT 0
+#define WEAPON_WAIT 0
+#define SPECIAL_WAIT 16
+
+#define SHIP_MASS 1
+#define MISSILE_SPEED DISPLAY_TO_WORLD (24)
+#define MISSILE_LIFE 5
+
 
 
 extern s32 screenx,screeny;
@@ -35,26 +52,29 @@ const PCMSOUND insults[] = {pkunk_baby,pkunk_dodo,pkunk_fool,pkunk_idiot,pkunk_j
 
 void SetFury(pPlayer pl)
 {
-	pl->crew=8;
-	pl->maxcrew=8;
-	pl->batt=12;
-	pl->maxbatt=12;
+	pl->crew=MAX_CREW;
+		pl->maxcrew=MAX_CREW;
+		pl->batt=MAX_ENERGY;
+		pl->maxbatt=MAX_ENERGY;
 
-	pl->maxspeed=64;
+		pl->maxspeed=MAX_THRUST;
 
-	pl->accel_inc=16;
+		pl->accel_inc=THRUST_INCREMENT;
 
-	pl->firebatt=1;
-	pl->specbatt=0;
+		pl->firebatt=WEAPON_ENERGY_COST;
+		pl->specbatt=SPECIAL_ENERGY_COST;
 
-	pl->offset=13;
 
-	pl->batt_wait=0;
-	pl->turn_wait=0;
-	pl->thrust_wait=0;
-	pl->weapon_wait=0;
-	pl->special_wait=16;
-	pl->batt_regen=0;
+
+		pl->batt_wait=ENERGY_WAIT;
+		pl->turn_wait=TURN_WAIT;
+		pl->thrust_wait=THRUST_WAIT;
+		pl->weapon_wait=WEAPON_WAIT;
+		pl->special_wait=SPECIAL_WAIT;
+		pl->batt_regen=ENERGY_REGENERATION;
+
+	pl->mass=SHIP_MASS;
+		pl->offset=13;
 
 	s16 o = (pl->plr-1)*13;
 
@@ -76,7 +96,6 @@ void SetFury(pPlayer pl)
 	pl->ditty=&pkunk_ditty;
 
 	pl->ship_flags = FIRES_FORE | FIRES_LEFT | FIRES_RIGHT;
-	pl->mass=1;
 	pl->pilot_sprite=(1024+32)/16;
 
 	pl->pilots[0].x=27;
