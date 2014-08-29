@@ -42,7 +42,7 @@ void PostProbe(pPlayer p);
 #define WEAPON_ENERGY_COST 2
 #define SPECIAL_ENERGY_COST 0
 #define ENERGY_WAIT 10
-#define MAX_THRUST 60
+#define MAX_THRUST SHIP_SPEED(60)
 #define THRUST_INCREMENT MAX_THRUST
 #define TURN_WAIT 0
 #define THRUST_WAIT 0
@@ -303,10 +303,10 @@ void PostProbe(pPlayer p)
 		//p->thrust_turn=p->thrust_wait*2;
 
 	}
-/*
+
 	p->xpos+=(s32)(p->maxspeed*SIN[p->angle])>>8;
 	p->ypos-=(s32)(p->maxspeed*COS[p->angle])>>8;
-*/
+
 	p->drawangle++;
 	if (p->drawangle==16)
 		p->drawangle=0;

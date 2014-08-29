@@ -146,6 +146,7 @@ void TurnRight(pPlayer pl)//, int i)
 	if (pl->turn_turn==0)
 	{
 		pl->turn_turn=pl->turn_wait;
+		//&&pl->ai!=GOOD&&pl-ai!=AWESOME - should be scrambeld!
 		if (pl->scrambled)
 		{
 			if (v3do)
@@ -155,6 +156,9 @@ void TurnRight(pPlayer pl)//, int i)
 				pl->actualangle--;
 				if(pl->actualangle==-1)
 					pl->actualangle=15;
+				pl->turretangle--;
+				if(pl->turretangle==-1)
+					pl->turretangle=15;
 				pl->angle=(pl->actualangle*45)>>1;
 
 			}			
@@ -165,6 +169,9 @@ void TurnRight(pPlayer pl)//, int i)
 			pl->actualangle++;
 			if(pl->actualangle==16)
 				pl->actualangle=0;
+			pl->turretangle++;
+			if(pl->turretangle==16)
+				pl->turretangle=0;
 			pl->angle=(pl->actualangle*45)>>1;
 		}
 	}
@@ -184,6 +191,10 @@ void TurnLeft(pPlayer pl)//,int i)
 				pl->actualangle++;
 			if(pl->actualangle==16)
 				pl->actualangle=0;
+			pl->turretangle++;
+			if(pl->turretangle==16)
+				pl->turretangle=0;
+
 			pl->angle=(pl->actualangle*45)>>1;
 
 			}			
@@ -193,6 +204,9 @@ void TurnLeft(pPlayer pl)//,int i)
 			pl->actualangle--;
 			if(pl->actualangle==-1)
 				pl->actualangle=15;
+			pl->turretangle--;
+			if(pl->turretangle==-1)
+				pl->turretangle=15;
 			pl->angle=(pl->actualangle*45)>>1;			
 			
 		}
@@ -388,10 +402,10 @@ void DrawTrails()
 
 }
 
-int CreateActualOutline(s32 xpos,s32 ypos,s16 angle,pWeapon w,s32 SpriteStart)
+int CreateActualOutline(s32 xpos,s32 ypos,s16 angle,pWeapon w,s32 SpriteStart,s8 life)
 {
 	w->type=TRAIL;
-	w->life=5;
+	w->life=life;
 	w->damage=0;
 	w->target=NULL;
 	w->parent=NULL;
@@ -423,7 +437,7 @@ int CreateOutline(pPlayer pl)
 
 	if (b>=0)
 	{
-		return CreateActualOutline(pl->xpos,pl->ypos,pl->angle,&pl->weapon[b],pl->SpriteStart);
+		return CreateActualOutline(pl->xpos,pl->ypos,pl->angle,&pl->weapon[b],pl->SpriteStart,5);
 	}
 	return 0;
 }
@@ -432,10 +446,10 @@ int CreateReinc(pPlayer pl)
 {
 	short d=20*(pl->reinc+1);
 	short r=pl->reinc*4;
-	CreateActualOutline(pl->xpos-d,pl->ypos-d,pl->angle,&pl->weapon[r],pl->SpriteStart);
-	CreateActualOutline(pl->xpos-d,pl->ypos+d,pl->angle,&pl->weapon[1+r],pl->SpriteStart);
-	CreateActualOutline(pl->xpos+d,pl->ypos-d,pl->angle,&pl->weapon[2+r],pl->SpriteStart);
-	CreateActualOutline(pl->xpos+d,pl->ypos+d,pl->angle,&pl->weapon[3+r],pl->SpriteStart);
+	CreateActualOutline(pl->xpos-d,pl->ypos-d,pl->angle,&pl->weapon[r],pl->SpriteStart,5);
+	CreateActualOutline(pl->xpos-d,pl->ypos+d,pl->angle,&pl->weapon[1+r],pl->SpriteStart,5);
+	CreateActualOutline(pl->xpos+d,pl->ypos-d,pl->angle,&pl->weapon[2+r],pl->SpriteStart,5);
+	CreateActualOutline(pl->xpos+d,pl->ypos+d,pl->angle,&pl->weapon[3+r],pl->SpriteStart,5);
 	return 1;
 }
 
@@ -492,6 +506,11 @@ void ProcessPlayer(pPlayer pl)
 		pl->ypos-=pl->yspeed;
 		pl->speed=distanceBetweenPoints(0,0,pl->xspeed,pl->yspeed);
 
+		s8 input= pl->ship_input_state;//back it up for transfering to other gba - if and when
+		//as special may alter input in case of orz/supox
+
+		if (pl->ship_input_state & SPECIAL)
+			Special(pl);
 
 		if (pl->ship_input_state & LEFT)
 			TurnLeft(pl);

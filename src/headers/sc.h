@@ -166,6 +166,7 @@ void* parent;
 void* target;
 
 s8 turn_wait;
+s8 fire_wait;
 
 void (*movefunc)(Weapon*);
 
@@ -325,6 +326,8 @@ short form; //mmrnhrm
 short charging; //chenjesu/trader
 short drawangle;//probe
 short currentweapon;//blackurq
+s8 turretangle;//orz
+s8 marines;//num of marines attached;
 
 //pPlayer opp;
 
@@ -404,7 +407,10 @@ enum type
 	MISSILE,
 	DOGI,
 	FLAME,
-	CONFUSE
+	CONFUSE,
+	SAT,
+	TURRET,
+	MARINE
 
 };
 

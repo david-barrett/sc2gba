@@ -46,6 +46,9 @@ CPPSOURCES = sc.cpp \
 	thradd.cpp \
 	utwig.cpp \
 	melnorme.cpp \
+	chmmr.cpp \
+	supox.cpp \
+	orz.cpp \
 	sfx.cpp \
 	cyborg.cpp \
 	menu.cpp \

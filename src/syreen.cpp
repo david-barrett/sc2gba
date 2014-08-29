@@ -230,8 +230,8 @@ int FireSyreen(pPlayer pl)
 	pl->weapon[b].angle = pl->angle;
 
 	s32 speed=20;//20;
-	pl->weapon[b].xspeed = ((speed * (s32)SIN[pl->angle])>>9);///SPEED_REDUCT;
-	pl->weapon[b].yspeed = ((speed * (s32)COS[pl->angle])>>9);///SPEED_REDUCT;
+	pl->weapon[b].xspeed = ((speed * (s32)SIN[pl->angle])>>8);///SPEED_REDUCT;
+	pl->weapon[b].yspeed = ((speed * (s32)COS[pl->angle])>>8);///SPEED_REDUCT;
 
 	pl->weapon[b].xpos = pl->xpos+((40 * (s32)SIN[pl->angle])>>8)/3;
 	pl->weapon[b].ypos = pl->ypos-((40 * (s32)COS[pl->angle])>>8)/3;
@@ -338,7 +338,7 @@ void RestoreGFXSyreen(pPlayer p)
 		if (p->weapon[i].life>0)
 		{
 			if(p->weapon[i].type==SIMPLE)
-				o=62;
+				o=64;
 			else //crew
 				o=66;
 

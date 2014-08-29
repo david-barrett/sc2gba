@@ -95,11 +95,11 @@ void SetShip(pPlayer pl)
 			SetChenjesu(pl);
 			break;
 		case AVATAR:
-		//	SetChmmr(pl);
+			SetChmmr(pl);
 			break;
 
 		case BLADE:
-		//	SetSupox(pl);
+			SetSupox(pl);
 			break;
 		case CRUISER:
 			SetHuman(pl);
@@ -118,7 +118,7 @@ void SetShip(pPlayer pl)
 			SetDruuge(pl);
 			break;
 		case NEMESIS:
-		//	SetOrz(pl);
+			SetOrz(pl);
 			break;
 		case PENETRATOR:
 			SetSyreen(pl);

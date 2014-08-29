@@ -52,8 +52,8 @@ void RotateSprite(int rotDataIndex, s32 angle, s32 x_scale,s32 y_scale);
 #define WEAPON_ENERGY_COST 5
 #define SPECIAL_ENERGY_COST 20
 #define ENERGY_WAIT 4
-#define MAX_THRUST 36
-#define THRUST_INCREMENT 6
+#define MAX_THRUST SHIP_SPEED(36)
+#define THRUST_INCREMENT SHIP_SPEED(6)
 #define TURN_WAIT 4
 #define THRUST_WAIT 4
 #define WEAPON_WAIT 1

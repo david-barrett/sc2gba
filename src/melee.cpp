@@ -442,7 +442,8 @@ void MoveBullets(pPlayer pl)
 			}
 			else
 			{
-				(pl->weapon[i].movefunc)(&pl->weapon[i]);
+				if (pl->weapon[i].movefunc!=0)
+					(pl->weapon[i].movefunc)(&pl->weapon[i]);
 			}
 			drawOnScreen(&(pl->weapon[i].xscreen),&(pl->weapon[i].yscreen),
 				pl->weapon[i].xpos,pl->weapon[i].ypos,screenx,screeny,pl->weapon[i].size);
@@ -1213,8 +1214,7 @@ void Melee(pPlayer p1,pPlayer p2,Bg *bg0, Bg *bg1)
 
 
 
-	//holds planet vars
-	//may make these global
+	
 
 
 	trails=(pTrail)malloc(sizeof(Trail)*10);
