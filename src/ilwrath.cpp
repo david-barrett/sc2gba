@@ -3,9 +3,9 @@
 #include "sc.h"
 #include "sincosrad.h"
 
-#include "gfx/ilwrath_out.h"
+#include "ilwrath_out.h"
 //#include "gfx/Ilwrath_fire.h"
-#include "gfx/ilwrath_cloak.h"
+#include "ilwrath_cloak.h"
 
 #include "ilwrath_sfx.h"
 
@@ -27,6 +27,8 @@ int FireIlwrath(pPlayer pl);
 int SpecialIlwrath(pPlayer pl);
 int aiIlwrath(pPlayer ShipPtr, pObject ObjectsOfConcern, COUNT ConcernCounter);
 void SetIlwrathPilot(pPlayer p);
+void PostIlwrath(pPlayer p);
+void RestoreGFXIlwrath(pPlayer p);
 
 void LoadIlwrath(s16 SpriteStart)
 {
@@ -103,7 +105,7 @@ void SetIlwrath(pPlayer pl)
 	pl->firebatt=1;
 	pl->specbatt=3;
 
-	pl->offset=25;
+	pl->offset=16;
 
 	pl->batt_wait=4;
 	pl->turn_wait=2;
@@ -129,10 +131,13 @@ void SetIlwrath(pPlayer pl)
 	pl->aifunc=&aiIlwrath;
 	pl->loadfunc=&LoadIlwrath;
 	pl->loadpilots=&SetIlwrathPilot;
+	pl->postfunc=0;//&PostIlwrath;
+	pl->restorefunc=&RestoreGFXIlwrath;
 
 	pl->ditty=&ilwrath_ditty;
 
 	pl->ship_flags = FIRES_FORE ;
+	pl->mass=7;
 
 	pl->pilot_sprite=(1024+512)/16;
 
@@ -227,11 +232,7 @@ int aiIlwrath(pPlayer ai, pObject ObjectsOfConcern, COUNT ConcernCounter)
 				|| (lpEvalDesc->which_turn <= 10
 				&& ObjectsOfConcern[ENEMY_WEAPON_INDEX].which_turn <= 10)))
 		{
-			print("\nil fire now");
-			print("which turn ship");
-			print(lpEvalDesc->which_turn);
-			print("which turn weapon");
-			print(ObjectsOfConcern[ENEMY_WEAPON_INDEX].which_turn);
+
 			ai->ship_input_state &= ~SPECIAL;
 			if (ai->cloak==1)
 			{
@@ -275,4 +276,13 @@ void SetIlwrathPilot(pPlayer pl)
 	sprites[47+off].attribute0 = COLOR_256 | TALL  | 160;
 	sprites[47+off].attribute1 = SIZE_32 | 240;
 	sprites[47+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+64+40+2 | PRIORITY(2);
+}
+
+void PostIlwrath(pPlayer p)
+{
+}
+
+void RestoreGFXIlwrath(pPlayer p)
+{
+	//dont actually need to do this as fire using explosion gfx
 }

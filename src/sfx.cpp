@@ -5,7 +5,7 @@
 #include "gba.h"
 #include "sfx.h"
 //#include "sound/sound.h"
-#include "sound/TektronicWave.h"
+#include "TektronicWave.h"
 
 #define INT_TIMER0       0x0008
 #define INT_TIMER1       0x0010
@@ -18,6 +18,8 @@ u32 iNextSampleB=0;
 //s8 *soundB;
 const PCMSOUND *pcmsoundA;
 const PCMSOUND *pcmsoundB;
+
+extern s8 sound;
 
 
 //void InterruptProcess(void) __attribute__((section(".iwram")));
@@ -88,6 +90,8 @@ void init_sfx_system(void)
 // RETURNS:     none
 void play_sfx(const PCMSOUND *pSample,short channel)
 {
+	if (sound)
+	{
 	if (channel==0)
 	{
 
@@ -103,6 +107,7 @@ void play_sfx(const PCMSOUND *pSample,short channel)
     	iNextSampleB=0;
 		REG_TM1D=0xffff-(unsigned int)16772216/pSample->nSamplingRate; // aproximated
 		REG_TM1CNT=0x00C0;
+	}
 	}
 }
 

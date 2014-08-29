@@ -3,9 +3,9 @@
 #include "sc.h"
 #include "sincosrad.h"
 
-#include "gfx/yehat_out.h"
-#include "gfx/yehat_fire.h"
-#include "gfx/yehat_shield.h"
+#include "yehat_out.h"
+#include "yehat_fire.h"
+#include "yehat_shield.h"
 
 #include "yehat_sfx.h"
 
@@ -28,6 +28,8 @@ int FireYehat(pPlayer pl);
 int SpecialYehat(pPlayer pl);
 int aiYehat(pPlayer ShipPtr, pObject ObjectsOfConcern, COUNT ConcernCounter);
 void SetYehatPilot(pPlayer p);
+void PostYehat(pPlayer p);
+void RestoreGFXYehat(pPlayer p);
 
 void LoadYehat(s16 SpriteStart)
 {
@@ -66,8 +68,7 @@ void LoadYehat(s16 SpriteStart)
 int SpecialYehat(pPlayer pl)
 {
 	pl->shield=6;
-	pl->spriteoffset=64;
-	sprites[(pl->plr==1)?0:13].attribute2 = pl->SpriteStart+pl->spriteoffset | PRIORITY(1);
+	sprites[(pl->plr==1)?0:13].attribute2 = pl->SpriteStart+64 | PRIORITY(1);
 	play_sfx(&yehat_shield,pl->plr-1);
 	return 1;
 }
@@ -86,7 +87,7 @@ void SetYehat(pPlayer pl)
 	pl->firebatt=1;
 	pl->specbatt=3;
 
-	pl->offset=20;
+	pl->offset=10;
 
 	pl->batt_wait=6;
 	pl->turn_wait=2;
@@ -112,10 +113,13 @@ void SetYehat(pPlayer pl)
 	pl->aifunc=&aiYehat;
 	pl->loadfunc=&LoadYehat;
 	pl->loadpilots=&SetYehatPilot;
+	pl->postfunc=&PostYehat;
+	pl->restorefunc=&RestoreGFXYehat;
 
 	pl->ditty=&yehat_ditty;
 
 	pl->ship_flags = FIRES_FORE | SHIELD_DEFENSE;
+	pl->mass=3;
 
 	pl->pilot_sprite=(1024+512+32)/16;
 	pl->pilots[0].x=0;
@@ -281,4 +285,32 @@ void SetYehatPilot(pPlayer pl)
 	sprites[47+off].attribute0 = COLOR_256 | WIDE  | 160;
 	sprites[47+off].attribute1 = SIZE_8 | 240;
 	sprites[47+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+128+64+16 | PRIORITY(2);
+}
+
+void PostYehat(pPlayer pl)
+{
+	if (pl->shield>0)
+	{
+		pl->shield--;
+		if (pl->shield==0)
+		{
+			sprites[(pl->plr==1)?0:13].attribute2 = pl->SpriteStart | PRIORITY(1);
+		}
+	}
+}
+
+void RestoreGFXYehat(pPlayer p)
+{
+	for(int i=0;i<12;i++)
+	{
+		if (p->weapon[i].life>0)
+		{
+			if(p->weapon[i].type==SIMPLE)
+			{
+			sprites[p->weapon[i].sprite].attribute0 = COLOR_256 | SQUARE | ROTATION_FLAG | SIZE_DOUBLE | MODE_TRANSPARENT | 160;	//setup sprite info, 256 colour, shape and y-coord
+			sprites[p->weapon[i].sprite].attribute1 = SIZE_8 | ROTDATA(p->weapon[i].sprite) | 240;
+   			sprites[p->weapon[i].sprite].attribute2 = p->SpriteStart+96 | PRIORITY(1);
+			}
+		}
+	}
 }

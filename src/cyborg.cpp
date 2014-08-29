@@ -37,6 +37,37 @@ inline s16 GetVelocityTravelAngle(s32 x,s32 y)
 {
 	return FindAngle(0,0,x,y);
 }
+/*
+COUNT
+PlotIntercept (pPlayer ElementPtr0, pObject ElementPtr1, COUNT
+		max_turns, COUNT margin_of_error)
+{
+
+	max_turns;
+	s32 x1 = ElementPtr0->xpos+ElementPtr0->xspeed;
+	s32 y1 = ElementPtr0->ypos+ElementPtr0->yspeed;
+	s32 x2 = ElementPtr1->xpos+ElementPtr1->xspeed;
+	s32 y2 = ElementPtr1->ypos+ElementPtr1->yspeed;
+
+	s32 hx1 = ElementPtr0->xpos+ElementPtr0->xspeed<<1;
+	s32 hy1 = ElementPtr0->ypos+ElementPtr0->yspeed<<1;
+	s32 hx2 = ElementPtr1->xpos+ElementPtr1->xspeed<<1;
+	s32 hy2 = ElementPtr1->ypos+ElementPtr1->yspeed<<1;
+
+	s16 size = (ElementPtr0->offset+ElementPtr1->size)+margin_of_error;
+	for (s16 i=0;i<max_turns;i++)
+	{
+		if ((distanceBetweenPoints(x1,y1,x2,y2)<size)
+				||(distanceBetweenPoints(x1-hx1,y1-hy1,x2-hx2,y2-hy2)<size))
+			return i+1;
+		x1+=ElementPtr0->xspeed;
+		y1+=ElementPtr0->yspeed;
+		x2+=ElementPtr1->xspeed;
+		y1+=ElementPtr1->yspeed;
+	}
+	return 0;
+}
+*/
 
 COUNT
 PlotIntercept (pPlayer ElementPtr0, pObject ElementPtr1, COUNT
@@ -46,8 +77,8 @@ PlotIntercept (pPlayer ElementPtr0, pObject ElementPtr1, COUNT
 	s32 y1 = ElementPtr0->ypos+ElementPtr0->yspeed;
 	s32 x2 = ElementPtr1->xpos+ElementPtr1->xspeed;
 	s32 y2 = ElementPtr1->ypos+ElementPtr1->yspeed;
-	s16 size = (ElementPtr0->offset+ElementPtr1->size)/2+margin_of_error;
-	for (s16 i=1;i<max_turns;i++)
+	s16 size = (ElementPtr0->offset+ElementPtr1->size)+margin_of_error;
+	for (s16 i=1;i<=max_turns;i++)
 	{
 		if (distanceBetweenPoints(x1,y1,x2,y2)<size)
 			return i;
@@ -343,11 +374,10 @@ InitCyborg (pPlayer StarShipPtr)
 static void
 ship_movement (pPlayer ShipPtr, pObject obj)
 {
-print("\nship movement");
 	switch (obj->MoveState)
 	{
 		case PURSUE:
-		print(" pursue");
+
 			Pursue (ShipPtr, obj);
 			break;
 		case AVOID:
@@ -356,11 +386,11 @@ print("\nship movement");
 			break;
 #endif // NOTYET
 		case ENTICE:
-		print(" entice");
+
 			Entice (ShipPtr,obj);
 			break;
 		case NO_MOVEMENT:
-		print(" nowt");
+
 			break;
 	}
 }
@@ -457,13 +487,6 @@ ship_intelligence (pPlayer ShipPtr, pObject ObjectsOfConcern, COUNT ConcernCount
 	//STARSHIPPTR StarShipPtr;
 
 	//GetElementStarShip (ShipPtr, &StarShipPtr);
-print("\n ship intel");
-if (ObjectsOfConcern[ENEMY_SHIP_INDEX].MoveState == PURSUE)
-				print("PURSE");
-				else if (ObjectsOfConcern[ENEMY_SHIP_INDEX].MoveState == ENTICE)
-				print("ENTICE");
-				else
-				print("NOTHING");
 
 	ShipMoved = 1;
 	if (ShipPtr->turn_turn == 0)
@@ -489,19 +512,9 @@ if (ObjectsOfConcern[ENEMY_SHIP_INDEX].MoveState == PURSUE)
 	ObjectsOfConcern += ConcernCounter;
 	while (ConcernCounter--)
 	{
-		print("\n counter");
-		print(ConcernCounter);
 		--ObjectsOfConcern;
 	//if 	(ObjectsOfConcern->ObjectPtr)
 	//	{
-			if (ObjectsOfConcern->MoveState ==NO_MOVEMENT)
-				print("no move");
-			else if (ObjectsOfConcern->MoveState ==ENTICE)
-				print("enticve");
-			else if (ObjectsOfConcern->MoveState ==PURSUE)
-				print("pursue");
-			else if (ObjectsOfConcern->MoveState ==AVOID)
-				print("avoid");
 
 			if (!ShipMoved && ObjectsOfConcern->MoveState !=NO_MOVEMENT
 					&& (ConcernCounter != ENEMY_WEAPON_INDEX ||
@@ -509,10 +522,8 @@ if (ObjectsOfConcern[ENEMY_SHIP_INDEX].MoveState == PURSUE)
 					|| (ObjectsOfConcern->type==CREW)
 					|| ShipPtr->ManeuverabilityIndex >= MEDIUM_SHIP))
 			{
-					print("\n obj x=");
-						print(ObjectsOfConcern->xpos+ObjectsOfConcern->xspeed);
-					print("\n obj y=");
-		print(ObjectsOfConcern->ypos+ObjectsOfConcern->yspeed);
+
+
 				ship_movement (ShipPtr, ObjectsOfConcern);
 				ShipMoved = 1;
 			}
@@ -589,7 +600,7 @@ ThrustShip (pPlayer ShipPtr, s16 angle)
 //	STARSHIPPTR StarShipPtr;
 
 //	GetElementStarShip (ShipPtr, &StarShipPtr);
-	print("enter thrust");
+
 	if (ShipPtr->ship_input_state & THRUST)
 		ShouldThrust = 1;
 	else if (ShipPtr->angle==GetVelocityTravelAngle (ShipPtr->xspeed,ShipPtr->yspeed)
@@ -614,10 +625,8 @@ ThrustShip (pPlayer ShipPtr, s16 angle)
 	if (ShouldThrust)
 	{
 		ShipPtr->ship_input_state |= THRUST;
-		print("should thrust");
 	}
-	else
-	 	print("not thrust");
+
 
 
 	return (ShouldThrust);
@@ -656,12 +665,12 @@ Pursue (pPlayer ShipPtr, pObject obj)
 				|| (enemyShipPtr->speed>enemyShipPtr->maxspeed))))
 		{
 			//UWORD ship_flags;
-			print("here");
+
 			//ship_flags = EnemyStarShipPtr->RaceDescPtr->ship_info.ship_flags;
 						// you're maneuverable
 			if (ShipPtr->ManeuverabilityIndex >= MEDIUM_SHIP)
 			{
-				print("\nhere2");
+
 				//UWORD fire_flags;
 				//COUNT facing;
 
@@ -690,7 +699,7 @@ Pursue (pPlayer ShipPtr, pObject obj)
 					{
 							// catch him on the back side
 						desired_thrust_angle = desired_turn_angle;
-						print("reverse");
+
 					//	break;
 					}
 				//}
@@ -709,13 +718,13 @@ Pursue (pPlayer ShipPtr, pObject obj)
 				//	|| (ship_flags & DONT_CHASE))
 					|| (TurnAngle(desired_turn_angle,ShipPtr->angle,45)==0))
 					{
-						print("\n sec");
+
 				desired_thrust_angle = desired_turn_angle;
 			}
 		}
 
-print("\n angle=");
-print(desired_thrust_angle);
+
+
 	}//if player
 	if (ShipPtr->turn_turn==0)
 		TurnShip (ShipPtr, desired_thrust_angle);
@@ -766,16 +775,7 @@ Entice (pPlayer ShipPtr, pObject obj)//, EVALUATE_DESCPTR EvalDescPtr)
 	desired_thrust_angle = FindAngle(ShipPtr->xpos+ShipPtr->xspeed,ShipPtr->ypos+ShipPtr->yspeed,
 		obj->xpos+obj->xspeed,obj->ypos+obj->yspeed);
 
-		print("\ndesired thrust angle");
-		print(desired_thrust_angle);
-		print("\n ship x=");
-		print(ShipPtr->xpos+ShipPtr->xspeed);
-		print("\n ship y=");
-		print(ShipPtr->ypos+ShipPtr->yspeed);
-		print("\n obj x=");
-		print(obj->xpos+obj->xspeed);
-		print("\n obj y=");
-		print(obj->ypos+obj->yspeed);
+
 
 
 
@@ -886,7 +886,7 @@ Entice (pPlayer ShipPtr, pObject obj)//, EVALUATE_DESCPTR EvalDescPtr)
 		//		-1* EvalDescPtr->facing) + 45;
 		if (obj->type==PLAYER)
 		{
-			print("\n enticing other ship");
+
 			//UWORD fire_flags, ship_flags;
 			//COUNT facing;
 		//	STARSHIPPTR EnemyStarShipPtr;
@@ -921,7 +921,7 @@ Entice (pPlayer ShipPtr, pObject obj)//, EVALUATE_DESCPTR EvalDescPtr)
 					{
 						// catch him on the back side
 						desired_thrust_angle = desired_turn_angle;
-						print("\nturning away from opp");
+
 						goto DoManeuver;
 					}
 
@@ -952,7 +952,7 @@ Entice (pPlayer ShipPtr, pObject obj)//, EVALUATE_DESCPTR EvalDescPtr)
 			)
 		)
 		{
-			print("A");
+
 			if
 			(
 					// pointed straight at him
@@ -963,12 +963,12 @@ Entice (pPlayer ShipPtr, pObject obj)//, EVALUATE_DESCPTR EvalDescPtr)
 				//|| cone_of_fire > QUADRANT
 			)
 			{
-				print("B");
+
 				desired_thrust_angle = desired_turn_angle;
 			}
 			else
 			{
-				print("C");
+
 
 				desired_thrust_angle = ShipPtr->angle;
 				desired_turn_angle = desired_thrust_angle;
@@ -988,7 +988,7 @@ Entice (pPlayer ShipPtr, pObject obj)//, EVALUATE_DESCPTR EvalDescPtr)
 							ShipPtr, obj, 30, CLOSE_RANGE_WEAPON << 1
 							)))
 				{
-				print("D");
+
 				maneuver_state &= ~THRUST;
 				}
 					// veer off
@@ -998,19 +998,19 @@ Entice (pPlayer ShipPtr, pObject obj)//, EVALUATE_DESCPTR EvalDescPtr)
 			{
 				if (maneuver_state & (LEFT | RIGHT))
 				{
-					print("E");
+
 					TurnShip (ShipPtr, desired_turn_angle);
 					maneuver_state &= ~(LEFT | RIGHT);
 				}
 
 				if (TurnAngle(desired_thrust_angle,ShipPtr->angle,45)==0)
 				{
-					print("F");
+
 					desired_thrust_angle = ShipPtr->angle;
 				}
 				else
 				{
-					print("G");
+
 					desired_thrust_angle = desired_turn_angle;
 				}
 			}
@@ -1018,7 +1018,7 @@ Entice (pPlayer ShipPtr, pObject obj)//, EVALUATE_DESCPTR EvalDescPtr)
 	}
 
 DoManeuver:
-print("do maneuver");
+
 	if (ShipPtr->turn_turn==0)
 		TurnShip (ShipPtr, desired_thrust_angle);
 
@@ -1062,7 +1062,7 @@ tactical_intelligence (pPlayer StarShipPtr )
 	//	++StarShipPtr->special_counter;
 
 	ShipFacing = StarShipPtr->angle;
-print("\n tact intel");
+
 //need object
 	for (ConcernCounter = 0;
 			ConcernCounter <= FIRST_EMPTY_INDEX; ++ConcernCounter)
@@ -1113,7 +1113,7 @@ print("\n tact intel");
 	tmp_obj.xspeed=StarShipPtr->xspeed;
 	tmp_obj.yspeed=StarShipPtr->yspeed;
 	tmp_obj.life=-1;
-	tmp_obj.life=StarShipPtr->offset;
+	tmp_obj.size=StarShipPtr->offset;
 
 	gameObjs[0].type=PLAYER;
 	gameObjs[0].parent=(void*)opp;
@@ -1125,7 +1125,7 @@ print("\n tact intel");
 	gameObjs[0].xspeed=opp->xspeed;
 	gameObjs[0].yspeed=opp->yspeed;
 	gameObjs[0].life=-1;
-	gameObjs[0].life=opp->offset;
+	gameObjs[0].size=opp->offset*2;
 
 
 	gameObjs[1].type=PLANET;
@@ -1138,7 +1138,7 @@ print("\n tact intel");
 	gameObjs[1].xspeed=0;
 	gameObjs[1].yspeed=0;
 	gameObjs[1].life=-1;
-	gameObjs[1].life=64;
+	gameObjs[1].size=64;
 
 	for (int i=0;i<5;i++)
 	{
@@ -1241,7 +1241,7 @@ print("\n tact intel");
 			else */ if (ed.type==PLAYER)
 			{
 
-			print("\nanalysing other player");
+
 				if (opp->ManeuverabilityIndex == 0)
 					InitCyborg (opp);
 /*
@@ -1286,12 +1286,10 @@ print("\n tact intel");
 
 					ObjectsOfConcern[ENEMY_WEAPON_INDEX] = ed;
 				}
-				if (ObjectsOfConcern[ENEMY_SHIP_INDEX].MoveState == PURSUE)
-				print("PURSE");
-				else if (ObjectsOfConcern[ENEMY_SHIP_INDEX].MoveState == ENTICE)
-				print("ENTICE");
-				else
-				print("NOTHING");
+
+
+
+
 			}//if player
 			else if (ed.type==ASTEROID||ed.type==PLANET)//if (ed->pParent == 0)
 			{

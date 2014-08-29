@@ -3,10 +3,10 @@
 #include "sc.h"
 #include "sincosrad.h"
 
-#include "gfx/urquan_out.h"  //urqan
-#include "gfx/urquan_fire.h"
-#include "gfx/urquan_fighters.h"
-#include "gfx/urquan_fighters_fire.h"
+#include "urquan_out.h"  //urqan
+#include "urquan_fire.h"
+#include "urquan_fighters.h"
+#include "urquan_fighters_fire.h"
 
 //#include "sound/urquan-fusion.h"
 //#include "sound/urquan-fighter.h"
@@ -37,6 +37,7 @@ int FireDreadnaught(pPlayer pl);
 int SpecialDreadnaught(pPlayer pl);
 int aiDreadnaught(pPlayer ShipPtr, pObject ObjectsOfConcern, COUNT ConcernCounter);
 void SetUrquanPilot(pPlayer pl);
+void RestoreGFXDreadnaught(pPlayer p);
 
 void LoadDreadnaught(s16 SpriteStart)
 {
@@ -119,8 +120,8 @@ int SpecialDreadnaught(pPlayer pl)
 			a-=360;
 
 
-		s32 x = ((pl->offset) * (s32)SIN[a])>>8;
-		s32 y = ((pl->offset) * (s32)COS[a])>>8;
+		s32 x = ((pl->offset) * (s32)SIN[a])>>7;
+		s32 y = ((pl->offset) * (s32)COS[a])>>7;
 
 		pl->weapon[b].xpos=pl->xpos+(x);
 		pl->weapon[b].ypos=pl->ypos-(y);
@@ -138,7 +139,6 @@ int SpecialDreadnaught(pPlayer pl)
 	    //sprites[pl->weapon[b].sprite].attribute2 = pl->SpriteStart | PRIORITY(1);
 	    ModifyCrew(pl,-1);
 	    res+=1;
-	    pl->fighters++;
 		}
 
 
@@ -196,7 +196,7 @@ void SetDreadnaught(pPlayer pl)
 	pl->firebatt=6;
 	pl->specbatt=8;
 
-	pl->offset=30;
+	pl->offset=16;
 
 	pl->batt_wait=4;
 	pl->turn_wait=4;
@@ -221,11 +221,14 @@ void SetDreadnaught(pPlayer pl)
 	pl->aifunc=&aiDreadnaught;
 	pl->loadfunc=&LoadDreadnaught;
 	pl->loadpilots=&SetUrquanPilot;
+	pl->postfunc=0;
+	pl->restorefunc=&RestoreGFXDreadnaught;
 
 	pl->ditty=&urquan_ditty;
 	pl->batt_regen=1;
 
 	pl->ship_flags = FIRES_FORE | SEEKING_SPECIAL;
+	pl->mass=10;
 
 	pl->pilot_sprite=1216/16;
 	pl->pilots[0].x=17;
@@ -334,20 +337,17 @@ void MoveURFighters(pWeapon ur)
 		//been out too long die
 		ur->life=0;
 		MoveOffscreen(&sprites[ur->sprite]);
-		parent->fighters--;
 
 		return;
 	}
-	if (target->crew==0&&ur->status>199)
-		ur->status=199;
-	if (ur->status<200||target->cloak)
+	if (target->crew==0&&ur->status>149)
+		ur->status=149;
+	if (ur->status<150||target->cloak)
 	{
 		//if reached mother ship dock
 		if (DetectWeaponToShip(parent,ur)==1)
 		{
 			ur->life=0;//-1;
-			parent->fighters--;
-			//mothership crew++;
 			ModifyCrew(parent,1);
 			MoveOffscreen(&sprites[ur->sprite]);
 			play_sfx(&urquan_recover,parent->plr-1);
@@ -460,4 +460,29 @@ void SetUrquanPilot(pPlayer pl)
 	sprites[47+off].attribute0 = COLOR_256 | TALL  | 160;
 	sprites[47+off].attribute1 = SIZE_64 | 240;
 	sprites[47+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+114 | PRIORITY(2);
+}
+
+void RestoreGFXDreadnaught(pPlayer p)
+{
+	for(int i=0;i<12;i++)
+	{
+		if (p->weapon[i].life>0)
+		{
+			if(p->weapon[i].type==UR_FIGHTERS)
+			{
+
+				sprites[p->weapon[i].sprite].attribute0 = COLOR_256 | SQUARE | ROTATION_FLAG | SIZE_DOUBLE | MODE_TRANSPARENT | 160;	//setup sprite info, 256 colour, shape and y-coord
+				sprites[p->weapon[i].sprite].attribute1 = SIZE_8 | ROTDATA(p->weapon[i].sprite) | 240;
+	    		sprites[p->weapon[i].sprite].attribute2 = p->SpriteStart+72 | PRIORITY(1);
+			}
+			else if(p->weapon[i].type==SIMPLE)
+			{
+
+				sprites[p->weapon[i].sprite].attribute0 = COLOR_256 | SQUARE | ROTATION_FLAG | SIZE_DOUBLE | MODE_TRANSPARENT | 160;	//setup sprite info, 256 colour, shape and y-coord
+			    sprites[p->weapon[i].sprite].attribute1 = SIZE_16 | ROTDATA(p->weapon[i].sprite) | 240;
+    			sprites[p->weapon[i].sprite].attribute2 = p->SpriteStart+64 | PRIORITY(1);
+			}
+
+		}
+	}
 }

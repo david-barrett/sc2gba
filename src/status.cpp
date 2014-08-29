@@ -4,41 +4,47 @@
 #include "sc.h"
 #include "sprite.h" //my generic sprite header file
 
-#include "gfx/crew1.h"
-#include "gfx/crew2.h"
-#include "gfx/crew3.h"
-#include "gfx/crew4.h"
-#include "gfx/crew5.h"
-#include "gfx/crew6.h"
-#include "gfx/crew7.h"
-#include "gfx/crew8.h"
+#include "crew1.h"
+#include "crew2.h"
+#include "crew3.h"
+#include "crew4.h"
+#include "crew5.h"
+#include "crew6.h"
+#include "crew7.h"
+#include "crew8.h"
 
-#include "gfx/batt1.h"
-#include "gfx/batt2.h"
-#include "gfx/batt3.h"
-#include "gfx/batt4.h"
-#include "gfx/batt5.h"
-#include "gfx/batt6.h"
-#include "gfx/batt7.h"
-#include "gfx/batt8.h"
+#include "batt1.h"
+#include "batt2.h"
+#include "batt3.h"
+#include "batt4.h"
+#include "batt5.h"
+#include "batt6.h"
+#include "batt7.h"
+#include "batt8.h"
 
-#include "gfx/blank.h"
+#include "blank.h"
 
-#include "gfx/line.h"
+#include "line.h"
 
-#include "gfx/endr1.h"
-#include "gfx/endr2.h"
-#include "gfx/endr3.h"
-#include "gfx/endr4.h"
-#include "gfx/endl1.h"
-#include "gfx/endl2.h"
-#include "gfx/endl3.h"
-#include "gfx/endl4.h"
+#include "endr1.h"
+#include "endr2.h"
+#include "endr3.h"
+#include "endr4.h"
+#include "endl1.h"
+#include "endl2.h"
+#include "endl3.h"
+#include "endl4.h"
+
+#include "status_pod1.h"
+#include "status_pod2.h"
+
+//#include "status_spaceman1.h"
+//#include "status_spaceman2.h"
 
 extern pOAMEntry sprites;
 //extern pPlayer p1;
 //extern pPlayer p2;
-const int start=71;
+const int start=65;
 void drawStatus(pPlayer p1,pPlayer p2);
 const s16 crew1=SpriteStatusStart;
 const s16 crew2=SpriteStatusStart+2;
@@ -70,13 +76,16 @@ const s16 endr2=SpriteStatusStart+46;
 const s16 endr3=SpriteStatusStart+48;
 const s16 endr4=SpriteStatusStart+50;
 
+const s16 pod1=SpriteStatusStart+52;
+const s16 pod2=SpriteStatusStart+54;
+
 
 void SetupStatus(pPlayer p1,pPlayer p2)
 {
 	u32 loop;
 	s32 OAMStatusStart = 16*SpriteStatusStart;
 
-	for (int i=start;i<start+48;i++)
+	for (int i=start;i<start+56;i++)
 	{
 		sprites[i].attribute0 = COLOR_256 | SQUARE |50;
 	    sprites[i].attribute1 = SIZE_8 | 240;
@@ -118,7 +127,12 @@ void SetupStatus(pPlayer p1,pPlayer p2)
 			OAMData[loop+OAMStatusStart+704] = endr1Data[loop];
 			OAMData[loop+OAMStatusStart+736] = endr2Data[loop];
 			OAMData[loop+OAMStatusStart+768] = endr3Data[loop];
-			OAMData[loop+OAMStatusStart+800] = endr4Data[loop];
+		//	OAMData[loop+OAMStatusStart+800] = endr4Data[loop];
+
+			OAMData[loop+OAMStatusStart+832] = status_pod1Data[loop];
+			OAMData[loop+OAMStatusStart+864] = status_pod2Data[loop];
+			//OAMData[loop+OAMStatusStart+896] = status_spaceman1Data[loop];
+			//OAMData[loop+OAMStatusStart+928] = status_spaceman2Data[loop];
 
        	}
        	drawStatus(p1,p2);
@@ -266,6 +280,27 @@ s16 statusBatt(s16 data,s16 minus)
 	}
 }
 
+s16 statusLimpet(s16 data,s16 minus)
+{
+
+
+	s16 d = data - minus;
+	if (d<0)
+		return(blank);
+	switch (d)
+	{
+	case 0:
+		return(blank);
+	case 1:
+		return (pod1);
+		break;
+	case 2:
+	default:
+		return (pod2);
+		break;
+	}
+}
+
 void drawStatus(pPlayer p1,pPlayer p2)
 {
 	//max crew/batt =42
@@ -298,16 +333,27 @@ void drawStatus(pPlayer p1,pPlayer p2)
 			sprites[start+46].attribute2 = statusBattS(p2->maxbatt,32) | PRIORITY(3);
 			sprites[start+47].attribute2 = statusBattS(p2->maxbatt,40) | PRIORITY(3);
 
+			sprites[start+48].attribute2 = statusLimpet(p1->limpets,0) | PRIORITY(2);
+			sprites[start+49].attribute2 = statusLimpet(p1->limpets,2) | PRIORITY(2);
+			sprites[start+50].attribute2 = statusLimpet(p1->limpets,4) | PRIORITY(2);
+			sprites[start+51].attribute2 = statusLimpet(p1->limpets,6) | PRIORITY(3);
 
 
-		   	    //p1 crew
+			sprites[start+52].attribute2 = statusLimpet(p1->limpets,0) | PRIORITY(2);
+			sprites[start+53].attribute2 = statusLimpet(p1->limpets,2) | PRIORITY(2);
+			sprites[start+54].attribute2 = statusLimpet(p1->limpets,4) | PRIORITY(2);
+			sprites[start+55].attribute2 = statusLimpet(p1->limpets,6) | PRIORITY(2);
+
+
+
+		   	    //p1 crew border
 		   		MoveSprite(&sprites[start+24], 8, 152);
 		   		MoveSprite(&sprites[start+25], 16, 152);
 		   		MoveSprite(&sprites[start+26], 24, 152);
 		   		MoveSprite(&sprites[start+27], 32, 152);
 		   		MoveSprite(&sprites[start+28], 40, 152);
 		   		MoveSprite(&sprites[start+29], 48, 152);
-		   		//p1 batt
+		   		//p1 batt border
 		   		MoveSprite(&sprites[start+30], 56, 152);
 		   		MoveSprite(&sprites[start+31], 64, 152);
 		   		MoveSprite(&sprites[start+32], 72, 152);
@@ -315,14 +361,14 @@ void drawStatus(pPlayer p1,pPlayer p2)
 		   		MoveSprite(&sprites[start+34], 88, 152);
 		   		MoveSprite(&sprites[start+35], 96, 152);
 
-		   		//p1 crew
+		   		//p2 crew border
 		   		MoveSprite(&sprites[start+36], 136, 152);
 		   		MoveSprite(&sprites[start+37], 144, 152);
 		   		MoveSprite(&sprites[start+38], 152, 152);
 		   		MoveSprite(&sprites[start+39], 160, 152);
 		   		MoveSprite(&sprites[start+40], 168, 152);
 		   		MoveSprite(&sprites[start+41], 176, 152);
-		   		//p1 batt
+		   		//p2 batt border
 		   		MoveSprite(&sprites[start+42], 184, 152);
 		   		MoveSprite(&sprites[start+43], 192, 152);
 		   		MoveSprite(&sprites[start+44], 200, 152);
@@ -360,6 +406,21 @@ void drawStatus(pPlayer p1,pPlayer p2)
 					MoveSprite(&sprites[start+22], 216, 152);
 		MoveSprite(&sprites[start+23], 224, 152);
 
+
+		int x=58+(p1->maxbatt);
+		//p1 limpet
+		MoveSprite(&sprites[start+48], x, 151);
+		MoveSprite(&sprites[start+49], x+4, 151);
+		MoveSprite(&sprites[start+50], x+8, 151);
+		MoveSprite(&sprites[start+51], x+12, 151);
+
+		x=178-(p2->maxcrew);
+		//p2 limpet
+		MoveSprite(&sprites[start+52], x, 151);
+		MoveSprite(&sprites[start+53], x-4, 151);
+		MoveSprite(&sprites[start+54], x-8, 151);
+		MoveSprite(&sprites[start+55], x-12, 151);
+
 }
 
 void UpdateCrew(pPlayer pl)
@@ -384,15 +445,26 @@ void UpdateBatt(pPlayer pl)
 	sprites[start+11+o].attribute2 = statusBatt(pl->batt,40) | PRIORITY(2);
 }
 
+void UpdateLimpet(pPlayer pl)
+{
+	int o=pl->plr==1?0:4;
+	sprites[start+48+o].attribute2 = statusLimpet(pl->limpets,0) | PRIORITY(2);
+	sprites[start+49+o].attribute2 = statusLimpet(pl->limpets,2) | PRIORITY(2);
+	sprites[start+50+o].attribute2 = statusLimpet(pl->limpets,4) | PRIORITY(2);
+	sprites[start+51+o].attribute2 = statusLimpet(pl->limpets,6) | PRIORITY(2);
+}
+
 
 
 void ModifyCrew(pPlayer p, int i,int ignoreshield)
 {
-	if (!p->shield&&!ignoreshield)
+	if (!p->shield||ignoreshield)
 	{
 	p->crew+=i;
 	if (p->crew>p->maxcrew)
 		p->crew=p->maxcrew;
+	if(p->crew<0)
+		p->crew=0;
 
 	UpdateCrew(p);
 	}
@@ -408,4 +480,12 @@ void ModifyBatt(pPlayer p, int i)
 
 	UpdateBatt(p);
 }
+
+void AddLimpet(pPlayer p)
+{
+	if (p->limpets<8)
+		p->limpets++;
+	UpdateLimpet(p);
+}
+
 

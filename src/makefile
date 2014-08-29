@@ -1,7 +1,14 @@
 CC= gcc # use GNU C++ compiler 
 OBJCOPY= objcopy
-SRC=/gba/sc2gba
-IFLAGS  = -I$(SRC)/gfx -I$(SRC) -I$(SRC)/sound -I$(SRC)/letters -I$(SRC)/pilots
+SRC=/gba/sc2gba/src
+IFLAGS  = -I$(SRC)/gfx -I$(SRC) -I$(SRC)/sound -I$(SRC)/text -I$(SRC)/ships -I$(SRC)/bg \
+	-I$(SRC)/ships/androsyn -I$(SRC)/ships/arilou -I$(SRC)/ships/blackurq -I$(SRC)/ships/chenjesu \
+	-I$(SRC)/ships/chmmr -I$(SRC)/ships/druudge -I$(SRC)/ships/human -I$(SRC)/ships/ilwrath \
+	-I$(SRC)/ships/melnorme -I$(SRC)/ships/mmrnmhrm -I$(SRC)/ships/mycon -I$(SRC)/ships/orz \
+	-I$(SRC)/ships/pkunk -I$(SRC)/ships/probe -I$(SRC)/ships/shofixti -I$(SRC)/ships/spathi \
+	-I$(SRC)/ships/supox -I$(SRC)/ships/syreen -I$(SRC)/ships/thradd -I$(SRC)/ships/umgah \
+	-I$(SRC)/ships/urquan -I$(SRC)/ships/utwig -I$(SRC)/ships/vux -I$(SRC)/ships/yehat \
+	-I$(SRC)/ships/zoqfot -I$(SRC)/status -I$(SRC)/headers
 CFLAGS = $(IFLAGS)   
 LINKER=gcc # use GNU C++ as linker  
 LINKER-FLAGS=-o            # flags for linker 
@@ -10,25 +17,31 @@ MAKE=make # name of make utility
 # you cannot add comments after the continuation character! 
 CPPSOURCES = sc.cpp \
 	bg.cpp \
-	ships.cpp \
+	ship.cpp \
+	loadgfx.cpp \
+	planet.cpp \
 	status.cpp \
-	fire.cpp \
-	special.cpp \
 	set.cpp \
 	melee.cpp \
 	choose.cpp \
-	restore.cpp \
 	pkunk.cpp \
 	urquan.cpp \
 	yehat.cpp \
 	ilwrath.cpp \
+	vux.cpp \
+	syreen.cpp \
 	sfx.cpp \
-	cyborg.cpp
+	cyborg.cpp \
+	menu.cpp
 
-CSOURCES = pkunk_sfx.c \
-	yehat_sfx.c \
-	ilwrath_sfx.c \
+CSOURCES = ilwrath_sfx.c \
+	pkunk_sfx.c \
+	syreen_sfx.c \
 	urquan_sfx.c \
+	vux_sfx.c \
+	yehat_sfx.c 
+	
+	
 	
 COBJECTS = $(CSOURCES:.c=.o)
 CPPOBJECTS = $(CPPSOURCES:.cpp=.o)
@@ -49,11 +62,11 @@ $(PROJ): $(COBJECTS) $(CPPOBJECTS)
 
 # remove object files and core (if any) 
 clean: 
-	$(RM) $(CPPOBJECTS) core 
+	$(RM) $(CPPOBJECTS) $(PROJ).elf $(PROJ).gba
 
 # remove object files, core dump, and executable (if any) 
 distclean: 
-	$(RM) *.o core  
+	$(RM) *.o $(PROJ).elf $(PROJ).gba
 	$(RM) $(TARGET) 
 
 # remove object files, core dump, and executable (if any) and 
@@ -63,5 +76,5 @@ again:
 	 $(MAKE) $(TARGET) 
 	 
 #dependancies
-$(CPPOBJECTS): sc.h
+$(CPPOBJECTS): $(SRC)/headers/sc.h
 

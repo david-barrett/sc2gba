@@ -8,7 +8,7 @@ extern pOAMEntry sprites;
 void SetNew(pPlayer pl)
 {
 	//set random loc && facing
-	print("in set new");
+
 	//
 	pl->batt_turn=0;
 	pl->turn_turn=0;
@@ -26,7 +26,7 @@ void SetNew(pPlayer pl)
 		pl->weapon[i].life=-1;
 		MoveOffscreen(&sprites[pl->weapon[i].sprite]);
 	}
-	print("A");
+
 
 	pl->aiturn=0;
 	pl->aispecial=0;
@@ -36,21 +36,25 @@ void SetNew(pPlayer pl)
 	pl->shield=0;//yehat
 	pl->scrambled=0;//
 
-	pl->fighters=0;//urquan
+
 
 	pl->spriteoffset=0;
 	pl->angleoffset=0;
 
+	pl->limpets=0;
+
 	pl->ManeuverabilityIndex=0;
 
-	print("gen start");
+
+
 	GenerateStart(pl);
 	pl->warp=6;
-	pl->xspeed = ((20) * (s32)SIN[pl->angle])>>8;
-	pl->yspeed = ((20) * (s32)COS[pl->angle])>>8;
-	print("end set new");
+	//pl->xspeed = ((20) * (s32)SIN[pl->angle])>>8;
+	//pl->yspeed = ((20) * (s32)COS[pl->angle])>>8;
+
 
 	pl->EndGame=20;
+
 }
 
 
@@ -72,5 +76,74 @@ void SetShip(pPlayer pl)
 		case AVENGER:
 			SetIlwrath(pl);
 			break;
+		case INTRUDER:
+			SetVux(pl);
+			break;
+	/*
+		case GUARDIAN:
+			SetAndrosynth(pl);
+			break;
+		case SKIFF :
+			SetArilou(pl);
+			break;
+		case MARAUDER:
+			SetBlackUrq(pl);
+			break;
+		case BROODHOME:
+			SetChenjusu(pl);
+			break;
+		case AVATAR:
+			SetChmmr(pl);
+			break;
+
+		case BLADE:
+			SetSupox(pl);
+			break;
+		case CRUISER:
+			SetHuman(pl);
+			break;
+		case DRONE:
+			SetUmgah(pl);
+			break;
+		case ELUDER:
+			SetSpathi(pl);
+			break;
+		case JUGGER:
+			SetUtwig(pl);
+			break;
+
+		case MAULER:
+			SetDruudge(pl);
+			break;
+		case NEMESIS:
+			SetOrz(pl);
+			break;*/
+		case PENETRATOR:
+			SetSyreen(pl);
+			break;
+		/*case PODSHIP:
+			SetMycon(pl);
+			break;
+		case PROBE:
+			SetProbe(pl);
+			break;
+
+		case SCOUT:
+			SetShofixti(pl);
+			break;
+		case STINGER:
+			SetZoqFot(pl);
+			break;
+		case TORCH:
+			SetThrad(pl);
+			break;
+		case TRADER:
+			SetMelnorme(pl);
+			break;
+		case TRANSFORMER:
+			SetMmrnmhrm(pl);
+			break;
+			*/
+
 	}
 }

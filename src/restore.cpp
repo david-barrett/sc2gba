@@ -20,34 +20,7 @@ void RestoreGFXFury(pPlayer p)
 	}
 }
 
-void RestoreGFXDreadnaught(pPlayer p)
-{
-	for(int i=0;i<12;i++)
-	{
-		if (p->weapon[i].life>0)
-		{
-			if(p->weapon[i].type==UR_FIGHTERS)
-			{
-				print("restored ur fighter ");
-				print(i);
-				print("\n");
-				sprites[p->weapon[i].sprite].attribute0 = COLOR_256 | SQUARE | ROTATION_FLAG | SIZE_DOUBLE | MODE_TRANSPARENT | 160;	//setup sprite info, 256 colour, shape and y-coord
-				sprites[p->weapon[i].sprite].attribute1 = SIZE_8 | ROTDATA(p->weapon[i].sprite) | 240;
-	    		sprites[p->weapon[i].sprite].attribute2 = p->SpriteStart+72 | PRIORITY(1);
-			}
-			else if(p->weapon[i].type==SIMPLE)
-			{
-				print("restored bullet ");
-				print(i);
-				print("\n");
-				sprites[p->weapon[i].sprite].attribute0 = COLOR_256 | SQUARE | ROTATION_FLAG | SIZE_DOUBLE | MODE_TRANSPARENT | 160;	//setup sprite info, 256 colour, shape and y-coord
-			    sprites[p->weapon[i].sprite].attribute1 = SIZE_16 | ROTDATA(p->weapon[i].sprite) | 240;
-    			sprites[p->weapon[i].sprite].attribute2 = p->SpriteStart+64 | PRIORITY(1);
-			}
 
-		}
-	}
-}
 
 void RestoreGFX(pPlayer pl)
 {

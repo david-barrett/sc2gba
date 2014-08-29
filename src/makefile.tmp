@@ -1,0 +1,99 @@
+CC= gcc # use GNU C++ compiler 
+OBJCOPY= objcopy
+SRC=/gba/sc2gba/src
+IFLAGS  = -I$(SRC)/gfx -I$(SRC) -I$(SRC)/sound -I$(SRC)/text -I$(SRC)/ships -I$(SRC)/bg \
+	-I$(SRC)/ships/androsyn -I$(SRC)/ships/arilou -I$(SRC)/ships/blackurq -I$(SRC)/ships/chenjesu \
+	-I$(SRC)/ships/chmmr -I$(SRC)/ships/druudge -I$(SRC)/ships/human -I$(SRC)/ships/ilwrath \
+	-I$(SRC)/ships/melnorme -I$(SRC)/ships/mmrnmhrm -I$(SRC)/ships/mycon -I$(SRC)/ships/orz \
+	-I$(SRC)/ships/pkunk -I$(SRC)/ships/probe -I$(SRC)/ships/shofixti -I$(SRC)/ships/spathi \
+	-I$(SRC)/ships/supox -I$(SRC)/ships/syreen -I$(SRC)/ships/thradd -I$(SRC)/ships/umgah \
+	-I$(SRC)/ships/urquan -I$(SRC)/ships/utwig -I$(SRC)/ships/vux -I$(SRC)/ships/yehat \
+	-I$(SRC)/ships/zoqfot -I$(SRC)/status -I$(SRC)/headers
+CFLAGS = $(IFLAGS)   
+LINKER=gcc # use GNU C++ as linker  
+LINKER-FLAGS=-o            # flags for linker 
+RM=rm -f # how to remove files 
+MAKE=make # name of make utility 
+# you cannot add comments after the continuation character! 
+CPPSOURCES = sc.cpp \
+	bg.cpp \
+	ship.cpp \
+	loadgfx.cpp \
+	planet.cpp \
+	status.cpp \
+	set.cpp \
+	melee.cpp \
+	choose.cpp \
+	pkunk.cpp \
+	urquan.cpp \
+	yehat.cpp \
+	ilwrath.cpp \
+	vux.cpp \
+	syreen.cpp \
+	sfx.cpp \
+	cyborg.cpp \
+	menu.cpp
+
+CSOURCES = androsynth_sfx.c \
+	arilou_sfx.c \
+	blackurq_sfx.c \
+	chenjesu_sfx.c \
+	chmmr_sfx.c \
+	druudge_sfx.c \
+	human_sfx.c \
+	ilwrath_sfx.c \
+	melnorme_sfx.c \
+	mmrnmhrm_sfx.c \
+	mycon_sfx.c \
+	orz_sfx.c \
+	pkunk_sfx.c \
+	probe_sfx.c \
+	shofixti_sfx.c \
+	spathi_sfx.c \
+	supox_sfx.c \
+	syreen_sfx.c \
+	thradd_sfx.c \
+	umgah_sfx.c \
+	urquan_sfx.c \
+	utwig_sfx.c \
+	vux_sfx.c \
+	yehat_sfx.c \
+	zoqfot_sfx.c
+	
+	
+	
+COBJECTS = $(CSOURCES:.c=.o)
+CPPOBJECTS = $(CPPSOURCES:.cpp=.o)
+PROJ=sc2gba# name of executable 
+.IGNORE: # ignore problems (as far as possible) 
+.SUFFIXES: # get rid of predefined rules 
+.SUFFIXES: .cpp .o
+.SUFFIXES: .c .o
+
+$(PROJ): $(COBJECTS) $(CPPOBJECTS)
+	$(CC) $(CFLAGS) $(COBJECTS) $(CPPOBJECTS) -o $(PROJ).elf -lm
+	$(OBJCOPY) -v -O binary $(PROJ).elf $(PROJ).gba 
+
+.c.o: 
+	$(CC) $(CFLAGS) -c $< 
+.cpp.o: 
+	$(CC) $(CFLAGS) -c $< 
+
+# remove object files and core (if any) 
+clean: 
+	$(RM) $(CPPOBJECTS) $(PROJ).elf $(PROJ).gba
+
+# remove object files, core dump, and executable (if any) 
+distclean: 
+	$(RM) *.o $(PROJ).elf $(PROJ).gba
+	$(RM) $(TARGET) 
+
+# remove object files, core dump, and executable (if any) and 
+# make them again. 
+again: 
+	$(MAKE) distclean 
+	 $(MAKE) $(TARGET) 
+	 
+#dependancies
+$(CPPOBJECTS): $(SRC)/headers/sc.h
+

@@ -3,8 +3,8 @@
 #include "sc.h"
 #include "sincosrad.h"
 
-#include "gfx/pkunk_out.h"
-#include "gfx/pkunk_fire.h"
+#include "pkunk_out.h"
+#include "pkunk_fire.h"
 
 #include "pkunk_sfx.h"
 #include "TektronicWave.h"
@@ -29,6 +29,7 @@ int SpecialFury(pPlayer pl);
 int aiFury(pPlayer pl, pObject ObjectsOfConcern, COUNT ConcernCounter);
 void LoadFury(s16 SpriteStart);
 void SetPkunkPilot(pPlayer pl);
+void RestoreGFXFury(pPlayer p);
 
 const PCMSOUND insults[] = {pkunk_baby,pkunk_dodo,pkunk_fool,pkunk_idiot,pkunk_jerk,pkunk_loser,pkunk_moron,pkunk_nerd,pkunk_nitwit,pkunk_stupid,pkunk_twit,pkunk_wimp,pkunk_worm};
 
@@ -46,7 +47,7 @@ void SetFury(pPlayer pl)
 	pl->firebatt=1;
 	pl->specbatt=0;
 
-	pl->offset=25;
+	pl->offset=13;
 
 	pl->batt_wait=0;
 	pl->turn_wait=0;
@@ -69,10 +70,13 @@ void SetFury(pPlayer pl)
 	pl->aifunc=&aiFury;
 	pl->loadfunc=&LoadFury;
 	pl->loadpilots=&SetPkunkPilot;
+	pl->postfunc=0;
+	pl->restorefunc=&RestoreGFXFury;
 
 	pl->ditty=&pkunk_ditty;
 
 	pl->ship_flags = FIRES_FORE | FIRES_LEFT | FIRES_RIGHT;
+	pl->mass=1;
 	pl->pilot_sprite=(1024+32)/16;
 
 	pl->pilots[0].x=27;
@@ -195,8 +199,6 @@ int SpecialFury(pPlayer pl)
 	ModifyBatt(pl,2);
 	int r=ran(0,12);
 	play_sfx(&insults[r],pl->plr-1);
-	print("\nspecial:");
-	print(r);
 
 	return 1;
 }
@@ -204,7 +206,7 @@ int SpecialFury(pPlayer pl)
 int DeathFury(pPlayer pl)
 {
 	int r=ran(0,1);
-	if (r&&pl->ai<STANDARD)
+	if (r&&pl->ai<WEAK)
 	{
 		//SetFury(pl);
 		SetShip(pl);
@@ -254,4 +256,20 @@ void SetPkunkPilot(pPlayer pl)
 		sprites[47+off].attribute0 = COLOR_256 | SQUARE  | 160;
 		sprites[47+off].attribute1 = SIZE_32 | 240;
 		sprites[47+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+156 | PRIORITY(2);
+}
+
+void RestoreGFXFury(pPlayer p)
+{
+	for(int i=0;i<12;i++)
+	{
+		if (p->weapon[i].life>0)
+		{
+			if(p->weapon[i].type==SIMPLE)
+			{
+			sprites[p->weapon[i].sprite].attribute0 = COLOR_256 | SQUARE | ROTATION_FLAG | SIZE_DOUBLE | MODE_TRANSPARENT | 160;	//setup sprite info, 256 colour, shape and y-coord
+			sprites[p->weapon[i].sprite].attribute1 = SIZE_8 | ROTDATA(p->weapon[i].sprite) | 240;
+   			sprites[p->weapon[i].sprite].attribute2 = p->SpriteStart+64 | PRIORITY(1);
+			}
+		}
+	}
 }
