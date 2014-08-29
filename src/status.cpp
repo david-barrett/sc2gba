@@ -35,9 +35,9 @@
 #include "gfx/endl3.h"
 #include "gfx/endl4.h"
 
-extern OAMEntry sprites[128];
-extern Player p1;
-extern Player p2;
+extern pOAMEntry sprites;
+extern pPlayer p1;
+extern pPlayer p2;
 const int start=71;
 void drawStatus();
 
@@ -267,33 +267,33 @@ void drawStatus()
 {
 	//max crew/batt =42
 
-			sprites[start+24].attribute2 = statusCrewS(p1.maxcrew,40) | PRIORITY(3);
-			sprites[start+25].attribute2 = statusCrewS(p1.maxcrew,32) | PRIORITY(3);
-			sprites[start+26].attribute2 = statusCrewS(p1.maxcrew,24) | PRIORITY(3);
-			sprites[start+27].attribute2 = statusCrewS(p1.maxcrew,16) | PRIORITY(3);
-			sprites[start+28].attribute2 = statusCrewS(p1.maxcrew,8) | PRIORITY(3);
-			sprites[start+29].attribute2 = statusCrewS(p1.maxcrew,0) | PRIORITY(3);
+			sprites[start+24].attribute2 = statusCrewS(p1->maxcrew,40) | PRIORITY(3);
+			sprites[start+25].attribute2 = statusCrewS(p1->maxcrew,32) | PRIORITY(3);
+			sprites[start+26].attribute2 = statusCrewS(p1->maxcrew,24) | PRIORITY(3);
+			sprites[start+27].attribute2 = statusCrewS(p1->maxcrew,16) | PRIORITY(3);
+			sprites[start+28].attribute2 = statusCrewS(p1->maxcrew,8) | PRIORITY(3);
+			sprites[start+29].attribute2 = statusCrewS(p1->maxcrew,0) | PRIORITY(3);
 
-			sprites[start+30].attribute2 = statusBattS(p1.maxbatt,0) | PRIORITY(3);
-			sprites[start+31].attribute2 = statusBattS(p1.maxbatt,8) | PRIORITY(3);
-			sprites[start+32].attribute2 = statusBattS(p1.maxbatt,16) | PRIORITY(3);
-			sprites[start+33].attribute2 = statusBattS(p1.maxbatt,32) | PRIORITY(3);
-			sprites[start+34].attribute2 = statusBattS(p1.maxbatt,24) | PRIORITY(3);
-			sprites[start+35].attribute2 = statusBattS(p1.maxbatt,40) | PRIORITY(3);
+			sprites[start+30].attribute2 = statusBattS(p1->maxbatt,0) | PRIORITY(3);
+			sprites[start+31].attribute2 = statusBattS(p1->maxbatt,8) | PRIORITY(3);
+			sprites[start+32].attribute2 = statusBattS(p1->maxbatt,16) | PRIORITY(3);
+			sprites[start+33].attribute2 = statusBattS(p1->maxbatt,32) | PRIORITY(3);
+			sprites[start+34].attribute2 = statusBattS(p1->maxbatt,24) | PRIORITY(3);
+			sprites[start+35].attribute2 = statusBattS(p1->maxbatt,40) | PRIORITY(3);
 
-			sprites[start+36].attribute2 = statusCrewS(p2.maxcrew,40) | PRIORITY(3);
-			sprites[start+37].attribute2 = statusCrewS(p2.maxcrew,32) | PRIORITY(3);
-			sprites[start+38].attribute2 = statusCrewS(p2.maxcrew,24) | PRIORITY(3);
-			sprites[start+39].attribute2 = statusCrewS(p2.maxcrew,16) | PRIORITY(3);
-			sprites[start+40].attribute2 = statusCrewS(p2.maxcrew,8) | PRIORITY(3);
-			sprites[start+41].attribute2 = statusCrewS(p2.maxcrew,0) | PRIORITY(3);
+			sprites[start+36].attribute2 = statusCrewS(p2->maxcrew,40) | PRIORITY(3);
+			sprites[start+37].attribute2 = statusCrewS(p2->maxcrew,32) | PRIORITY(3);
+			sprites[start+38].attribute2 = statusCrewS(p2->maxcrew,24) | PRIORITY(3);
+			sprites[start+39].attribute2 = statusCrewS(p2->maxcrew,16) | PRIORITY(3);
+			sprites[start+40].attribute2 = statusCrewS(p2->maxcrew,8) | PRIORITY(3);
+			sprites[start+41].attribute2 = statusCrewS(p2->maxcrew,0) | PRIORITY(3);
 
-			sprites[start+42].attribute2 = statusBattS(p2.maxbatt,0) | PRIORITY(3);
-			sprites[start+43].attribute2 = statusBattS(p2.maxbatt,8) | PRIORITY(3);
-			sprites[start+44].attribute2 = statusBattS(p2.maxbatt,16) | PRIORITY(3);
-			sprites[start+45].attribute2 = statusBattS(p2.maxbatt,24) | PRIORITY(3);
-			sprites[start+46].attribute2 = statusBattS(p2.maxbatt,32) | PRIORITY(3);
-			sprites[start+47].attribute2 = statusBattS(p2.maxbatt,40) | PRIORITY(3);
+			sprites[start+42].attribute2 = statusBattS(p2->maxbatt,0) | PRIORITY(3);
+			sprites[start+43].attribute2 = statusBattS(p2->maxbatt,8) | PRIORITY(3);
+			sprites[start+44].attribute2 = statusBattS(p2->maxbatt,16) | PRIORITY(3);
+			sprites[start+45].attribute2 = statusBattS(p2->maxbatt,24) | PRIORITY(3);
+			sprites[start+46].attribute2 = statusBattS(p2->maxbatt,32) | PRIORITY(3);
+			sprites[start+47].attribute2 = statusBattS(p2->maxbatt,40) | PRIORITY(3);
 
 
 
@@ -332,33 +332,33 @@ void UpdateStatus()
 {
 		//max crew/batt =42
 
-		sprites[start].attribute2 = statusCrew(p1.crew,40) | PRIORITY(2);
-		sprites[start+1].attribute2 = statusCrew(p1.crew,32) | PRIORITY(2);
-		sprites[start+2].attribute2 = statusCrew(p1.crew,24) | PRIORITY(2);
-		sprites[start+3].attribute2 = statusCrew(p1.crew,16) | PRIORITY(2);
-		sprites[start+4].attribute2 = statusCrew(p1.crew,8) | PRIORITY(2);
-		sprites[start+5].attribute2 = statusCrew(p1.crew,0) | PRIORITY(2);
+		sprites[start].attribute2 = statusCrew(p1->crew,40) | PRIORITY(2);
+		sprites[start+1].attribute2 = statusCrew(p1->crew,32) | PRIORITY(2);
+		sprites[start+2].attribute2 = statusCrew(p1->crew,24) | PRIORITY(2);
+		sprites[start+3].attribute2 = statusCrew(p1->crew,16) | PRIORITY(2);
+		sprites[start+4].attribute2 = statusCrew(p1->crew,8) | PRIORITY(2);
+		sprites[start+5].attribute2 = statusCrew(p1->crew,0) | PRIORITY(2);
 
-		sprites[start+6].attribute2 = statusBatt(p1.batt,0) | PRIORITY(2);
-		sprites[start+7].attribute2 = statusBatt(p1.batt,8) | PRIORITY(2);
-		sprites[start+8].attribute2 = statusBatt(p1.batt,16) | PRIORITY(2);
-		sprites[start+9].attribute2 = statusBatt(p1.batt,24) | PRIORITY(2);
-		sprites[start+10].attribute2 = statusBatt(p1.batt,32) | PRIORITY(2);
-		sprites[start+11].attribute2 = statusBatt(p1.batt,40) | PRIORITY(2);
+		sprites[start+6].attribute2 = statusBatt(p1->batt,0) | PRIORITY(2);
+		sprites[start+7].attribute2 = statusBatt(p1->batt,8) | PRIORITY(2);
+		sprites[start+8].attribute2 = statusBatt(p1->batt,16) | PRIORITY(2);
+		sprites[start+9].attribute2 = statusBatt(p1->batt,24) | PRIORITY(2);
+		sprites[start+10].attribute2 = statusBatt(p1->batt,32) | PRIORITY(2);
+		sprites[start+11].attribute2 = statusBatt(p1->batt,40) | PRIORITY(2);
 
-		sprites[start+12].attribute2 = statusCrew(p2.crew,40) | PRIORITY(2);
-		sprites[start+13].attribute2 = statusCrew(p2.crew,32) | PRIORITY(2);
-		sprites[start+14].attribute2 = statusCrew(p2.crew,24) | PRIORITY(2);
-		sprites[start+15].attribute2 = statusCrew(p2.crew,16) | PRIORITY(2);
-		sprites[start+16].attribute2 = statusCrew(p2.crew,8) | PRIORITY(2);
-		sprites[start+17].attribute2 = statusCrew(p2.crew,0) | PRIORITY(2);
+		sprites[start+12].attribute2 = statusCrew(p2->crew,40) | PRIORITY(2);
+		sprites[start+13].attribute2 = statusCrew(p2->crew,32) | PRIORITY(2);
+		sprites[start+14].attribute2 = statusCrew(p2->crew,24) | PRIORITY(2);
+		sprites[start+15].attribute2 = statusCrew(p2->crew,16) | PRIORITY(2);
+		sprites[start+16].attribute2 = statusCrew(p2->crew,8) | PRIORITY(2);
+		sprites[start+17].attribute2 = statusCrew(p2->crew,0) | PRIORITY(2);
 
-		sprites[start+18].attribute2 = statusBatt(p2.batt,0) | PRIORITY(2);
-		sprites[start+19].attribute2 = statusBatt(p2.batt,8) | PRIORITY(2);
-		sprites[start+20].attribute2 = statusBatt(p2.batt,16) | PRIORITY(2);
-		sprites[start+21].attribute2 = statusBatt(p2.batt,24) | PRIORITY(2);
-		sprites[start+22].attribute2 = statusBatt(p2.batt,32) | PRIORITY(2);
-		sprites[start+23].attribute2 = statusBatt(p2.batt,40) | PRIORITY(2);
+		sprites[start+18].attribute2 = statusBatt(p2->batt,0) | PRIORITY(2);
+		sprites[start+19].attribute2 = statusBatt(p2->batt,8) | PRIORITY(2);
+		sprites[start+20].attribute2 = statusBatt(p2->batt,16) | PRIORITY(2);
+		sprites[start+21].attribute2 = statusBatt(p2->batt,24) | PRIORITY(2);
+		sprites[start+22].attribute2 = statusBatt(p2->batt,32) | PRIORITY(2);
+		sprites[start+23].attribute2 = statusBatt(p2->batt,40) | PRIORITY(2);
 
 
 
@@ -396,4 +396,10 @@ void UpdateStatus()
 
 }
 
+void ModifyCrew(pPlayer p, int i)
+{
+	p->crew+=i;
+	if (p->crew>p->maxcrew)
+		p->crew=p->maxcrew;
+}
 

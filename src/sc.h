@@ -8,7 +8,7 @@
 #ifndef SC2_H
 #define SC2_H
 #include "bg.h"
-
+//#include "keypad.h"     //button registers
 //define the screen width and height values to be used
 #define SCREEN_WIDTH	240
 #define SCREEN_HEIGHT   160
@@ -43,6 +43,9 @@
 #define PALETTE(n)		((n)<<12)
 
 #define SPEED_REDUCT  3
+
+#define RADIAN(n) 		(((float)n)/(float)180*PI)
+
 
 //sprite structure definitions
 typedef struct tagOAMEntry
@@ -95,6 +98,27 @@ void* target;
 
 }Weapon, *pWeapon;
 
+typedef struct Trail
+{
+s32 xpos ;
+s32 ypos ;
+s16 xscreen;
+s16 yscreen;
+
+s16 sprite;
+s16 life;
+
+}Trail, *pTrail;
+
+enum skill
+{
+	PLAYER1=1,
+	PLAYER2=2,
+	HARD=3,
+	MEDIUM=4,
+	STANDARD=5,
+};
+
 
 typedef struct Player
 {
@@ -145,11 +169,17 @@ s16 lspecsprite;
 
 s16 offset;
 
+s8 warp;
 
 s16 SpriteStart;
 s16 OAMStart;
 
-//void* opp;
+void* opp;
+
+skill ai;
+s8 aiturn;
+
+s16 range;
 
 //pPlayer opp;
 }Player, *pPlayer;
@@ -185,7 +215,8 @@ const s16 TRANSFORMER =24;//mmrnmhrm transformer 4/2/8/6/7/1/1/6 + 4/2/5/9/1/9/9
 const s16 SIMPLE=0;
 const s16 UR_FIGHTERS=1;
 const s16 EXP=2;
-
+const s16 UR_FIGHTERS_FIRE=3;
+const s16 TRAIL=4;
 
 
 //OAM memory sprite = oam/16
@@ -198,12 +229,16 @@ const s16 P2_SpriteStart =128;
 const s16 OAMFireSprite1=4096;
 const s16 FireSprite1 = 256;
 
+const s16 OAMTrailSprite=4608;
+const s16 TrailSprite = 288;
+
 const s16 OAMStatusStart = 5120;//rand no
 const s16 SpriteStatusStart = 320;
 
 void Thrust(pPlayer plr);
-void LoadShips();
-void SetupBackground();
+void LoadShip(pPlayer);
+void LoadPal();
+void SetupBackground(pBg,pBg);
 void MoveSprite(OAMEntry* sp, int x, int y);
 void UpdateStatus();
 void SetupStatus();
@@ -217,9 +252,21 @@ void CopyOAM();
 void InitializeSprites();
 void WaitForVsync();
 
-void Melee();
+void Melee(pPlayer ,pPlayer,pBg,pBg);
 void SetNew(pPlayer pl);
 void LoadExp(s16 OAMStart, s16 SpriteStart);
+void LoadTrail(s16 OAMStart);
+
+void CreateTrail(pPlayer);
+int FightersFire(pWeapon f,s16 angle);
+int nextWeapon(pPlayer pl);
+
+void print(char *s);
+
+void ModifyCrew(pPlayer,int);
+
+s32 distanceBetweenPoints(s32 xpos1,s32 ypos1,s32 xpos2,s32 ypos2);
+int TurnAngle(s16 yourangle, s16 desiredangle,s8 );
 #endif
 
 /*128 sprites first 32 rotate

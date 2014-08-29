@@ -38,7 +38,7 @@ typedef struct Bg
 	s16 x_scroll,y_scroll;
 	s32 DX,DY;
 	s16 PA,PB,PC,PD;
-}Bg;
+}Bg,*pBg;
 
 #ifndef BG_C
 extern void EnableBackground(Bg* bg);

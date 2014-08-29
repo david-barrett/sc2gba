@@ -13,8 +13,8 @@ extern FIXED COS2[360];
 extern FIXED SIN2[360];
 
 
-extern Bg bg0;
-extern Bg bg1;
+//extern Bg &bg0;
+//extern Bg *bg1;
 
 
 void EnableBackground(Bg* bg)
@@ -119,35 +119,35 @@ void RotateBackground(Bg* bg, int angle,int center_x, int center_y, FIXED zoom)
 	bg->PD = (COS2[angle]*zoom)>>8;
 }
 
-void SetupBackground()
+void SetupBackground(pBg bg0,pBg bg1)
 {
 	//background
 	s16 loop;
 	u16* temp;
 
-	bg0.number = 0;				//background number 0-3
-	bg0.charBaseBlock = 0;                  //tile data position (right at the start of the available memory on 16Kb boundary)
-	bg0.screenBaseBlock = 28;		//map data position on 2Kb boundary
-	bg0.colorMode = BG_COLOR_256;           //256-colour background
-	bg0.size = ROTBG_SIZE_512x512;          //size of map
-	bg0.mosaic = 0;                         //not enabled
-	bg0.x_scroll = 120;			//scrolling variables
-	bg0.y_scroll = 80;
-	bg0.wraparound = WRAPAROUND;
+	bg0->number = 0;				//background number 0-3
+	bg0->charBaseBlock = 0;                  //tile data position (right at the start of the available memory on 16Kb boundary)
+	bg0->screenBaseBlock = 28;		//map data position on 2Kb boundary
+	bg0->colorMode = BG_COLOR_256;           //256-colour background
+	bg0->size = ROTBG_SIZE_512x512;          //size of map
+	bg0->mosaic = 0;                         //not enabled
+	bg0->x_scroll = 120;			//scrolling variables
+	bg0->y_scroll = 80;
+	bg0->wraparound = WRAPAROUND;
 
-	EnableBackground(&bg0);
+	EnableBackground(bg0);
 
-	bg1.number = 1;				//background number 0-3
-	bg1.charBaseBlock = 0;                  //tile data position (right at the start of the available memory on 16Kb boundary)
-	bg1.screenBaseBlock = 28;		//map data position on 2Kb boundary
-	bg1.colorMode = BG_COLOR_256;           //256-colour background
-	bg1.size = ROTBG_SIZE_512x512;          //size of map
-	bg1.mosaic = 0;                         //not enabled
-	bg1.x_scroll = 120;			//scrolling variables
-	bg1.y_scroll = 80;
-	bg1.wraparound = WRAPAROUND;
+	bg1->number = 1;				//background number 0-3
+	bg1->charBaseBlock = 0;                  //tile data position (right at the start of the available memory on 16Kb boundary)
+	bg1->screenBaseBlock = 28;		//map data position on 2Kb boundary
+	bg1->colorMode = BG_COLOR_256;           //256-colour background
+	bg1->size = ROTBG_SIZE_512x512;          //size of map
+	bg1->mosaic = 0;                         //not enabled
+	bg1->x_scroll = 120;			//scrolling variables
+	bg1->y_scroll = 80;
+	bg1->wraparound = WRAPAROUND;
 
-	EnableBackground(&bg1);
+	EnableBackground(bg1);
 
 
     for(loop = 0; loop < 256; loop++)
@@ -155,17 +155,17 @@ void SetupBackground()
 
 	for(loop = 0; loop < 128 * 128 /2; loop++)  //load tile image data
 	{
-		bg1.tileData[loop] = starsData[loop];
-		bg0.tileData[loop] = starsData[loop];
+		bg1->tileData[loop] = starsData[loop];
+		bg0->tileData[loop] = starsData[loop];
 	}
 
 	//load the map image data
 	temp = (u16*)starfield0;
 	for(loop = 0; loop < 128*128/2; loop++) //128x128 tiles /2 because 16 bit copy
-		bg0.mapData[loop] = temp[loop];
+		bg0->mapData[loop] = temp[loop];
 
 	temp = (u16*)starfield1;
 	for(loop = 0; loop < 64*64/2; loop++) //64x64 tiles /2 because 16 bit copy
-		bg1.mapData[loop] = temp[loop];
+		bg1->mapData[loop] = temp[loop];
 
 }

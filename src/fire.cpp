@@ -7,7 +7,7 @@
 #include "sincosrad.h"
 
 extern s32 screenx,screeny;
-extern OAMEntry sprites[128];
+extern pOAMEntry sprites;
 extern double scale;
 extern int turn;
 
@@ -16,6 +16,7 @@ int FireFury(pPlayer pl);
 
 void Fire(pPlayer pl)
 {
+	print("fire");
 	int ret=0;
 	if (pl->weapon_turn==0&&pl->batt>pl->firebatt)
 	{
@@ -62,43 +63,35 @@ int nextFireSprite(pPlayer pl)
 
 int FireDreadnaught(pPlayer pl)
 {
-//	s16 n = nextFireSprite(pl);
+
 	s16 b = nextWeapon(pl);
 
-	if (b>=0)//&&n>=0)
+	if (b>=0)
 	{
 	pl->weapon[b].type=SIMPLE;
 	pl->weapon[b].life=20;//range
-	pl->weapon[b].damage=6;
-	//pl->weapon[b].target=pl->opp;
+	pl->weapon[b].damage=-6;
+	pl->weapon[b].target=pl->opp;
 	pl->weapon[b].parent=pl;
 	pl->weapon[b].damageparent=0;
-//	pl->weapon[b].sprite=n;
+
 	pl->weapon[b].size=16;
 	pl->weapon[b].angle = pl->angle;
-	pl->weapon[b].xpos = pl->xpos+((s32)(24 * (s32)SIN[pl->angle]));
-	pl->weapon[b].ypos = pl->ypos-((s32)(24 * (s32)COS[pl->angle]));
-
-	//this determines the middle of the ship which aint so good
-	//pl->weapon[b].xpos = pl->xpos + 24;
-	//pl->weapon[b].ypos = pl->ypos + 24;
-
-	pl->weapon[b].xpos = pl->xpos + 32 + ((s32)(32 * (s32)SIN[pl->angle])) - 8;
-	pl->weapon[b].ypos = pl->ypos + 32 + ((s32)(32 * (s32)COS[pl->angle])) - 8;
-
-	pl->weapon[b].xpos = pl->xpos;
-	pl->weapon[b].ypos = pl->ypos;
-
-	drawOnScreen(&pl->weapon[b].xscreen,&pl->weapon[b].yscreen,
-		pl->weapon[b].xpos,pl->weapon[b].ypos,screenx,screeny,pl->weapon[b].size);
 
 	s32 speed=20;
 	pl->weapon[b].xspeed = ((speed * (s32)SIN[pl->angle])>>8)/SPEED_REDUCT;
 	pl->weapon[b].yspeed = ((speed * (s32)COS[pl->angle])>>8)/SPEED_REDUCT;
 
+	pl->weapon[b].xpos = pl->xpos+((52 * (s32)SIN[pl->angle])>>8)/3;
+	pl->weapon[b].ypos = pl->ypos-((52 * (s32)COS[pl->angle])>>8)/3;
+
+		drawOnScreen(&pl->weapon[b].xscreen,&pl->weapon[b].yscreen,
+		pl->weapon[b].xpos,pl->weapon[b].ypos,screenx,screeny,pl->weapon[b].size);
+
 	sprites[pl->weapon[b].sprite].attribute0 = COLOR_256 | SQUARE | ROTATION_FLAG | SIZE_DOUBLE | MODE_TRANSPARENT | pl->weapon[b].yscreen;	//setup sprite info, 256 colour, shape and y-coord
     sprites[pl->weapon[b].sprite].attribute1 = SIZE_16 | ROTDATA(pl->weapon[b].sprite) | pl->weapon[b].xscreen;
-    sprites[pl->weapon[b].sprite].attribute2 = pl->SpriteStart+32 | PRIORITY(1);
+    sprites[pl->weapon[b].sprite].attribute2 = pl->SpriteStart+64 | PRIORITY(1);
+
     return 1;
 	}
 	return 0;
@@ -113,10 +106,9 @@ int FireFuryA(pPlayer pl,s32 angle)
 	{
 	pl->weapon[b].type=SIMPLE;
 	pl->weapon[b].life=5;//range
-	pl->weapon[b].damage=1;
-	//pl->weapon[b].sprite=n;
+	pl->weapon[b].damage=-1;
 	pl->weapon[b].angle;
-	//pl->weapon[b].target=pl->opp;
+	pl->weapon[b].target=pl->opp;
 	pl->weapon[b].parent=pl;
 	pl->weapon[b].damageparent=0;
 	pl->weapon[b].size=8;
@@ -135,12 +127,16 @@ int FireFuryA(pPlayer pl,s32 angle)
 	//pl->weapon[b].xpos+=pl->weapon[b].xspeed;
 	//pl->weapon[b].ypos-=pl->weapon[b].yspeed;
 
+	//pl->weapon[b].xpos = pl->xpos+((52 * (s32)SIN[pl->angle])>>8)/3;
+	//pl->weapon[b].ypos = pl->ypos-((52 * (s32)COS[pl->angle])>>8)/3;
+
+
 	drawOnScreen(&pl->weapon[b].xscreen,&pl->weapon[b].yscreen,
 		pl->weapon[b].xpos,pl->weapon[b].ypos,screenx,screeny,8);
 
 	sprites[pl->weapon[b].sprite].attribute0 = COLOR_256 | SQUARE | ROTATION_FLAG | SIZE_DOUBLE | MODE_TRANSPARENT | pl->weapon[b].yscreen;	//setup sprite info, 256 colour, shape and y-coord
     sprites[pl->weapon[b].sprite].attribute1 = SIZE_8 | ROTDATA(pl->weapon[b].sprite) | pl->weapon[b].xscreen;
-    sprites[pl->weapon[b].sprite].attribute2 = pl->SpriteStart+32 | PRIORITY(1);
+    sprites[pl->weapon[b].sprite].attribute2 = pl->SpriteStart+64 | PRIORITY(0);
     return 1;
 	}
 	return 0;

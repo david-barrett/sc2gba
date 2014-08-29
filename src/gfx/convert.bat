@@ -46,6 +46,8 @@ bmp2spr status_pod2.bmp status_pod2.h
 bmp2spr status_pod3.bmp status_pod3.h
 bmp2spr status_pod4.bmp status_pod4.h
 
+bmp2spr trail.bmp trail.h
+
 
 bmp2spr androsyn.bmp androsyn.h
 bmp2spr arilou.bmp arilou.h
@@ -76,6 +78,7 @@ bmp2spr zoqfot.bmp zoqfot.h
 
 bmp2spr urquan_fire.bmp urquan_fire.h
 bmp2spr urquan_fighters.bmp urquan_fighters.h
+bmp2spr urquan_fighters_fire.bmp urquan_fighters_fire.h
 bmp2spr yehat_shield.bmp yehat_shield.h
 bmp2spr yehat_fire.bmp yehat_fire.h
 bmp2spr pkunk_fire.bmp pkunk_fire.h

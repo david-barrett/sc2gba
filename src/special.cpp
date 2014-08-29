@@ -7,7 +7,7 @@
 #include "sincosrad.h"
 
 extern s32 screenx,screeny;
-extern OAMEntry sprites[128];
+extern pOAMEntry sprites;
 extern double scale;
 extern int turn;
 
@@ -33,7 +33,7 @@ void Special(pPlayer pl)
 		default:
 			break;
 		}
-		if (ret==1)
+		if (ret>0)
 		{
 			pl->batt-=pl->specbatt;
 			pl->special_turn=pl->special_wait;
@@ -64,14 +64,20 @@ int nextSpecSprite(pPlayer pl)
 int SpecialDreadnaught(pPlayer pl)
 {
 	//s16 n = nextSpecSprite(pl);
-		s16 b = nextSpec(pl);
+		s16 b;
+		int res=0;
+		for (int i =0;i<2;i++)
+		{
+		b= nextSpec(pl);
+
+
 
 		if (b>=0&&pl->crew>1)//&&n>=0)
 		{
 		pl->weapon[b].type=UR_FIGHTERS;
 		pl->weapon[b].life=1;//range
 		pl->weapon[b].damage=4;
-	//	pl->weapon[b].target=pl->opp;
+		pl->weapon[b].target=pl->opp;
 		pl->weapon[b].parent=pl;
 		pl->weapon[b].damageparent=0;
 		//pl->weapon[b].sprite=n;
@@ -85,11 +91,19 @@ int SpecialDreadnaught(pPlayer pl)
 		//pl->weapon[b].xpos = pl->xpos + 24;
 		//pl->weapon[b].ypos = pl->ypos + 24;
 
-		pl->weapon[b].xpos = pl->xpos + 32 + ((s32)(32 * (s32)SIN[pl->angle])) - 8;
-		pl->weapon[b].ypos = pl->ypos + 32 + ((s32)(32 * (s32)COS[pl->angle])) - 8;
+		int e;
+		e=(i==0?125:205);
 
-		pl->weapon[b].xpos = pl->xpos;
-		pl->weapon[b].ypos = pl->ypos;
+		s16 a = pl->angle+e;
+		if (a>360)
+			a-=360;
+
+
+		s32 x = ((pl->offset) * (s32)SIN[a])>>8;
+		s32 y = ((pl->offset) * (s32)COS[a])>>8;
+
+		pl->weapon[b].xpos=pl->xpos+(x);
+		pl->weapon[b].ypos=pl->ypos-(y);
 
 		drawOnScreen(&pl->weapon[b].xscreen,&pl->weapon[b].yscreen,
 			pl->weapon[b].xpos,pl->weapon[b].ypos,screenx,screeny,8);
@@ -100,10 +114,46 @@ int SpecialDreadnaught(pPlayer pl)
 
 		sprites[pl->weapon[b].sprite].attribute0 = COLOR_256 | SQUARE | ROTATION_FLAG | SIZE_DOUBLE | MODE_TRANSPARENT | pl->weapon[b].yscreen;	//setup sprite info, 256 colour, shape and y-coord
 	    sprites[pl->weapon[b].sprite].attribute1 = SIZE_8 | ROTDATA(pl->weapon[b].sprite) | pl->weapon[b].xscreen;
-	    sprites[pl->weapon[b].sprite].attribute2 = pl->SpriteStart+40 | PRIORITY(1);
+	    sprites[pl->weapon[b].sprite].attribute2 = pl->SpriteStart+72 | PRIORITY(1);
+	    //sprites[pl->weapon[b].sprite].attribute2 = pl->SpriteStart | PRIORITY(1);
 	    pl->crew--;
-	    return 1;
+	    res+=1;
 		}
+	}
+	return res;
+}
+
+int FightersFire(pWeapon f,s16 angle)
+{
+	//we know we are in range
+	//so just draw gfx and damage
+	pPlayer pl=(pPlayer)f->parent;
+	pPlayer target=(pPlayer)f->target;
+
+	s16 b= nextSpec(pl);
+
+	if (b!=-1)
+	{
+
+		pl->weapon[b].type=UR_FIGHTERS_FIRE;
+		pl->weapon[b].life=1;//range
+		pl->weapon[b].angle = angle;
+		pl->weapon[b].xpos = f->xpos;
+		pl->weapon[b].ypos = f->ypos;
+		pl->weapon[b].size=8;
+		pl->weapon[b].xspeed = 0;
+		pl->weapon[b].yspeed = 0;
+
+		drawOnScreen(&pl->weapon[b].xscreen,&pl->weapon[b].yscreen,
+				pl->weapon[b].xpos,pl->weapon[b].ypos,screenx,screeny,8);
+
+		sprites[pl->weapon[b].sprite].attribute0 = COLOR_256 | SQUARE | ROTATION_FLAG | SIZE_DOUBLE | MODE_TRANSPARENT | pl->weapon[b].yscreen;	//setup sprite info, 256 colour, shape and y-coord
+		sprites[pl->weapon[b].sprite].attribute1 = SIZE_8 | ROTDATA(pl->weapon[b].sprite) | pl->weapon[b].xscreen;
+	    sprites[pl->weapon[b].sprite].attribute2 = pl->SpriteStart+74 | PRIORITY(0);
+
+	    ModifyCrew(target,-1);
+		return 1;
+	}
 	return 0;
 }
 
