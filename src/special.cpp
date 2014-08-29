@@ -16,7 +16,7 @@ int SpecialFury(pPlayer pl);
 
 extern int turn;
 
-void Special(pPlayer pl)
+int Special(pPlayer pl)
 {
 	int ret=0;
 	if (pl->special_turn==0&&pl->batt>pl->specbatt)
@@ -35,10 +35,11 @@ void Special(pPlayer pl)
 		}
 		if (ret>0)
 		{
-			pl->batt-=pl->specbatt;
+			ModifyBatt(pl,-1*pl->specbatt);
 			pl->special_turn=pl->special_wait;
 		}
 	}
+	return ret;
 }
 
 int nextSpec(pPlayer pl)
@@ -116,7 +117,7 @@ int SpecialDreadnaught(pPlayer pl)
 	    sprites[pl->weapon[b].sprite].attribute1 = SIZE_8 | ROTDATA(pl->weapon[b].sprite) | pl->weapon[b].xscreen;
 	    sprites[pl->weapon[b].sprite].attribute2 = pl->SpriteStart+72 | PRIORITY(1);
 	    //sprites[pl->weapon[b].sprite].attribute2 = pl->SpriteStart | PRIORITY(1);
-	    pl->crew--;
+	    ModifyCrew(pl,-1);
 	    res+=1;
 		}
 	}
@@ -162,9 +163,7 @@ int SpecialFury(pPlayer pl)
 	//int r = ran(10);
 	if (turn == 5)
 	{
-		pl->crew+=4;
-		if (pl->crew>pl->maxcrew)
-			pl->crew=pl->maxcrew;
+		ModifyCrew(pl,4);
 	}
 	return 1;
 }

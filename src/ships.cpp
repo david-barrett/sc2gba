@@ -21,6 +21,8 @@
 
 #include "gfx/trail.h"
 
+#include "gfx/planet.h"
+
 //extern u16* OAMData;
 extern u16* OAM;
 //extern OAMEntry sprites[128];
@@ -33,14 +35,23 @@ void LoadExp(s16 OAMStart, s16 SpriteStart)
 	s16 loop;
 	for(loop = OAMStart; loop < OAMStart+32; loop++)               //load sprite image data
   	{
-       		OAMData[loop] = exp1Data[loop-OAMStart];
+       	OAMData[loop] = exp1Data[loop-OAMStart];
+       	OAMData[loop+32] = exp2Data[loop-OAMStart];
    	}
    	for(loop = OAMStart; loop < OAMStart+128; loop++)               //load sprite image data
 	{
-	       		OAMData[loop+32] = exp2Data[loop-OAMStart];
-	       		OAMData[loop+32+128] = exp3Data[loop-OAMStart];
-	       		OAMData[loop+32+256] = exp4Data[loop-OAMStart];
-	       		OAMData[loop+32+128+256] = exp5Data[loop-OAMStart];
+	    OAMData[loop+32+128] = exp3Data[loop-OAMStart];
+	   	OAMData[loop+32+256] = exp4Data[loop-OAMStart];
+		OAMData[loop+32+128+256] = exp5Data[loop-OAMStart];
+   	}
+}
+
+void LoadPlanet(s16 OAMStart)
+{
+	s16 loop;
+	for(loop = OAMStart; loop < OAMStart+2048; loop++)               //load sprite image data
+	{
+		OAMData[loop] = planetData[loop-OAMStart];
    	}
 }
 

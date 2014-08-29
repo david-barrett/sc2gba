@@ -34,7 +34,7 @@ void Fire(pPlayer pl)
 		}
 		if (ret==1)
 		{
-			pl->batt-=pl->firebatt;
+			ModifyBatt(pl,-1*pl->firebatt);
 			pl->weapon_turn=pl->weapon_wait;
 		}
 	}

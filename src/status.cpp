@@ -401,5 +401,18 @@ void ModifyCrew(pPlayer p, int i)
 	p->crew+=i;
 	if (p->crew>p->maxcrew)
 		p->crew=p->maxcrew;
+
+	UpdateStatus();
+}
+
+void ModifyBatt(pPlayer p, int i)
+{
+	p->batt+=i;
+	if (p->batt>p->maxbatt)
+		p->batt=p->maxbatt;
+	if (p->batt<0)
+		p->batt=0;
+
+	UpdateStatus();
 }
 

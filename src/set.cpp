@@ -18,13 +18,14 @@ void SetNew(pPlayer pl)
 	pl->yspeed=0;
 
 	for (int i=0;i<15;i++)
-		pl->weapon[i].life=0;
+		pl->weapon[i].life=-1;
 
 	pl->warp=6;
 	pl->xspeed = ((20) * (s32)SIN[pl->angle])>>8;
 	pl->yspeed = ((20) * (s32)COS[pl->angle])>>8;
 
 	pl->aiturn=0;
+	pl->aispecial=0;
 }
 
 void SetDreadnaught(pPlayer pl)

@@ -45,7 +45,7 @@ FIXED ATAN[360];
 
 //s32 zoom,screenx,screeny;
 //array to hold ships
-int p1ships[7] = {DREADNAUGHT,FURY,DREADNAUGHT,FURY,DREADNAUGHT,FURY,DREADNAUGHT};
+int p1ships[8] = {FURY,DREADNAUGHT,FURY,DREADNAUGHT,FURY,DREADNAUGHT,FURY,DREADNAUGHT};
 int p2ships[7]= {FURY,DREADNAUGHT,FURY,DREADNAUGHT,FURY,DREADNAUGHT,FURY};
 
 
@@ -112,7 +112,7 @@ p1->xspeed =0;
 p1->yspeed =0;
 p1->speed =0;
 p1->ship = DREADNAUGHT;
-//p1->ship = FURY;
+p1->ship = FURY;
 
 
 
@@ -213,6 +213,9 @@ for (int i=0;i<12;i++)
 
 		p1->ai=PLAYER1;
 		p2->ai=STANDARD;
+		//p1->ai=STANDARD;
+		//p1->ai=HARD;
+		p2->ai=DISABLED;
 		do
 		{
        		Melee(p1,p2,bg0,bg1);
@@ -245,9 +248,12 @@ for (int i=0;i<12;i++)
 			}
 
 		}
-		while (p1c=-1||p2c!=-1);
-
+		while (p1c!=-1||p2c!=-1);
 		//game over!!!
+		//freeze
+		while(1);
+
+
 
 
 }

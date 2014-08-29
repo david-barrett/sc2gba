@@ -117,6 +117,7 @@ enum skill
 	HARD=3,
 	MEDIUM=4,
 	STANDARD=5,
+	DISABLED=6
 };
 
 
@@ -178,6 +179,7 @@ void* opp;
 
 skill ai;
 s8 aiturn;
+s8 aispecial;
 
 s16 range;
 
@@ -232,6 +234,9 @@ const s16 FireSprite1 = 256;
 const s16 OAMTrailSprite=4608;
 const s16 TrailSprite = 288;
 
+const s16 OAMPlanetSprite=8000;
+const s16 PlanetSprite=500;
+
 const s16 OAMStatusStart = 5120;//rand no
 const s16 SpriteStatusStart = 320;
 
@@ -243,8 +248,8 @@ void MoveSprite(OAMEntry* sp, int x, int y);
 void UpdateStatus();
 void SetupStatus();
 void Fire(pPlayer pl);
-void Special(pPlayer pl);
-void drawOnScreen(s16* x,s16* y,s32 xpos,s32 ypos, s16 screenx, s16 yscreen,s16 size);
+int Special(pPlayer pl);
+void drawOnScreen(s16* x,s16* y,s32 xpos,s32 ypos, s16 screenx, s16 yscreen,s16 size,s16 pl=0);
 //int can(s16 rate);
 void SetShip(pPlayer pl);
 
@@ -256,6 +261,7 @@ void Melee(pPlayer ,pPlayer,pBg,pBg);
 void SetNew(pPlayer pl);
 void LoadExp(s16 OAMStart, s16 SpriteStart);
 void LoadTrail(s16 OAMStart);
+void LoadPlanet(s16 OAMStart);
 
 void CreateTrail(pPlayer);
 int FightersFire(pWeapon f,s16 angle);
@@ -264,6 +270,7 @@ int nextWeapon(pPlayer pl);
 void print(char *s);
 
 void ModifyCrew(pPlayer,int);
+void ModifyBatt(pPlayer,int);
 
 s32 distanceBetweenPoints(s32 xpos1,s32 ypos1,s32 xpos2,s32 ypos2);
 int TurnAngle(s16 yourangle, s16 desiredangle,s8 );

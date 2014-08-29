@@ -20,20 +20,21 @@ extern u16* OAM;
 extern pOAMEntry sprites;
 extern pRotData rotData;
 
-//extern Player p1;
-//extern Player p2;
-
-//extern Bg bg0;
-//extern Bg bg1;
-
 pTrail trails;
 
 int turn;
 
+s16 planetx,planety,planet_screenx,planet_screeny;
+
+
 
 extern FIXED SIN2[360];	    //Look-Up Tabless for sign and cosign
 extern FIXED COS2[360];
-extern FIXED ATAN[360];
+
+const s8 EXPX[12] = {5,-10,9,-2,7,0,-6,4,-12,13,-14,8};
+const s8 EXPY[12] = {-7,0,-15,12,-5,4,-9,10,-4,9,-2,4};
+
+
 
 double scale;
 
@@ -52,10 +53,10 @@ char s[100];
 void
 print(char *s)
 {
-/*
+
     asm volatile ("mov r0, %0;" "swi 0xff0000;":        // warning! will crash on hardware!
                   :"r" (s):"r0");
-*/
+
 }
 
 
@@ -184,15 +185,15 @@ void DrawExplosion(pWeapon w)
 	}
 	else if (life<5)
 	{
-			off=10;
-			if (life==4)
-				off=18;
-			else if (life==5)
-				off=26;
-			w->size=16;
-			sprites[w->sprite].attribute0 = COLOR_256 | SQUARE | ROTATION_FLAG | SIZE_DOUBLE | MODE_TRANSPARENT | w->yscreen;	//setup sprite info, 256 colour, shape and y-coord
-		    sprites[w->sprite].attribute1 = SIZE_16 | ROTDATA(w->sprite) | w->xscreen;
-	    	sprites[w->sprite].attribute2 = FireSprite1+off | PRIORITY(0);
+		off=10;
+		if (life==4)
+			off=18;
+		else if (life==5)
+			off=26;
+		w->size=16;
+		sprites[w->sprite].attribute0 = COLOR_256 | SQUARE | ROTATION_FLAG | SIZE_DOUBLE | MODE_TRANSPARENT | w->yscreen;	//setup sprite info, 256 colour, shape and y-coord
+		sprites[w->sprite].attribute1 = SIZE_16 | ROTDATA(w->sprite) | w->xscreen;
+	    sprites[w->sprite].attribute2 = FireSprite1+off | PRIORITY(0);
 	}
 
 }
@@ -214,8 +215,8 @@ void DetonateShip(pPlayer pl)
 	{
 		if (pl->weapon[i].life==-1)
 		{
-			pl->weapon[i].xpos=pl->xpos+i-8;
-			pl->weapon[i].ypos=pl->ypos+i-8;
+			pl->weapon[i].xpos=pl->xpos+(s32)(EXPX[i]*scale);
+			pl->weapon[i].ypos=pl->ypos+(s32)(EXPY[i]*scale);
 			CreateExplosion(&pl->weapon[i],5);
 		}
 	}
@@ -417,7 +418,7 @@ void MoveURFighters(pWeapon ur)
 		{
 			ur->life=-1;
 			//mothership crew++;
-			parent->crew++;
+			ModifyCrew(parent,1);
 			return;
 		}
 		//desired angle = mothership
@@ -519,8 +520,13 @@ void MoveBullets(pPlayer pl)
 			sprites[pl->weapon[i].sprite].attribute1 = 240; //x to > 239
 			sprites[pl->weapon[i].sprite].attribute2 = 0;
 			MoveSprite(&sprites[pl->weapon[i].sprite], pl->weapon[i].xscreen, pl->weapon[i].yscreen);
-			RotateSprite(pl->weapon[i].sprite, pl->weapon[i].angle, zoom,zoom);
+			//RotateSprite(pl->weapon[i].sprite, pl->weapon[i].angle, zoom,zoom);
 			pl->weapon[i].life--;
+			print("destroyed weapon ");
+			print(i);
+			print("for player ");
+			print(p->plr);
+			print("\n");
 
 		}
 		if (pl->weapon[i].life>0)
@@ -597,15 +603,6 @@ void MoveBullets(pPlayer pl)
 		}
 	}
 
-	if(xp1 == p->xpos)
-		print("\np1 x unchanged");
-	else
-	print("\np1 x changed");
-	if(xp2 == o->xpos)
-			print("\np2 x unchanged");
-		else
-		print("\np2 x changed");
-
 }
 
 
@@ -656,7 +653,7 @@ void Regen(pPlayer pl)
 	if (pl->batt<pl->maxbatt&&pl->batt_turn==0)
 	{
 		pl->batt_turn=pl->batt_wait;
-		pl->batt++;
+		ModifyBatt(pl,1);
 	}
 
 }
@@ -709,9 +706,7 @@ void setScreen(pPlayer p1,pPlayer p2,Bg* bg0,Bg* bg1)
 
 	changex = screenx-x;
 	changey = screeny-y;
-	print("\nx bg change=");
-	print(changex);
-/*
+	/*
 	bg0.x_scroll-=2*changex;
     bg1.x_scroll-=changex;
 
@@ -733,6 +728,8 @@ void setScreen(pPlayer p1,pPlayer p2,Bg* bg0,Bg* bg1)
 
 	s32 d= distanceBetweenPoints(p1->xpos,p1->ypos,p2->xpos,p2->ypos);
 	//Calcuate zoom level
+
+
 	if (d<160)
 	{
 		zoom = 1<<8; //256
@@ -748,6 +745,7 @@ void setScreen(pPlayer p1,pPlayer p2,Bg* bg0,Bg* bg1)
 	{
 		zoom=768;
 		scale = 0.25;
+		//scale=4;
 
 		//if reached the end of space swap ships
 
@@ -760,8 +758,8 @@ void setScreen(pPlayer p1,pPlayer p2,Bg* bg0,Bg* bg1)
 
 	}
 
-	drawOnScreen(&p1->xscreen,&p1->yscreen,p1->xpos,p1->ypos,screenx,screeny,32);
-	drawOnScreen(&p2->xscreen,&p2->yscreen,p2->xpos,p2->ypos,screenx,screeny,32);
+	drawOnScreen(&p1->xscreen,&p1->yscreen,p1->xpos,p1->ypos,screenx,screeny,32,1);
+	drawOnScreen(&p2->xscreen,&p2->yscreen,p2->xpos,p2->ypos,screenx,screeny,32,1);
 
 	// want to reset so values dont overflow
 	/*
@@ -794,19 +792,34 @@ void setScreen(pPlayer p1,pPlayer p2,Bg* bg0,Bg* bg1)
 
 }
 
-void drawOnScreen(s16* x,s16* y,s32 xpos,s32 ypos, s16 screenx, s16 yscreen,s16 size)
+void drawOnScreen(s16* x,s16* y,s32 xpos,s32 ypos, s16 screenx, s16 yscreen,s16 size,s16 pl)
 {
-	*x = (s16)(((xpos-screenx)*scale)+centrex-(size*scale));
-	*y = (s16)(((ypos-screeny)*scale)+centrey-(size*scale));
+//	*x = (s16)(((xpos-screenx)*scale)+centrex-(size/scale));
+//	*y = (s16)(((ypos-screeny)*scale)+centrey-(size/scale));
 
 
 	*x = (s16)(((xpos-screenx)*scale)+centrex-(size));
 	*y = (s16)(((ypos-screeny)*scale)+centrey-(size));
 
+//	*x = (s16)(((xpos-screenx)*scale)+centrex);
+//	*y = (s16)(((ypos-screeny)*scale)+centrey);
+
+	if (!pl)
+	{
+		//dont draw on screen if out of bounds
+		if (*x<0-16||*x>240+16||*y<0-16||*y>160+16)
+		{
+			*x=304;
+			*y=224;
+		}
+	}
+
 	if (*x <0)
 		*x+=512;
 	if (*y <0)
 		*y+=255;
+
+
 
 }
 
@@ -828,7 +841,7 @@ int CanHitOpp(pPlayer pl)
 	return 0;
 }
 
-int TurnAngle(s16 yourangle, s16 desiredangle,s8 precision=0)
+int TurnAngle(s16 yourangle, s16 desiredangle,s8 precision)
 {
 	//takes your angle, the angle you want and possilbe a precsion
 	//returns 0 if on right path
@@ -854,10 +867,10 @@ int TurnAngle(s16 yourangle, s16 desiredangle,s8 precision=0)
 	//if (yourangle>desiredangle)//else
 	else
 	{
-			if (diff>180)
-				return -1;
-			else
-				return 1;
+		if (diff>180)
+			return -1;
+		else
+			return 1;
 	}
 
 	return 0;
@@ -865,8 +878,27 @@ int TurnAngle(s16 yourangle, s16 desiredangle,s8 precision=0)
 
 void aiTurn(pPlayer ai)
 {
+	//do special?
 	if (ai->aiturn==0)
 	{
+		if (ai->ai!=STANDARD)//only do specials on higher skill
+		{
+
+			if(ai->aispecial==0)
+			{
+				if (1)//decide if do special
+					ai->aispecial=1;
+			}
+			if (ai->aispecial==1)//do special
+			{
+				if (ai->batt<ai->specbatt)
+				{
+					if(Special(ai)>0)
+						ai->aispecial=0;
+				}
+			}
+
+		}
 
 	pPlayer opp = (pPlayer)ai->opp;
 	s16 angle = FindAngle(ai->xpos,ai->ypos,opp->xpos,opp->ypos);
@@ -904,7 +936,7 @@ void aiTurn(pPlayer ai)
 			x=100;
 
 
-		if (TurnAngle(angle,ai->angle,x)==0)//fire if going roughly the right way
+		if (ai->aispecial==0&&TurnAngle(angle,ai->angle,x)==0)//fire if going roughly the right way
 		{
 			Fire(ai);
 		}
@@ -938,6 +970,8 @@ void aiTurn(pPlayer ai)
 	}
 
 	ai->aiturn=ai->ai;//*3;
+
+	//do special?
 	}	//end if turn
 }
 
@@ -971,7 +1005,7 @@ void DrawTrails()
 	{
 		if (trails[i].life>0)
 		{
-			drawOnScreen(&trails[i].xscreen,&trails[i].yscreen,trails[i].xpos,trails[i].ypos,screenx,screeny,8);
+			drawOnScreen(&trails[i].xscreen,&trails[i].yscreen,trails[i].xpos,trails[i].ypos,screenx,screeny,4);
 			sprites[32+i].attribute0 = COLOR_256 | SQUARE | MODE_TRANSPARENT | trails[i].yscreen;	//setup sprite info, 256 colour, shape and y-coord
 			sprites[32+i].attribute1 = SIZE_8 | trails[i].xscreen;
     		sprites[32+i].attribute2 = TrailSprite | PRIORITY(1);
@@ -1041,8 +1075,8 @@ void ProcessPlayer(pPlayer pl,s8 *EndGame)
 		else
 		{
 			if (pl->ai==PLAYER1||pl->ai==PLAYER2)
-					GetInput(pl);
-			else
+				GetInput(pl);
+			else if(pl->ai!=DISABLED)
 				aiTurn(pl);
 
 		}
@@ -1056,6 +1090,46 @@ void ProcessPlayer(pPlayer pl,s8 *EndGame)
 		}
 }
 
+void Bounce(pPlayer pl)
+{
+	pl->xspeed*=-1;
+	pl->yspeed*=-1;
+
+	pl->xpos+-pl->xspeed;
+	pl->xpos+-pl->xspeed;
+}
+
+void DrawPlanet()
+{
+	drawOnScreen(&planet_screenx,&planet_screeny,planetx,planety,screenx,screeny,64);
+	RotateSprite(31, 0, zoom, zoom);
+	sprites[31].attribute0 = COLOR_256 | SQUARE | ROTATION_FLAG | SIZE_DOUBLE | MODE_TRANSPARENT | planet_screeny;	//setup sprite info, 256 colour, shape and y-coord
+	sprites[31].attribute1 = SIZE_64 | ROTDATA(31) | planet_screenx;
+	sprites[31].attribute2 = PlanetSprite | PRIORITY(1);
+}
+
+void CalcPlanet(pPlayer pl)
+{
+	s16 dist=distanceBetweenPoints(pl->xpos,pl->ypos,planetx,planety);
+	if (dist<(pl->offset+64)/2)
+	{
+		ModifyCrew(pl,-2);
+		Bounce(pl);
+	}
+	//gravity
+	if (pl->ship!=SKIFF&&dist<70)//maybe
+	{
+		s16 a = FindAngle(pl->xpos,pl->ypos,planetx,planety);
+
+		s32 x = ((2) * (s32)SIN[a])>>8;
+		s32 y = ((2) * (s32)COS[a])>>8;
+
+		pl->xspeed = pl->xspeed + x;
+		pl->yspeed = pl->yspeed + y;
+
+	}
+}
+
 void Melee(pPlayer p1,pPlayer p2,Bg *bg0, Bg *bg1)
 {
 	u32 loop;       //generic loop variable
@@ -1063,6 +1137,14 @@ void Melee(pPlayer p1,pPlayer p2,Bg *bg0, Bg *bg1)
 
 	screenx=100;
 	screeny=100;
+
+
+	//holds planet vars
+	//may make these global
+	planetx=2100;
+	planety=2100;
+
+
 
 	trails=(pTrail)malloc(sizeof(pTrail)*10);
 	for (int i=0;i<10;i++)
@@ -1075,10 +1157,11 @@ void Melee(pPlayer p1,pPlayer p2,Bg *bg0, Bg *bg1)
 
 	//try - should load in sc2.cpp but oam mem seems to be blank...
 	LoadPal();
-		LoadShip(p1);
-		LoadShip(p2);
-		LoadExp(OAMFireSprite1,FireSprite1);
-		LoadTrail(OAMTrailSprite);
+	LoadShip(p1);
+	LoadShip(p2);
+	LoadExp(OAMFireSprite1,FireSprite1);
+	LoadTrail(OAMTrailSprite);
+	LoadPlanet(OAMPlanetSprite);
 
 
 
@@ -1095,6 +1178,37 @@ void Melee(pPlayer p1,pPlayer p2,Bg *bg0, Bg *bg1)
 		sprites[13].attribute0 = COLOR_256 | SQUARE | ROTATION_FLAG | SIZE_DOUBLE | MODE_TRANSPARENT |p2->yscreen;//setup sprite info, 256 colour, shape and y-coord
         sprites[13].attribute1 = SIZE_32 | ROTDATA(13) | p2->xscreen;           //size 16x16 and x-coord
         sprites[13].attribute2 = p2->SpriteStart | PRIORITY(1);     //pointer to tile where sprite starts
+/*
+        //test loop
+        	zoom=100;
+        	screenx=120;
+			screeny=80;
+			p1->xpos=120;
+			p1->ypos=80;
+			p1->angle=0;
+			MoveSprite(&sprites[13], -100, -100);
+			while (1)
+			{
+
+				if(!(*KEYS & KEY_A))                	//if the A key is pressed
+					{
+				       zoom--;
+				    }
+					if(!(*KEYS & KEY_B))                	//if the B key is pressed
+					{
+						zoom++;
+    				}
+    				drawOnScreen(&p1->xscreen,&p1->yscreen,p1->xpos,p1->ypos,screenx,screeny,32,1);
+    					RotateSprite(0, p1->angle, zoom, zoom);
+					MoveSprite(&sprites[0], p1->xscreen, p1->yscreen);
+				WaitForVsync();					//waits for the screen to stop drawing
+				CopyOAM();
+
+			}
+
+*/
+
+
 
 // test show explos
 /* handy for testing sprites
@@ -1127,6 +1241,7 @@ void Melee(pPlayer p1,pPlayer p2,Bg *bg0, Bg *bg1)
 		turn=0;
 		WaitForVsync();
 		s8 EndGame=20;
+		UpdateStatus();
 
 		while(EndGame)                                //main loop
         {/*
@@ -1140,15 +1255,31 @@ void Melee(pPlayer p1,pPlayer p2,Bg *bg0, Bg *bg1)
 			ProcessPlayer(p1,&EndGame);
 			ProcessPlayer(p2,&EndGame);
 
-  			setScreen(p1,p2,bg0,bg1);
 
-			MoveSprite(&sprites[0], p1->xscreen, p1->yscreen);
+  			//should also check for collisions with
+  			//other player
+  			//this isnt too great
+  			if (distanceBetweenPoints(p1->xpos,p1->ypos,p2->xpos,p2->ypos)<(p1->offset+p2->offset)/2)
+  			{
+				ModifyCrew(p1,-2);
+				ModifyCrew(p2,-2);
+				Bounce(p1);
+				Bounce(p2);
+			}
+  			//asteroids
+  			//planet
+  			CalcPlanet(p1);
+  			CalcPlanet(p2);
 
-			MoveSprite(&sprites[13], p2->xscreen, p2->yscreen);
+			setScreen(p1,p2,bg0,bg1);
 
 			MoveBullets(p1);
 
 			MoveBullets(p2);
+
+			MoveSprite(&sprites[0], p1->xscreen, p1->yscreen);
+
+			MoveSprite(&sprites[13], p2->xscreen, p2->yscreen);
 
 
 			turn++;
@@ -1163,8 +1294,10 @@ void Melee(pPlayer p1,pPlayer p2,Bg *bg0, Bg *bg1)
 			RotateSprite(13, p2->angle, zoom,zoom);
 
 			DrawTrails();
+			DrawPlanet();
 
-			UpdateStatus();
+			//UpdateStatus();  now we only update when changed
+
 			WaitForVsync();					//waits for the screen to stop drawing
 			UpdateBackground(bg0);
 			UpdateBackground(bg1);
@@ -1177,8 +1310,9 @@ void Melee(pPlayer p1,pPlayer p2,Bg *bg0, Bg *bg1)
 
 		}//end while one or both ships are destroyed
 
-
+	//should clear screen
 	InitializeSprites();
+	CopyOAM();
 }
 
 
