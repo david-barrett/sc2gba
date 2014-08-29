@@ -10,6 +10,7 @@
 #include "bg.h"
 #include "keypad.h"     //button registers
 #include "shipgfx.h"
+
 //define the screen width and height values to be used
 #define SCREEN_WIDTH	240
 #define SCREEN_HEIGHT   160
@@ -119,6 +120,23 @@ s16 life;
 
 }Trail, *pTrail;
 
+typedef struct Asteroid
+{
+s32 xpos ;
+s32 ypos ;
+s16 xscreen;
+s16 yscreen;
+
+s16 sprite;
+s16 angle;
+s16 xspeed;
+s16 yspeed;
+
+s16 life;
+
+}Asteroid, *pAsteroid;
+
+
 enum skill
 {
 	PLAYER1=1,
@@ -192,7 +210,18 @@ s8 aispecial;
 
 s16 range;
 
+s16 fireangle;
+
+short reinc;//pkunk
+short shield;//yehat
+short cloak;//ilwarth
+short scrambled;//trader weapon hit
+short fighters;//urquan fighters
+
 //pPlayer opp;
+
+s16 spriteoffset;
+s16 angleoffset;
 }Player, *pPlayer;
 
 
@@ -259,6 +288,9 @@ const s16 SpriteTitleStart = 640;
 const s16 OAMAllships = 0;
 const s16 SpriteAllShips = 0;
 
+const s16 OAMAsteroidStart=628*16;
+const s16 SpriteAsteroidStart=628;
+
 
 
 void Thrust(pPlayer plr);
@@ -285,6 +317,7 @@ void SetNew(pPlayer pl);
 void LoadExp(s16 OAMStart, s16 SpriteStart);
 void LoadTrail(s16 OAMStart);
 void LoadPlanet(s16 OAMStart);
+void RestoreGFX(pPlayer p);
 
 void CreateTrail(pPlayer);
 int FightersFire(pWeapon f,s16 angle);
@@ -292,6 +325,8 @@ int nextWeapon(pPlayer pl);
 
 void print(char *s);
 
+
+int aidospecial(pPlayer);
 void ModifyCrew(pPlayer,int);
 void ModifyBatt(pPlayer,int);
 
@@ -310,6 +345,32 @@ const s32 planetx=1000;
 const s32 planety=1000;
 void GenerateStart(pPlayer p);
 void MoveOffscreen(OAMEntry* sp);
+void LoadAsteroid(s16 OAMStart);
+
+
+//general
+
+int nextSpec(pPlayer pl);
+int nextSpecSprite(pPlayer pl);
+
+//hope to some of these later
+
+//fury
+int aiSpecialFury(pPlayer ai);
+int DeathFury(pPlayer pl);
+int SpecialFury(pPlayer pl);
+int FireFury(pPlayer pl);
+int FireFuryA(pPlayer pl,s32 angle);
+void LoadFury(s16 OAMStart, s16 SpriteStart);
+void SetFury(pPlayer pl);
+
+//urquan
+int aiSpecialDreadnaught(pPlayer ai);
+int FireDreadnaught(pPlayer pl);
+void SetDreadnaught(pPlayer pl);
+int FightersFire(pWeapon f,s16 angle);
+int SpecialDreadnaught(pPlayer pl);
+void LoadDreadnaught(s16 OAMStart, s16 SpriteStart);
 #endif
 
 /*128 sprites first 32 rotate

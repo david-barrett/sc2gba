@@ -21,7 +21,9 @@ extern pOAMEntry sprites;
 extern pRotData rotData;
 extern int* KEYS;
 
+
 pTrail trails;
+pAsteroid asteroids;
 
 int turn;
 
@@ -43,8 +45,8 @@ s32 zoom,screenx,screeny;
 
 //centre of screen
 //note ships draw from TOP_LEFT
-s32 centrex=120;
-s32 centrey=80;
+s32 const centrex=120;
+s32 const centrey=80;
 
 #define ASIZE  512 //128 // 512 ?
 
@@ -132,10 +134,12 @@ void GenerateStart(pPlayer p)
 {   //y=640
 	//x=960
 	int good=0;
+	s32 xpos,ypos,xspeed,yspeed;
+	s16 dist;
 	do
 	{
 		pPlayer opp=(pPlayer)p->opp;
-	//	p->angle=ran(0,359);
+		p->angle=ran(0,24)*15;
 		/*
 		s32 rand=ran(0,1820)-910;//960-50 *2
 		p->xpos=opp->xpos+rand+(rand<0?-50:50);
@@ -148,9 +152,10 @@ void GenerateStart(pPlayer p)
 
 		p->ypos=opp->ypos+rand+(rand<0?-50:50);
 
-		s16 dist=distanceBetweenPoints(p->xpos,p->ypos,planetx,planety);
+		//s16 dist=distanceBetweenPoints(p->xpos,p->ypos,planetx,planety);
 					//if (dist<(p->offset+64)/2)
-		if (dist<100)
+					/*
+		if (dist<150)
 		{
 						//bad try again
 						good=1;
@@ -162,28 +167,35 @@ void GenerateStart(pPlayer p)
 	p->angle=FindAngle(planetx,planety,p->xpos,p->ypos);
 
 
-/*
-		s32 xspeed = ((20) * (s32)SIN[p->angle])>>8;
-	    s32 yspeed = ((20) * (s32)COS[p->angle])>>8;
-	    s32 xpos = p->xpos;
-	    s32 ypos = p->ypos;
+*/
+		xspeed = ((20) * (s32)SIN[p->angle])>>8;
+	    yspeed = ((20) * (s32)COS[p->angle])>>8;
+	    xpos = p->xpos;
+	    ypos = p->ypos;
 		//check we aint going to hit a planet
+		dist=distanceBetweenPoints(xpos,ypos,planetx,planety);
+		if (dist<200)
+			good=1;
+	}while(good);
+	good=0;
 		for (int i=0;i<6;i++)
 		{
-			s16 dist=distanceBetweenPoints(xpos,ypos,planetx,planety);
+			dist=distanceBetweenPoints(xpos,ypos,planetx,planety);
 			//if (dist<(p->offset+64)/2)
 			if (dist<200)
 			{
 				//bad try again
-				good=0;
+				good=1;
 				break;
 			}
 			xpos+=xspeed;
 			ypos+=yspeed;
 		}
-	*/
-	}
-	while(good);
+	if (good==1)
+		p->angle=p->angle+(p->angle>180)?-180:180;
+
+
+	//while(good);
 }
 
 
@@ -208,7 +220,7 @@ void InitializeSprites()
 	{
 		sprites[loop].attribute0 = 160;  //y to > 159
 		sprites[loop].attribute1 = 240; //x to > 239
-		sprites[loop].attribute2 = 0;
+		//sprites[loop].attribute2 = 0;
 	}
 }
 
@@ -469,6 +481,8 @@ void MoveURFighters(pWeapon ur)
 	{
 		//been out too long die
 		ur->life=0;
+		MoveOffscreen(&sprites[ur->sprite]);
+		parent->fighters--;
 		return;
 	}
 	if (target->crew==0&&ur->status>199)
@@ -479,8 +493,10 @@ void MoveURFighters(pWeapon ur)
 		if (DetectWeaponToShip(parent,ur)==1)
 		{
 			ur->life=-1;
+			parent->fighters--;
 			//mothership crew++;
 			ModifyCrew(parent,1);
+			MoveOffscreen(&sprites[ur->sprite]);
 			return;
 		}
 		//desired angle = mothership
@@ -571,41 +587,26 @@ void MoveBullets(pPlayer pl)
 	pPlayer p;
 	pPlayer o;
 
-	s32 xp1 = p->xpos;
-	s32 xp2 = o->xpos;
-
 	for (int i=0;i<12;i++)
 	{
-
-
-		if (pl->weapon[i].life>-1)
-		{
-			print("\n sprite attr 2");
-			print(sprites[pl->weapon[i].sprite].attribute2);
-		}
 		if (pl->weapon[i].life==0)//destroy it
 		{
 
-			print("\nattr 1 before ");
 			print(sprites[pl->weapon[i].sprite].attribute1);
 			sprites[pl->weapon[i].sprite].attribute0 = 160;  //y to > 159
 			sprites[pl->weapon[i].sprite].attribute1 = 240; //x to > 239
 			sprites[pl->weapon[i].sprite].attribute2 = 0;
-			//MoveSprite(&sprites[pl->weapon[i].sprite], pl->weapon[i].xscreen, pl->weapon[i].yscreen);
-			//RotateSprite(pl->weapon[i].sprite, pl->weapon[i].angle, zoom,zoom);
 			pl->weapon[i].life--;
-			print("\ndestroyed weapon ");
-			print(i);
-			print("attr 1 after ");
-			print(sprites[pl->weapon[i].sprite].attribute1);
+
 
 
 		}
 		if (pl->weapon[i].life>0)
 		{
-			pPlayer target=(pPlayer)pl->weapon[i].target;
+
 			if (pl->weapon[i].type==SIMPLE)
 			{
+				pPlayer target=(pPlayer)pl->weapon[i].target;
 				pl->weapon[i].xpos+=pl->weapon[i].xspeed;
 				pl->weapon[i].ypos-=pl->weapon[i].yspeed;
 
@@ -639,17 +640,44 @@ void MoveBullets(pPlayer pl)
 					{
 						pl->weapon[i].life=0;
 						target->weapon[j].life=0;
+						stop=0;
+						if (target->weapon[j].type==UR_FIGHTERS)
+							target->fighters--;
 						break;
 					}
 				}
 				}
-/* TODO
+
+				s16 dist;
 				//planet
-				if (stop);
+				if (stop)
+				{
+					dist = distanceBetweenPoints(pl->weapon[i].xpos,pl->weapon[i].ypos,planetx,planety);
+					if (dist<(pl->weapon[i].size+64)/2)
+					{
+							pl->weapon[i].life=0;
+							stop=0;
+					}
+				}
 
 				//asteroids
-				if (stop);
-*/
+				if (stop)
+				{
+					for (int j=0;j<5;j++)
+					{
+						dist = distanceBetweenPoints(pl->weapon[i].xpos,pl->weapon[i].ypos,
+							asteroids[j].xpos,asteroids[j].ypos);
+
+						if (dist<(pl->weapon[i].size+25)/2)
+						{
+							pl->weapon[i].life=0;
+							asteroids[j].life=0;
+							stop=0;
+							break;
+						}
+					}
+				}
+
 			}//simple
 			else if (pl->weapon[i].type==UR_FIGHTERS)
 			{
@@ -724,7 +752,7 @@ void Regen(pPlayer pl)
 
 	if (pl->batt<pl->maxbatt&&pl->batt_turn==0)
 	{
-		pl->batt_turn=pl->batt_wait;
+		pl->batt_turn=pl->batt_wait*5;
 		ModifyBatt(pl,1);
 	}
 
@@ -1015,12 +1043,12 @@ void aiTurn(pPlayer ai)
 
 			if(ai->aispecial==0)
 			{
-				if (1)//decide if do special
+				if (aidospecial(ai))//decide if do special
 					ai->aispecial=1;
 			}
 			if (ai->aispecial==1)//do special
 			{
-				if (ai->batt<ai->specbatt)
+				if (ai->batt>ai->specbatt)
 				{
 					if(Special(ai)>0)
 						ai->aispecial=0;
@@ -1034,13 +1062,11 @@ void aiTurn(pPlayer ai)
 	s16 oangle = angle+(angle<180)?180:-180;
 	//s16 desangle=angle;
 
-	int x=30;
-	if (opp->ship==FURY)
-		x=100;
+
 
 	int InRangeToFire=InRange(ai->xpos,ai->ypos,opp->xpos,opp->ypos,ai->range);
 
-	int InRangeToBeHit=(TurnAngle(oangle,ai->angle,x)==0)&&InRange(opp->xpos,opp->ypos,ai->xpos,ai->ypos,opp->range);
+	int InRangeToBeHit=(TurnAngle(oangle,opp->angle,opp->fireangle)==0)&&InRange(opp->xpos,opp->ypos,ai->xpos,ai->ypos,opp->range);
 
 	if(InRangeToBeHit)
 	{
@@ -1065,12 +1091,8 @@ void aiTurn(pPlayer ai)
 		//s16 a1 = 360+angle;
 		//s16 a2 = 360+ai->angle;
 
-		x=30;
-		if (ai->ship==FURY)
-			x=100;
 
-
-		if (ai->aispecial==0&&TurnAngle(angle,ai->angle,x)==0)//fire if going roughly the right way
+		if (ai->aispecial==0&&TurnAngle(angle,ai->angle,ai->fireangle)==0)//fire if going roughly the right way
 		{
 			Fire(ai);
 		}
@@ -1155,41 +1177,193 @@ void DrawTrails()
 
 }
 
+
+
+int CreateActualOutline(s32 xpos,s32 ypos,s16 angle,pWeapon w,s32 SpriteStart)
+{
+	w->type=TRAIL;
+	w->life=5;
+	w->damage=0;
+	w->target=NULL;
+	w->parent=NULL;
+	w->damageparent=0;
+
+	w->size=32;
+	w->angle = angle;
+
+	w->xspeed = 0;
+	w->yspeed = 0;
+
+	w->xpos = xpos;
+	w->ypos = ypos;
+
+	drawOnScreen(&w->xscreen,&w->yscreen,
+		w->xpos,w->ypos,screenx,screeny,w->size);
+
+	sprites[w->sprite].attribute0 = COLOR_256 | SQUARE | ROTATION_FLAG | SIZE_DOUBLE | MODE_TRANSPARENT | w->yscreen;	//setup sprite info, 256 colour, shape and y-coord
+    sprites[w->sprite].attribute1 = SIZE_32 | ROTDATA(w->sprite) | w->xscreen;
+    sprites[w->sprite].attribute2 = SpriteStart+32 | PRIORITY(2);
+
+
+    return 1;
+}
+
 int CreateOutline(pPlayer pl)
 {
-
 	s16 b = nextWeapon(pl);
 
 	if (b>=0)
 	{
-	pl->weapon[b].type=TRAIL;
-	pl->weapon[b].life=5;
-	pl->weapon[b].damage=0;
-	pl->weapon[b].target=pl->opp;
-	pl->weapon[b].parent=pl;
-	pl->weapon[b].damageparent=0;
-
-	pl->weapon[b].size=32;
-	pl->weapon[b].angle = pl->angle;
-
-	pl->weapon[b].xspeed = 0;
-	pl->weapon[b].yspeed = 0;
-
-	pl->weapon[b].xpos = pl->xpos;
-	pl->weapon[b].ypos = pl->ypos;
-
-	drawOnScreen(&pl->weapon[b].xscreen,&pl->weapon[b].yscreen,
-		pl->weapon[b].xpos,pl->weapon[b].ypos,screenx,screeny,pl->weapon[b].size);
-
-	sprites[pl->weapon[b].sprite].attribute0 = COLOR_256 | SQUARE | ROTATION_FLAG | SIZE_DOUBLE | MODE_TRANSPARENT | pl->weapon[b].yscreen;	//setup sprite info, 256 colour, shape and y-coord
-    sprites[pl->weapon[b].sprite].attribute1 = SIZE_32 | ROTDATA(pl->weapon[b].sprite) | pl->weapon[b].xscreen;
-    sprites[pl->weapon[b].sprite].attribute2 = pl->SpriteStart+32 | PRIORITY(2);
-
-
-    return 1;
+		return CreateActualOutline(pl->xpos,pl->ypos,pl->angle,&pl->weapon[b],pl->SpriteStart);
 	}
 	return 0;
 }
+
+int CreateReinc(pPlayer pl)
+{
+	short d=20*(pl->reinc+1);
+	short r=pl->reinc*4;
+	CreateActualOutline(pl->xpos-d,pl->ypos-d,pl->angle,&pl->weapon[r],pl->SpriteStart);
+	CreateActualOutline(pl->xpos-d,pl->ypos+d,pl->angle,&pl->weapon[1+r],pl->SpriteStart);
+	CreateActualOutline(pl->xpos+d,pl->ypos-d,pl->angle,&pl->weapon[2+r],pl->SpriteStart);
+	CreateActualOutline(pl->xpos+d,pl->ypos+d,pl->angle,&pl->weapon[3+r],pl->SpriteStart);
+	return 1;
+}
+
+inline void Bounce(pPlayer pl)
+{
+	pl->xspeed*=-1;
+	pl->yspeed*=-1;
+
+	pl->xpos+=pl->xspeed;
+	pl->xpos+=pl->xspeed;
+}
+
+void CreateAsteroid(int i)
+{
+	print("asteroid created");
+	s16 d = ran(0,240);
+
+	asteroids[i].xpos=screenx+(s32)((d-centrex)/scale);
+	d=ran(0,1);
+	d*=160;
+	print("d=");
+	print(d);
+	asteroids[i].ypos=screeny+(s32)((d-centrey)/scale);
+	//asteroids[i].ypos=screeny;
+
+	/*
+
+	*x = (s16)(((xpos-screenx)*scale)+centrex-(size));
+	asteroids[i].xpos=screenx+d+(s32)(d<0?-120/scale:120/scale);
+	asteroids[i].ypos=screeny+d+(s32)(d<0?-80/scale:80/scale);
+
+	asteroids[i].xpos=screenx+d+(s32)(d<0?-480:480);
+	asteroids[i].ypos=screeny+d+(s32)(d<0?-320:320/scale);
+*/
+	//asteroids[i].xpos=screenx;
+	//asteroids[i].ypos=screeny;
+	asteroids[i].life=1;
+
+	print("\n xpos");
+	print(asteroids[i].xpos);
+	print("\n ypos");
+	print(asteroids[i].ypos);
+
+	print("\nscreenx");
+	print(screenx);
+	print("\nscreeny");
+	print(screeny);
+
+	//s32 angle=ran(0,24)*15;
+	s32 angle=FindAngle(screenx,screeny,asteroids[i].xpos,asteroids[i].ypos);
+	asteroids[i].xspeed = ((2) * (s32)SIN[angle])>>8;
+	asteroids[i].yspeed = ((2) * (s32)COS[angle])>>8;
+
+	print("\nangle");
+	print(angle);
+
+	sprites[26+i].attribute0 = COLOR_256 | SQUARE | ROTATION_FLAG | SIZE_DOUBLE | MODE_TRANSPARENT | 160;	//setup sprite info, 256 colour, shape and y-coord
+    sprites[26+i].attribute1 = SIZE_32 | ROTDATA(26+i) | 240;
+    sprites[26+i].attribute2 = SpriteAsteroidStart | PRIORITY(2);
+}
+
+void BounceAsteroid(int i)
+{
+	asteroids[i].xspeed*=-1;
+	asteroids[i].yspeed*=-1;
+}
+
+void ProcessAsteroids(pPlayer p1,pPlayer p2)
+{
+	s16 dist;
+	for (int i=0;i<5;i++)
+	{
+		if (asteroids[i].life==0)
+		{
+			CreateAsteroid(i);
+		}
+
+		//planet
+		dist=distanceBetweenPoints(asteroids[i].xpos,asteroids[i].ypos,planetx,planety);
+		if (dist<64)
+		{
+			print("\n ast hit planet");
+			asteroids[i].life=0;
+		}
+		else
+		{
+
+		//if asteroid hit player
+		dist=distanceBetweenPoints(p1->xpos,p1->ypos,asteroids[i].xpos,asteroids[i].ypos);
+		if (dist<(p1->offset+25)/2)
+		{
+			ModifyCrew(p1,-1);
+			Bounce(p1);
+			BounceAsteroid(i);
+			print("\n ast hit p1");
+		}
+		dist=distanceBetweenPoints(p2->xpos,p2->ypos,asteroids[i].xpos,asteroids[i].ypos);
+		if (dist<(p2->offset+25)/2)
+		{
+			ModifyCrew(p2,-1);
+			Bounce(p2);
+			BounceAsteroid(i);
+			print("\n ast hit p2");
+		}
+		//each other
+		for (int j=0;j<5;j++)
+		{
+			if (i!=j)
+			{
+				dist=distanceBetweenPoints(asteroids[j].xpos,asteroids[j].ypos,asteroids[i].xpos,asteroids[i].ypos);
+				if (dist<25)
+				{
+					BounceAsteroid(i);
+					BounceAsteroid(j);
+				}
+			}
+		}
+
+
+		asteroids[i].xpos+=asteroids[i].xspeed;
+		asteroids[i].ypos+=asteroids[i].yspeed;
+
+		if (asteroids[i].xpos<-1000||asteroids[i].xpos>3000||
+			asteroids[i].ypos<-1000||asteroids[i].ypos>3000)
+		{
+			asteroids[i].life=0;
+			print("\n ast out of bounds");
+		}
+		else
+		{
+			RotateSprite(i+26, 0, zoom,zoom);
+			drawOnScreen(&asteroids[i].xscreen,&asteroids[i].yscreen,asteroids[i].xpos,asteroids[i].ypos,screenx,screeny,32);
+			MoveSprite(&sprites[i+26],asteroids[i].xscreen,asteroids[i].yscreen);
+		}
+	}//not hit planet
+	}//end for loop
+}//end func
 
 void ProcessPlayer(pPlayer pl,s8 *EndGame)
 {
@@ -1206,6 +1380,11 @@ void ProcessPlayer(pPlayer pl,s8 *EndGame)
 			pl->yspeed=0;
 			pl->warp=0;
 		}
+		else if(pl->reinc>0)
+		{
+			pl->reinc--;
+			CreateReinc(pl);
+		}
 		else
 		{
 			if (pl->ai==PLAYER1||pl->ai==PLAYER2)
@@ -1219,22 +1398,17 @@ void ProcessPlayer(pPlayer pl,s8 *EndGame)
 	}
 	else
 	{
-		if (pl->ship==FURY)
-			if (DeathFury(pl))
+		if (pl->ship==FURY&&*EndGame==20)
+		{
+			if (DeathFury(pl)==1)
 				return;
+		}
 		*EndGame=*EndGame-1;
 		DetonateShip(pl);
 	}
 }
 
-inline void Bounce(pPlayer pl)
-{
-	pl->xspeed*=-1;
-	pl->yspeed*=-1;
 
-	pl->xpos+-pl->xspeed;
-	pl->xpos+-pl->xspeed;
-}
 
 void DrawPlanet()
 {
@@ -1280,10 +1454,18 @@ void Melee(pPlayer p1,pPlayer p2,Bg *bg0, Bg *bg1)
 	//may make these global
 
 
-	trails=(pTrail)malloc(sizeof(pTrail)*10);
+	trails=(pTrail)malloc(sizeof(Trail)*10);
 	for (int i=0;i<10;i++)
 	{
 		trails->life=0;
+	}
+
+	asteroids=(pAsteroid)malloc(sizeof(Asteroid)*5);
+	{
+		for(int i=0;i<5;i++)
+		{
+			asteroids->life=0;
+		}
 	}
 
 
@@ -1296,11 +1478,18 @@ void Melee(pPlayer p1,pPlayer p2,Bg *bg0, Bg *bg1)
 	LoadExp(OAMFireSprite1,FireSprite1);
 	LoadTrail(OAMTrailSprite);
 	LoadPlanet(OAMPlanetSprite);
+	LoadAsteroid(OAMAsteroidStart);
 
-
-
+	p1->crew=1;
 
 	InitializeSprites();                       //set all sprites off screen (stops artifact)
+
+	RestoreGFX(p1);
+	RestoreGFX(p2);
+
+
+
+
 
 	setScreen(p1,p2,bg0,bg1);
 
@@ -1343,13 +1532,13 @@ void Melee(pPlayer p1,pPlayer p2,Bg *bg0, Bg *bg1)
 */
 
 
-
+/*
 // test show explos
-/* handy for testing sprites
+// handy for testing sprites
         	sprites[60].attribute0 = COLOR_256 | SQUARE  | 130;	//setup sprite info, 256 colour, shape and y-coord
-				sprites[60].attribute1 = SIZE_8 | 8;
-			   	sprites[60].attribute2 = FireSprite1 | PRIORITY(0);
-
+				sprites[60].attribute1 = SIZE_32 | 100;
+			   	sprites[60].attribute2 = SpriteAsteroidStart | PRIORITY(0);
+/*
 			   	sprites[61].attribute0 = COLOR_256 | SQUARE | 130;	//setup sprite info, 256 colour, shape and y-coord
 				sprites[61].attribute1 = SIZE_8 | 20;
 			   	sprites[61].attribute2 = FireSprite1+2 | PRIORITY(0);
@@ -1374,14 +1563,15 @@ void Melee(pPlayer p1,pPlayer p2,Bg *bg0, Bg *bg1)
 		//setScreen(p1,p2);
 		turn=0;
 		WaitForVsync();
-		s8 EndGame=20;
+		s8 EndGame1=20;
+		s8 EndGame2=20;
 		//UpdateStatus();
 
-		while(EndGame)                                //main loop
+		while(EndGame1&&EndGame2)                                //main loop
         {
 
-			ProcessPlayer(p1,&EndGame);
-			ProcessPlayer(p2,&EndGame);
+			ProcessPlayer(p1,&EndGame1);
+			ProcessPlayer(p2,&EndGame2);
 
 
 
@@ -1396,6 +1586,7 @@ void Melee(pPlayer p1,pPlayer p2,Bg *bg0, Bg *bg1)
 				Bounce(p2);
 			}
   			//asteroids
+  			ProcessAsteroids(p1,p2);
   			//planet
   			CalcPlanet(p1);
   			CalcPlanet(p2);
@@ -1410,16 +1601,16 @@ void Melee(pPlayer p1,pPlayer p2,Bg *bg0, Bg *bg1)
 
 			MoveSprite(&sprites[13], p2->xscreen, p2->yscreen);
 
+			//asteroids
+  			ProcessAsteroids(p1,p2);
+
 
 			turn++;
 
 			if (turn==5)
 			{
 				turn=0;
-				if (p1->crew>0)
-					Regen(p1);
-				if (p2->crew>0)
-					Regen(p2);
+
 			}
 
 
@@ -1432,7 +1623,10 @@ void Melee(pPlayer p1,pPlayer p2,Bg *bg0, Bg *bg1)
 				Regen(p1);
 			if (p2->crew>0)
 				Regen(p2);
-*/
+*/			if (p1->crew>0)
+				Regen(p1);
+			if (p2->crew>0)
+				Regen(p2);
 
 
 			RotateSprite(0, p1->angle, zoom, zoom);
@@ -1444,7 +1638,7 @@ void Melee(pPlayer p1,pPlayer p2,Bg *bg0, Bg *bg1)
 			CopyOAM();			//Copies sprite array into OAM.
 
 		}//end while one or both ships are destroyed
-
+	print("\n melee game ended");
 	//should clear screen
 	InitializeSprites();
 	CopyOAM();

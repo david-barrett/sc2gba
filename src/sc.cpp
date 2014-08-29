@@ -54,9 +54,9 @@ void ChooseShips(pPlayer pl, pPlrList list)
 	for (int i=0;i<14;i++)
 	{
 		if  (i%2==0)
-			list[i].ship=FURY;
-		else
 			list[i].ship=DREADNAUGHT;
+		else
+			list[i].ship=FURY;
 		list[i].active=1;
 	}
 }
@@ -69,7 +69,7 @@ int ChooseNextShipRand(pPlrList list)
 	{
 		choose=ran(0,13);
 		{
-			if (list[choose].active=1)
+			if (list[choose].active==1)
 				ret=0;
 		}
 	}
@@ -387,7 +387,7 @@ for (int i=0;i<12;i++)
 		p1->ai=PLAYER1;
 		p2->ai=STANDARD;
 		//p1->ai=STANDARD;
-		//p1->ai=AWESOME;
+		p2->ai=AWESOME;
 		//p2->ai=DISABLED;
 
 		ChooseShips(p1,plist1);
@@ -445,7 +445,7 @@ for (int i=0;i<12;i++)
 			}
 
 		}
-		while (nextp1=-1&&nextp2!=-1);
+		while (nextp1!=-1&&nextp2!=-1);
 		//game over!!!
 
 	}//end loop - got back to titles;
