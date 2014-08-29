@@ -188,7 +188,7 @@ void GetInput(pPlayer pl)
     }
 	if(!(*KEYS & KEY_L))                	//if the L key is pressed
 	{
-		pl->ship_input_state |= THRUST;
+
 
 	}
 	if(!(*KEYS & KEY_R))                	//if the R key is pressed
@@ -528,7 +528,8 @@ void ProcessPlayer(pPlayer pl)
 		}
 		pl->EndGame--;
 		ModifyBatt(pl,-1*pl->batt);
-		DetonateShip(pl);
+		if (!pl->destruct)
+			DetonateShip(pl);
 	}
 
 }
@@ -570,7 +571,7 @@ int nextWeapon(pPlayer pl,int f,int l)
 	//defaults f=1 & l=11
 	for (int i=f;i<l+1;i++)
 	{
-		if (pl->weapon[i].life==-1)
+		if (pl->weapon[i].life<0)
 			return i;
 	}
 	return -1;

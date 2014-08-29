@@ -35,7 +35,9 @@ int Available(s16 selected)
 		selected==PENETRATOR||selected==INTRUDER||
 		selected==DRONE||selected==ELUDER||
 		selected==GUARDIAN||selected==PODSHIP||
-		selected==CRUISER)
+		selected==CRUISER||selected==SCOUT||
+		selected==TRANSFORMER||selected==BROODHOME||
+		selected==SKIFF)
 		return 1;
 
 	return 0;

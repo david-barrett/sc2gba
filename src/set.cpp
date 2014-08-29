@@ -35,6 +35,7 @@ void SetNew(pPlayer pl)
 	pl->cloak=0;//ilwrath
 	pl->shield=0;//yehat
 	pl->scrambled=0;//
+	pl->destruct=0;
 
 
 
@@ -83,16 +84,16 @@ void SetShip(pPlayer pl)
 
 		case GUARDIAN:
 			SetAndrosynth(pl);
-			break;/*
+			break;
 		case SKIFF :
 			SetArilou(pl);
-			break;
+			break;/*
 		case MARAUDER:
 			SetBlackUrq(pl);
-			break;
+			break;*/
 		case BROODHOME:
-			SetChenjusu(pl);
-			break;
+			SetChenjesu(pl);
+			break;/*
 		case AVATAR:
 			SetChmmr(pl);
 			break;
@@ -128,10 +129,10 @@ void SetShip(pPlayer pl)
 		case PROBE:
 			SetProbe(pl);
 			break;
-
+*/
 		case SCOUT:
 			SetShofixti(pl);
-			break;
+			break;/*
 		case STINGER:
 			SetZoqFot(pl);
 			break;
@@ -140,11 +141,11 @@ void SetShip(pPlayer pl)
 			break;
 		case TRADER:
 			SetMelnorme(pl);
-			break;
+			break;*/
 		case TRANSFORMER:
 			SetMmrnmhrm(pl);
 			break;
-			*/
+
 
 	}
 }

@@ -610,7 +610,7 @@ void DetectBullets(pPlayer pl)
 							sprites[target->weapon[j].sprite].attribute0 = 160;  //y to > 159
 							sprites[target->weapon[j].sprite].attribute1 = 240; //x to > 239
 							sprites[target->weapon[j].sprite].attribute2 = 0;
-							target->weapon[j].life=-1;
+							target->weapon[j].life=+pl->weapon[i].damage;
 						}
 						stop=0;
 						break;
@@ -628,7 +628,7 @@ void DetectBullets(pPlayer pl)
 					dist = distanceBetweenPoints(pl->weapon[i].xpos,pl->weapon[i].ypos,planetx,planety);
 					if (dist<(pl->weapon[i].size+64)/2)
 					{
-							pl->weapon[i].life=0;
+							//pl->weapon[i].life=0;
 							stop=0;
 					}
 				}
@@ -643,7 +643,7 @@ void DetectBullets(pPlayer pl)
 
 						if (dist<(pl->weapon[i].size+25)/2)
 						{
-							pl->weapon[i].life=0;
+						//	pl->weapon[i].life=0;
 							asteroids[j].life=0;
 							stop=0;
 							break;
@@ -652,7 +652,7 @@ void DetectBullets(pPlayer pl)
 				}
 				if (stop==0&&pl->weapon[i].type!=EXP&&pl->weapon[i].type!=LASER)
 				{
-					pl->weapon[i].life=0;
+					//pl->weapon[i].life=0;
 					sprites[pl->weapon[i].sprite].attribute0 = 160;  //y to > 159
 					sprites[pl->weapon[i].sprite].attribute1 = 240; //x to > 239
 					sprites[pl->weapon[i].sprite].attribute2 = 0;
@@ -1632,13 +1632,15 @@ sprites[58].attribute2 = PauseSpriteStart+48 | PRIORITY(0);
 			if (p2->crew>0)
 				Regen(p2);
 
+			RotateSprite(0, p1->angle, zoom, zoom);
+			RotateSprite(13, p2->angle, zoom,zoom);
+
 			if (p1->postfunc!=0)
 				p1->postfunc(p1);
 			if (p2->postfunc!=0)
 				p2->postfunc(p2);
 
-			RotateSprite(0, p1->angle, zoom, zoom);
-			RotateSprite(13, p2->angle, zoom,zoom);
+
 
 			WaitForVsync();					//waits for the screen to stop drawing
 			UpdateBackground(bg0);

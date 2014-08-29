@@ -35,16 +35,24 @@ CPPSOURCES = sc.cpp \
 	androsynth.cpp \
 	human.cpp \
 	mycon.cpp \
+	shofixti.cpp \
+	mmrnmhrm.cpp \
+	chenjesu.cpp \
+	arilou.cpp \
 	sfx.cpp \
 	cyborg.cpp \
 	menu.cpp \
 	demo.cpp
 
 CSOURCES = androsynth_sfx.c \
+	arilou_sfx.c \
+	chenjesu_sfx.c \
 	human_sfx.c \
 	ilwrath_sfx.c \
+	mmrnmhrm_sfx.c \
 	mycon_sfx.c \
 	pkunk_sfx.c \
+	shofixti_sfx.c \
 	spathi_sfx.c \
 	syreen_sfx.c \
 	umgah_sfx.c \

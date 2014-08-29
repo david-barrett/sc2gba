@@ -315,7 +315,10 @@ short reinc;//pkunk
 short shield;//yehat/utwig
 short cloak;//ilwarth
 short scrambled;//trader weapon hit
-short blaze;
+short blaze;//andro
+short destruct;//shofixti
+short form; //mmrnhrm
+short charging; //chenjesu/trader
 
 
 //pPlayer opp;
@@ -393,7 +396,8 @@ enum type
 	LIMPET,
 	BUTT,
 	BUBBLE,
-	MISSILE
+	MISSILE,
+	DOGI
 
 };
 
@@ -401,8 +405,8 @@ enum type
 //1022 seems to be the last
 //game
 #define P1_SpriteStart  0
-#define P2_SpriteStart  350
-#define  PauseSpriteStart 702 //size ?
+#define P2_SpriteStart  340
+#define  PauseSpriteStart 680 //size ?
 #define SpriteAsteroidStart 744  //size 64
 #define FireSprite1   808//size 28
 #define TrailSprite   836//size =2
@@ -549,7 +553,7 @@ void MoveCrew(pWeapon);
 void SetAndrosynth(pPlayer pl);
 void SetArilou(pPlayer pl);
 void SetBlackUrq(pPlayer pl);
-void SetChenjusu(pPlayer pl);
+void SetChenjesu(pPlayer pl);
 void SetChmmr(pPlayer pl);
 void SetSupox(pPlayer pl);
 void SetHuman(pPlayer pl);

@@ -364,8 +364,7 @@ void MoveButt(pWeapon ur)
 
 void RestoreGFXSpathi(pPlayer p)
 {
-	//only restore limpets
-	//im sure laser will be fine...
+
 	for(int i=0;i<12;i++)
 	{
 		if (p->weapon[i].life>0)

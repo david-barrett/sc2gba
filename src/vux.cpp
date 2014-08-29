@@ -77,7 +77,7 @@ void LoadVux(s16 SpriteStart)
 
 int SpecialVux(pPlayer pl)
 {
-	s16 b= nextWeapon(pl,4,12);
+	s16 b= nextWeapon(pl,4,11);
 	int ret=0;
 	if (b>0)
 	{
