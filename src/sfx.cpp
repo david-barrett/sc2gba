@@ -4,20 +4,20 @@
 
 #include "gba.h"
 #include "sfx.h"
+//#include "sound/sound.h"
+#include "sound/TektronicWave.h"
 
 #define INT_TIMER0       0x0008
 #define INT_TIMER1       0x0010
 
-//#include "sound/urquan-ditty.h"
-
-
-
-int iNextSampleA=0;
-int SampleSizeA=0;
-s8 *soundA;
-int iNextSampleB=0;
-int SampleSizeB=0;
-s8 *soundB;
+u32 iNextSampleA=0;
+//u32 SampleSizeA=0;
+//s8 *soundA;
+u32 iNextSampleB=0;
+//u32 SampleSizeB=0;
+//s8 *soundB;
+const PCMSOUND *pcmsoundA;
+const PCMSOUND *pcmsoundB;
 
 
 //void InterruptProcess(void) __attribute__((section(".iwram")));
@@ -26,21 +26,16 @@ void InterruptProcess(void)
 {
 	if (REG_IF&INT_TIMER0)
 	{
-	if (!(iNextSampleA&3))
-		REG_SGFIF0A=soundA[iNextSampleA<<2];
+	if(!(iNextSampleA&3))				// use associate variable name
+				REG_SGFIF0A=(*(((u32 *)(pcmsoundA->pName))+(iNextSampleA>>2)));
+			iNextSampleA++;
+		if(iNextSampleA>pcmsoundA->nLength) { 	REG_TM0CNT=0;}
 
-	iNextSampleA++;
-
-	if (iNextSampleA>(SampleSizeA/4))
-	{
-		REG_TM0CNT=0;
-	//	REG_DMA1CNT = 0;
-	}
 	REG_IF |=INT_TIMER0;
 	}
 	//else T1
 	if (REG_IF&INT_TIMER1)
-	{
+	{/*
 		if (!(iNextSampleB&3))
 			REG_SGFIFOB=soundB[iNextSampleB<<2];
 
@@ -51,7 +46,12 @@ void InterruptProcess(void)
 			REG_TM1CNT=0;
 		//	REG_DMA1CNT = 0;
 		}
-		REG_IF |=INT_TIMER1;
+		*/
+		if(!(iNextSampleB&3))				// use associate variable name
+				REG_SGFIFOB=(*(((u32 *)(pcmsoundB->pName))+(iNextSampleB>>2)));
+			iNextSampleB++;
+			if(iNextSampleB>pcmsoundB->nLength) { 	REG_TM1CNT=0;}
+			REG_IF |=INT_TIMER1;
 	}
 
 
@@ -86,32 +86,25 @@ void init_sfx_system(void)
 // play_sfx - starts the DMA of a sample and waits for it to complete
 // PARAMETERS:  pSample - a pointer to the sample we want to play
 // RETURNS:     none
-void play_sfx(const SAMPLE *pSample,short channel)
+void play_sfx(const PCMSOUND *pSample,short channel)
 {
 	if (channel==0)
 	{
 
-	iNextSampleA=0;
-	SampleSizeA=pSample->length;//16hz
-	soundA=pSample->pData;
-
-	//REG_SOUNDCNT_H=0x0B0F;
-
-    //start timer 0
-   	REG_TM0D   = 0xffff;
-    REG_TM0CNT = 0x00C3;
+		pcmsoundA=pSample;
+		iNextSampleA=0;
+	  //  SampleSizeA=urquan_launch.nLength;
+		REG_TM0D=0xffff-(unsigned int)16772216/pSample->nSamplingRate; // aproximated
+		REG_TM0CNT=0x00C0;
 
 	}
 	else
 	{
-		iNextSampleB=0;
-		SampleSizeB=pSample->length;//16hz
-		soundB=pSample->pData;
-
-		//REG_SOUNDCNT_H=0x0B0F;
-
-		//start timer 0
-		REG_TM1D   = 0xffff;
-    	REG_TM1CNT = 0x00C3;
+		pcmsoundB=pSample;
+    	iNextSampleB=0;
+    //	SampleSizeB=urquan_launch.nLength;
+		REG_TM1D=0xffff-(unsigned int)16772216/pSample->nSamplingRate; // aproximated
+		REG_TM1CNT=0x00C0;
 	}
 }
+

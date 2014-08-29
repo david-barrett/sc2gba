@@ -8,10 +8,14 @@
 #include "gfx/urquan_fighters.h"
 #include "gfx/urquan_fighters_fire.h"
 
-#include "sound/urquan-fusion.h"
-#include "sound/urquan-fighter.h"
-#include "sound/urquan-recover.h"
-#include "sound/urquan_launch.h"
+//#include "sound/urquan-fusion.h"
+//#include "sound/urquan-fighter.h"
+//#include "sound/urquan-recover.h"
+//#include "sound/urquan_launch.h"
+
+#include "urquan_sfx.h"
+
+
 
 
 extern s32 screenx,screeny;
@@ -20,8 +24,13 @@ extern double scale;
 extern int turn;
 extern unsigned long state;
 
-void LoadDreadnaught(s16 OAMStart, s16 SpriteStart)
+int FireDreadnaught(pPlayer pl);
+int SpecialDreadnaught(pPlayer pl);
+int aiSpecialDreadnaught(pPlayer ai);
+
+void LoadDreadnaught(s16 SpriteStart)
 {
+	s16 OAMStart=16*SpriteStart;
 	s16 loop;
 	for(loop = OAMStart; loop < OAMStart+512; loop++)               //load sprite image data
   	{
@@ -108,7 +117,7 @@ int SpecialDreadnaught(pPlayer pl)
 
 	}
 	if (res>0)
-		play_sfx(&UrQuan_Launch,pl->plr-1);
+		play_sfx(&urquan_launch,pl->plr-1);
 	return res;
 }
 
@@ -141,7 +150,7 @@ int FightersFire(pWeapon f,s16 angle)
 	    sprites[pl->weapon[b].sprite].attribute2 = pl->SpriteStart+74 | PRIORITY(0);
 
 	    ModifyCrew(target,-1);
-	    play_sfx(&UrQuan_Fighter,pl->plr-1);
+	    play_sfx(&urquan_fighter,pl->plr-1);
 		return 1;
 	}
 	return 0;
@@ -181,6 +190,13 @@ void SetDreadnaught(pPlayer pl)
 
 	pl->fireangle=45;
 
+	pl->firefunc=&FireDreadnaught;
+	pl->specfunc=&SpecialDreadnaught;
+	pl->aispecfunc=&aiSpecialDreadnaught;
+	pl->loadfunc=&LoadDreadnaught;
+
+	pl->ditty=&urquan_ditty;
+
 }
 
 int FireDreadnaught(pPlayer pl)
@@ -214,7 +230,7 @@ int FireDreadnaught(pPlayer pl)
     sprites[pl->weapon[b].sprite].attribute1 = SIZE_16 | ROTDATA(pl->weapon[b].sprite) | pl->weapon[b].xscreen;
     sprites[pl->weapon[b].sprite].attribute2 = pl->SpriteStart+64 | PRIORITY(1);
 
-	play_sfx(&UrQuan_Fusion,pl->plr-1);
+	play_sfx(&urquan_fusion,pl->plr-1);
     return 1;
 	}
 	return 0;
@@ -258,14 +274,14 @@ void MoveURFighters(pWeapon ur)
 			//mothership crew++;
 			ModifyCrew(parent,1);
 			MoveOffscreen(&sprites[ur->sprite]);
-			play_sfx(&UrQuan_Recover,parent->plr-1);
+			play_sfx(&urquan_recover,parent->plr-1);
 			return;
 		}
 		//desired angle = mothership
 		angle = FindAngle(ur->xpos,ur->ypos,parent->xpos,parent->ypos);
 
 	}
-	else
+	else if (target->cloak==0) //so if hidden we fly on same route
 	{
 
 		//if in range fire

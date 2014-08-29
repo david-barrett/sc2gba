@@ -30,8 +30,13 @@ SOURCES = sc.cpp \
 	choose.cpp \
 	restore.cpp \
 	pkunk.cpp \
+	pkunk_sfx.c \
 	urquan.cpp \
 	yehat.cpp \
+	yehat_sfx.c \
+	ilwrath.cpp \
+	ilwrath_sfx.c \
+	urquan_sfx.c \
 	sfx.cpp
 OBJECTS = $(SOURCES:.cpp=.o)
 

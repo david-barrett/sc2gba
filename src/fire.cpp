@@ -17,11 +17,13 @@ void Fire(pPlayer pl)
 	int ret=0;
 	if (pl->weapon_turn==0&&pl->batt>pl->firebatt)
 	{
-
+		ret=pl->firefunc(pl);
+		/*
 		switch(pl->ship)
 		{
 		case DREADNAUGHT:
-			ret=FireDreadnaught(pl);
+		//	ret=FireDreadnaught(pl);
+
 			break;
 		case FURY:
 			ret=FireFury(pl);
@@ -32,6 +34,7 @@ void Fire(pPlayer pl)
 		default:
 			break;
 		}
+		*/
 		if (ret==1)
 		{
 			ModifyBatt(pl,-1*pl->firebatt);

@@ -11,6 +11,7 @@
 #include "keypad.h"     //button registers
 #include "shipgfx.h"
 #include "sfx.h"
+#include "sound/TektronicWave.h"
 
 //#include "gfx/gfx.h"
 //#include "gfx/gfx_symbols.h"
@@ -226,6 +227,14 @@ short fighters;//urquan fighters
 
 s16 spriteoffset;
 s16 angleoffset;
+
+//functions
+int (*firefunc)(Player*);
+int (*specfunc)(Player*);
+int (*aispecfunc)(Player*);
+void (*loadfunc)(s16);
+
+const PCMSOUND *ditty;
 }Player, *pPlayer;
 
 
@@ -265,6 +274,7 @@ const s16 UR_FIGHTERS=1;
 const s16 EXP=2;
 const s16 UR_FIGHTERS_FIRE=3;
 const s16 TRAIL=4;
+const s16 ILWRATHFIRE=5;
 
 
 //OAM memory sprite = oam/16
@@ -363,29 +373,19 @@ int DetectWeaponToShip(pPlayer p,pWeapon w);
 //hope to some of these later
 
 //fury
-int aiSpecialFury(pPlayer ai);
 int DeathFury(pPlayer pl);
-int SpecialFury(pPlayer pl);
-int FireFury(pPlayer pl);
-int FireFuryA(pPlayer pl,s32 angle);
-void LoadFury(s16 OAMStart, s16 SpriteStart);
 void SetFury(pPlayer pl);
 
 //urquan
-int aiSpecialDreadnaught(pPlayer ai);
-int FireDreadnaught(pPlayer pl);
 void SetDreadnaught(pPlayer pl);
 int FightersFire(pWeapon f,s16 angle);
-int SpecialDreadnaught(pPlayer pl);
-void LoadDreadnaught(s16 OAMStart, s16 SpriteStart);
 void MoveURFighters(pWeapon ur);
 
 //yehat
-int aiSpecialYehat(pPlayer ai);
-int FireYehat(pPlayer pl);
 void SetYehat(pPlayer pl);
-int SpecialYehat(pPlayer pl);
-void LoadYehat(s16 OAMStart, s16 SpriteStart);
+
+//ilwrath
+void SetIlwrath(pPlayer pl);
 #endif
 
 /*128 sprites first 32 rotate

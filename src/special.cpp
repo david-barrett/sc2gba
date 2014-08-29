@@ -20,7 +20,8 @@ int Special(pPlayer pl)
 	int ret=0;
 	if (pl->special_turn==0&&pl->batt>pl->specbatt)
 	{
-
+		ret=pl->specfunc(pl);
+		/*
 		switch(pl->ship)
 		{
 		case DREADNAUGHT:
@@ -35,6 +36,7 @@ int Special(pPlayer pl)
 		default:
 			break;
 		}
+		*/
 		if (ret>0)
 		{
 			ModifyBatt(pl,-1*pl->specbatt);
@@ -62,29 +64,4 @@ int nextSpecSprite(pPlayer pl)
 			return i;
 	}
 	return -1;
-}
-
-
-
-
-
-
-int aidospecial(pPlayer pl)
-{
-	int ret=0;
-	switch(pl->ship)
-			{
-			case DREADNAUGHT:
-				ret=aiSpecialDreadnaught(pl);
-				break;
-			case FURY:
-				ret=aiSpecialFury(pl);
-				break;
-			case TERMINATOR:
-				ret=aiSpecialYehat(pl);
-				break;
-			default:
-				break;
-		}
-		return ret;
 }

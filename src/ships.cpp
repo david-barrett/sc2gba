@@ -66,7 +66,7 @@ void LoadTrail(s16 OAMStart)
    	}
 }
 
-
+/*
 void ReallyLoadShip(s16 ship,s16 OAMStart, s16 SpriteStart)
 {
 	switch (ship)
@@ -84,7 +84,7 @@ void ReallyLoadShip(s16 ship,s16 OAMStart, s16 SpriteStart)
 	default:;
 	}
 }
-
+*/
 void LoadPal()
 {
 	s16 loop;
@@ -92,12 +92,12 @@ void LoadPal()
 		OBJPaletteMem[loop] = pkunkPalette[loop];
 
 }
-
+/*
 void LoadShip(pPlayer pl)
 {
 	ReallyLoadShip(pl->ship,pl->OAMStart,pl->SpriteStart);
 }
-
+*/
 void LoadAllShips(s16 OAMStart)
 {
 	s16 loop;

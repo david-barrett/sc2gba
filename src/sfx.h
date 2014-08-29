@@ -8,6 +8,7 @@
 // includes
 #include "gba.h"
 #include "sc.h"
+#include "sound/TektronicWave.h"
 
 // some defines
 #define SND_ENABLED           0x00000080
@@ -47,6 +48,6 @@ typedef struct _sample
 
 // function declarations
 void init_sfx_system(void);
-void play_sfx(const SAMPLE *pSample,short channel);
+void play_sfx(const PCMSOUND *pSample,short channel);
 
 #endif

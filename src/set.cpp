@@ -61,5 +61,8 @@ void SetShip(pPlayer pl)
 		case TERMINATOR:
 			SetYehat(pl);
 			break;
+		case AVENGER:
+			SetIlwrath(pl);
+			break;
 	}
 }

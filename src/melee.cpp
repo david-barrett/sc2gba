@@ -444,15 +444,43 @@ s16 FindAngle(s32 x,s32 y, s32 ox, s32 oy)
 	if (angle<0) //make positive
 		angle=(angle*-1);
 
+	//normalise to nearest 15.
+	//big assumption:tan only returns 0-90?
+	//0 =0-7
+	//15 = 8-22
+	//30 = 23-37
+	//45 = 38-52
+	//60 = 53-67
+	//75 = 68-82
+	//90 = 83-90
+
+	if (angle<=7)
+		angle=0;
+	else if (angle>=8&&angle<=22)
+		angle=15;
+	else if (angle>=23&&angle<=37)
+		angle=15;
+	else if (angle>=38&&angle<=52)
+		angle=45;
+	else if (angle>=53&&angle<=67)
+		angle=15;
+	else if (angle>=68&&angle<=82)
+		angle=75;
+	else if (angle<=90)
+		angle=90;
+
+
+
 	if (ox>x&&oy>y)
 		final=90+angle;//right?
-
 	else if (ox>x&&oy<=y)
 		final=90-angle;//right
 	else if (ox<=x&&oy>y)
 		final=270-angle;
 	else if (ox<=x&&oy<=y)
 		final=270+angle;//right
+
+
 
 
 
@@ -497,8 +525,10 @@ void MoveBullets(pPlayer pl)
 		if (pl->weapon[i].life>0)
 		{
 
-			if (pl->weapon[i].type==SIMPLE)
+			if (pl->weapon[i].type==SIMPLE||pl->weapon[i].type==ILWRATHFIRE)
 			{
+				if (pl->weapon[i].type==ILWRATHFIRE)
+					DrawExplosion(&pl->weapon[i]);
 				pPlayer target=(pPlayer)pl->weapon[i].target;
 				pl->weapon[i].xpos+=pl->weapon[i].xspeed;
 				pl->weapon[i].ypos-=pl->weapon[i].yspeed;
@@ -622,7 +652,8 @@ void Thrust(pPlayer plr)
 
 	plr->xspeed = (plr->xspeed + x)/(SPEED_REDUCT*2);
 	plr->yspeed = (plr->yspeed + y)/(SPEED_REDUCT*2);
-	CreateTrail(plr);
+	if (plr->cloak==0)
+		CreateTrail(plr);
 	}
 
 }
@@ -649,7 +680,8 @@ void Regen(pPlayer pl)
 		ModifyBatt(pl,1);
 	}
 
-	if (pl->ship==TERMINATOR&&pl->shield>0)
+	//if (pl->ship==TERMINATOR&&pl->shield>0)
+	if (pl->shield>0)
 	{
 		pl->shield--;
 		if (pl->shield==0)
@@ -946,7 +978,7 @@ void aiTurn(pPlayer ai)
 
 			if(ai->aispecial==0)
 			{
-				if (aidospecial(ai))//decide if do special
+				if (ai->aispecfunc(ai))//decide if do special
 					ai->aispecial=1;
 			}
 			if (ai->aispecial==1)//do special
@@ -1315,6 +1347,11 @@ void ProcessPlayer(pPlayer pl,s8 *EndGame)
 			if (DeathFury(pl)==1)
 				return;
 		}
+		pPlayer opp = (pPlayer)pl->opp;
+		if (opp->crew>0&&*EndGame==20)
+		{
+			play_sfx(opp->ditty,opp->plr-1);
+		}
 		*EndGame=*EndGame-1;
 		DetonateShip(pl);
 	}
@@ -1385,14 +1422,17 @@ void Melee(pPlayer p1,pPlayer p2,Bg *bg0, Bg *bg1)
 
 	//try - should load in sc2.cpp but oam mem seems to be blank...
 	LoadPal();
-	LoadShip(p1);
-	LoadShip(p2);
+	//LoadShip(p1);
+	//LoadShip(p2);
+	p1->loadfunc(p1->SpriteStart);
+	p2->loadfunc(p2->SpriteStart);
+
 	LoadExp(OAMFireSprite1,FireSprite1);
 	LoadTrail(OAMTrailSprite);
 	LoadPlanet(OAMPlanetSprite);
 	LoadAsteroid(OAMAsteroidStart);
 
-	//p1->crew=1;
+	p1->crew=1;
 
 	InitializeSprites();                       //set all sprites off screen (stops artifact)
 

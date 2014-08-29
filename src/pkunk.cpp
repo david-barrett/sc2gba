@@ -6,11 +6,21 @@
 #include "gfx/pkunk_out.h"
 #include "gfx/pkunk_fire.h"
 
+#include "pkunk_sfx.h"
+#include "TektronicWave.h"
+
 extern s32 screenx,screeny;
 extern pOAMEntry sprites;
 extern double scale;
 extern int turn;
 extern unsigned long state;
+
+int FireFury(pPlayer pl);
+int SpecialFury(pPlayer pl);
+int aiSpecialFury(pPlayer pl);
+void LoadFury(s16 SpriteStart);
+
+const PCMSOUND insults[] = {pkunk_baby,pkunk_dodo,pkunk_fool,pkunk_idiot,pkunk_jerk,pkunk_loser,pkunk_moron,pkunk_nerd,pkunk_nitwit,pkunk_stupid,pkunk_twit,pkunk_wimp,pkunk_worm};
 
 void SetFury(pPlayer pl)
 {
@@ -43,10 +53,18 @@ void SetFury(pPlayer pl)
 
 	pl->fireangle=100;
 
+	pl->firefunc=&FireFury;
+	pl->specfunc=&SpecialFury;
+	pl->aispecfunc=&aiSpecialFury;
+	pl->loadfunc=&LoadFury;
+
+	pl->ditty=&pkunk_ditty;
+
 }
 
-void LoadFury(s16 OAMStart, s16 SpriteStart)
+void LoadFury(s16 SpriteStart)
 {
+	s16 OAMStart=16*SpriteStart;
 	s16 loop;
 	for(loop = OAMStart; loop < OAMStart+512; loop++)               //load sprite image data
     {
@@ -122,7 +140,12 @@ int FireFury(pPlayer pl)
 		angle-=360;
 	r3=FireFuryA( pl,angle);
 
-	return (r1||r2||r3);
+	int r=r1||r2||r3;
+
+	if (r)
+		play_sfx(&pkunk_bullet,pl->plr-1);
+
+	return (r);
 }
 
 int SpecialFury(pPlayer pl)
@@ -132,6 +155,8 @@ int SpecialFury(pPlayer pl)
 	{
 		ModifyCrew(pl,4);
 	}
+	play_sfx(&insults[ran(0,13)],pl->plr-1);
+
 	return 1;
 }
 
@@ -149,6 +174,7 @@ int DeathFury(pPlayer pl)
 		pl->xspeed=0;
 		pl->yspeed=0;
 		pl->reinc=3;
+		play_sfx(&pkunk_ress,pl->plr-1);
 		return 1;
 	}
 	return 0;

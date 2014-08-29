@@ -7,6 +7,8 @@
 #include "gfx/yehat_fire.h"
 #include "gfx/yehat_shield.h"
 
+#include "yehat_sfx.h"
+
 
 extern s32 screenx,screeny;
 extern pOAMEntry sprites;
@@ -14,8 +16,13 @@ extern double scale;
 extern int turn;
 extern unsigned long state;
 
-void LoadYehat(s16 OAMStart, s16 SpriteStart)
+int FireYehat(pPlayer pl);
+int SpecialYehat(pPlayer pl);
+int aiSpecialYehat(pPlayer pl);
+
+void LoadYehat(s16 SpriteStart)
 {
+	s16 OAMStart=16*SpriteStart;
 	s16 loop;
 	for(loop = OAMStart; loop < OAMStart+512; loop++)               //load sprite image data
   	{
@@ -35,8 +42,8 @@ int SpecialYehat(pPlayer pl)
 {
 	pl->shield=6;
 	pl->spriteoffset=64;
-	sprites[(pl->plr=1)?0:13].attribute2 = pl->SpriteStart+pl->spriteoffset | PRIORITY(1);
-
+	sprites[(pl->plr==1)?0:13].attribute2 = pl->SpriteStart+pl->spriteoffset | PRIORITY(1);
+	play_sfx(&yehat_shield,pl->plr-1);
 	return 1;
 }
 
@@ -73,6 +80,13 @@ void SetYehat(pPlayer pl)
 	pl->range=200;
 
 	pl->fireangle=45;
+
+	pl->firefunc=&FireYehat;
+	pl->specfunc=&SpecialYehat;
+	pl->aispecfunc=&aiSpecialYehat;
+	pl->loadfunc=&LoadYehat;
+
+	pl->ditty=&yehat_ditty;
 
 }
 
@@ -117,6 +131,7 @@ int FireYehat(pPlayer pl)
 
     ret++;
 	}
+	play_sfx(&yehat_fire,pl->plr-1);
 	}
 	return ret;
 }

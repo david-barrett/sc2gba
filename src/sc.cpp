@@ -19,8 +19,7 @@
 
 //sound
 #include "sfx.h"
-#include "bullhorn.h"
-#include "sound/urquan-ditty.h"
+#include "urquan_sfx.h"
 
 typedef void (*fnptr)(void);
 #define REG_INTMAIN *(fnptr*)(0x03fffffc)
@@ -58,10 +57,12 @@ int ran(int min, int max)
 void ChooseShips(pPlayer pl, pPlrList list)
 {
 	//chooses team of 14 ships
-
+/*
 	//cheating
 	for (int i=0;i<14;i++)
 	{
+		if  (i%4==0)
+			list[i].ship=AVENGER;
 		if  (i%3==0)
 			list[i].ship=TERMINATOR;
 		else if  (i%2==0)
@@ -70,19 +71,36 @@ void ChooseShips(pPlayer pl, pPlrList list)
 			list[i].ship=FURY;
 		list[i].active=1;
 	}
+*/
+	for (int i=0;i<4;i++)
+		list[i].active=1;
+	for (int i=4;i<14;i++)
+		list[i].active=0;
+	list[0].ship=FURY;
+	list[1].ship=TERMINATOR;
+	list[2].ship=DREADNAUGHT;
+	list[3].ship=AVENGER;
+
+
+
+
 }
 
 int ChooseNextShipRand(pPlrList list)
 {
 	int ret=1;
-	int choose=-1;
+	int choose=ran(0,13);
 	do
 	{
-		choose=ran(0,13);
-		{
-			if (list[choose].active==1)
+		if (list[choose].active==1)
 				ret=0;
+		else
+		{
+			choose++;
+			if (choose==14)
+				choose=0;
 		}
+
 	}
 	while (ret);
 
@@ -402,6 +420,7 @@ for (int i=0;i<12;i++)
 
 		 //test sound
 		init_sfx_system();
+	//	play_sfx(&urquan_ditty,1);
 		play_sfx(&urquan_ditty,1);
 
 		while (*KEYS & KEY_START);
@@ -436,8 +455,10 @@ for (int i=0;i<12;i++)
 		SetNew(p2);
 		/*
 		LoadPal();
-		LoadShip(p1);
-		LoadShip(p2);
+		//LoadShip(p1);
+		//LoadShip(p2);
+		p1->loadfunc(p1->SpriteStart);
+		p2->loadfunc(p2->SpriteStart);
 		LoadExp(OAMFireSprite1,FireSprite1);
 		LoadTrail(OAMTrailSprite);
 		LoadPlanet(OAMPlanetSprite);
@@ -455,7 +476,10 @@ for (int i=0;i<12;i++)
 				{	p1->ship=plist1[nextp1].ship;
        				SetShip(p1);
        				SetNew(p1);
-       				LoadShip(p1);
+       				//LoadShip(p1);
+       				p1->loadfunc(p1->SpriteStart);
+
+
 				}
 			}
 
@@ -468,7 +492,8 @@ for (int i=0;i<12;i++)
 				{	p2->ship=plist2[nextp2].ship;
 					SetShip(p2);
 				    SetNew(p2);
-				    LoadShip(p2);
+				    //LoadShip(p2);
+				    p2->loadfunc(p2->SpriteStart);
 				}
 			}
 
