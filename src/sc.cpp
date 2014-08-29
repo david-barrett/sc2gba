@@ -135,11 +135,11 @@ int ChooseNextShip(pPlayer pl, pPlrList list)
 	sprites[56].attribute2 = SpriteAllShips+832 | PRIORITY(1);
 	if (found==0)
 		return -1;
-
-	if (pl->ai>PLAYER2)
+// TAKEN OUT TEMPORARILY SO I CAN CHOOSE OPP
+	/*if (pl->ai>PLAYER2)
 	{
 		return ChooseNextShipRand(list);
-	}
+	}*/
 	LoadPal();
 	LoadAllShips(OAMAllships);
 	for (i=0;i<5;i++)
@@ -368,11 +368,14 @@ for (int i=0;i<12;i++)
 	// more transparent, the high byte of REG_COLV increases, and the low byte
 	// decreases.
 
-    for(loop = 0; loop < 360; loop++)
-	{
-		SIN2[loop] = (FIXED)(sin(RADIAN(loop)) * 256);  //sin and cos are computed and cast to fixed							//fixed
-		COS2[loop] = (FIXED)(cos(RADIAN(loop)) * 256);
-	}
+
+	//this slows it all down -remove.
+	for(loop = 0; loop < 360; loop++)
+				{
+					SIN2[loop] = (FIXED)(sin(RADIAN(loop)) * 256);  //sin and cos are computed and cast to fixed							//fixed
+					COS2[loop] = (FIXED)(cos(RADIAN(loop)) * 256);
+			}
+
 
 
        SetMode(MODE_1 | OBJ_ENABLE | OBJ_MAP_1D); //set mode 1 and enable sprites and 1d mapping
@@ -423,6 +426,8 @@ for (int i=0;i<12;i++)
 
 		play_sfx(&urquan_ditty,1);
 
+
+
 		while (*KEYS & KEY_START);
 		sprites[30].attribute0 = COLOR_256 | SQUARE | ROTATION_FLAG | SIZE_DOUBLE | MODE_TRANSPARENT | 20;	//setup sprite info, 256 colour, shape and y-coord
 		sprites[30].attribute1 = SIZE_8 | ROTDATA(30) | 50;
@@ -448,11 +453,17 @@ for (int i=0;i<12;i++)
 		s16 nextp1=ChooseNextShip(p1,plist1);
 		p1->ship=plist1[nextp1].ship;
 		s16 nextp2=ChooseNextShip(p2,plist2);
+		print("\n  choosen p2");
 		p2->ship=plist2[nextp2].ship;
+		print("\n  assigned p2");
 		SetShip(p1);
+		print("\n  set p1");
 		SetShip(p2);
+		print("\n  set p2");
 		SetNew(p1);
+		print("\n  set p1 new");
 		SetNew(p2);
+		print("\n  done settings");
 		/*
 		LoadPal();
 		//LoadShip(p1);

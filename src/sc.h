@@ -18,6 +18,7 @@
 //#include "gfx/gfx_symbols.h"
 
 
+typedef signed short 	COUNT;
 /* heat of battle specific flags */
 #define LEFT                   (1 << 0)
 #define RIGHT                  (1 << 1)
@@ -194,6 +195,28 @@ enum skill
 	DISABLED=6
 };
 
+typedef struct Object
+{
+s32 xpos ;
+s32 ypos ;
+s16 xscreen;
+s16 yscreen;
+s32 angle;
+
+s32 xspeed;
+s32 yspeed;
+
+s16 type;
+void* parent;
+
+s16 which_turn;
+s16 MoveState;
+
+s16 life;
+s16 size;
+
+}Object,*pObject;
+
 
 typedef struct Player
 {
@@ -222,6 +245,7 @@ s16 accel_inc;
 s16 firebatt;
 s16 specbatt;
 s16 plr;
+s16 batt_regen;
 
 s16 batt_wait;
 s16 turn_wait;
@@ -257,6 +281,7 @@ s8 aispecial;
 
 s16 ManeuverabilityIndex;
 s8 ship_input_state;
+s8 ship_flags;
 
 
 s16 range;
@@ -277,10 +302,12 @@ s16 angleoffset;
 //functions
 int (*firefunc)(Player*);
 int (*specfunc)(Player*);
-int (*aispecfunc)(Player*);
+int (*aifunc)(Player*, pObject,COUNT);
 void (*loadfunc)(s16);
 
 const PCMSOUND *ditty;
+
+s32 ship_input_flags;
 }Player, *pPlayer;
 
 
@@ -315,12 +342,22 @@ const s16 TORCH =18; //tharddash torch 1/5/5/5/8/5/6/1  missile (home?) + flame 
 const s16 TRADER =8; //melnorme trader 4/9/6/4/4/6/9/2-9 weapon var range + power + disable?
 const s16 TRANSFORMER =9;//mmrnmhrm transformer 4/2/8/6/7/1/1/6 + 4/2/5/9/1/9/9/2 lazer/missile + transform
 
-const s16 SIMPLE=0;
-const s16 UR_FIGHTERS=1;
-const s16 EXP=2;
-const s16 UR_FIGHTERS_FIRE=3;
-const s16 TRAIL=4;
-const s16 ILWRATHFIRE=5;
+
+enum type
+{
+	 PLAYER=0,
+	ASTEROID,
+	PLANET,
+	TRAIL,
+	EXP,
+	SIMPLE,
+	UR_FIGHTERS,
+	UR_FIGHTERS_FIRE,
+	ILWRATHFIRE,
+	CREW
+
+};
+
 
 
 //OAM memory sprite = oam/16
@@ -438,10 +475,25 @@ void SetIlwrath(pPlayer pl);
 
 
 //remove?
-void PursueShip (pPlayer ShipPtr, pPlayer enemyShipPtr);
-void Entice(pPlayer);
-void ship_intelligence (pPlayer ShipPtr);
+//void PursueShip (pPlayer ShipPtr, pPlayer enemyShipPtr);
+//void Entice(pPlayer);
+//void ship_intelligence (pPlayer ShipPtr);
+void ship_intelligence (pPlayer ShipPtr, pObject ObjectsOfConcern, COUNT ConcernCounter);
+s16 tactical_intelligence (pPlayer StarShipPtr );
 int InRange(s32 xpos,s32 ypos,s32 txpos,s32 typos,s16 range);
+COUNT PlotIntercept (pPlayer ElementPtr0, pObject ElementPtr1, COUNT max_turns, COUNT margin_of_error);
+
+//intel
+enum
+{
+	ENEMY_SHIP_INDEX = 0,
+	CREW_OBJECT_INDEX,
+	ENEMY_WEAPON_INDEX,
+	GRAVITY_MASS_INDEX,
+	FIRST_EMPTY_INDEX
+};
+
+
 #endif
 
 /*128 sprites first 32 rotate

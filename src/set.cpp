@@ -8,7 +8,7 @@ extern pOAMEntry sprites;
 void SetNew(pPlayer pl)
 {
 	//set random loc && facing
-
+	print("in set new");
 	//
 	pl->batt_turn=0;
 	pl->turn_turn=0;
@@ -24,7 +24,7 @@ void SetNew(pPlayer pl)
 		pl->weapon[i].life=-1;
 		MoveOffscreen(&sprites[pl->weapon[i].sprite]);
 	}
-
+	print("A");
 	pl->warp=6;
 	pl->xspeed = ((20) * (s32)SIN[pl->angle])>>8;
 	pl->yspeed = ((20) * (s32)COS[pl->angle])>>8;
@@ -44,7 +44,9 @@ void SetNew(pPlayer pl)
 
 	pl->ManeuverabilityIndex=0;
 
+	print("gen start");
 	GenerateStart(pl);
+	print("end set new");
 }
 
 

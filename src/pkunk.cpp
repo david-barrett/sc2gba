@@ -17,7 +17,7 @@ extern unsigned long state;
 
 int FireFury(pPlayer pl);
 int SpecialFury(pPlayer pl);
-int aiSpecialFury(pPlayer pl);
+int aiFury(pPlayer pl, pObject ObjectsOfConcern, COUNT ConcernCounter);
 void LoadFury(s16 SpriteStart);
 
 const PCMSOUND insults[] = {pkunk_baby,pkunk_dodo,pkunk_fool,pkunk_idiot,pkunk_jerk,pkunk_loser,pkunk_moron,pkunk_nerd,pkunk_nitwit,pkunk_stupid,pkunk_twit,pkunk_wimp,pkunk_worm};
@@ -34,7 +34,7 @@ void SetFury(pPlayer pl)
 	pl->accel_inc=16;
 
 	pl->firebatt=1;
-	pl->specbatt=2;
+	pl->specbatt=0;
 
 	pl->offset=25;
 
@@ -43,6 +43,7 @@ void SetFury(pPlayer pl)
 	pl->thrust_wait=0;
 	pl->weapon_wait=0;
 	pl->special_wait=16;
+	pl->batt_regen=0;
 
 	s16 o = (pl->plr-1)*13;
 
@@ -55,7 +56,7 @@ void SetFury(pPlayer pl)
 
 	pl->firefunc=&FireFury;
 	pl->specfunc=&SpecialFury;
-	pl->aispecfunc=&aiSpecialFury;
+	pl->aifunc=&aiFury;
 	pl->loadfunc=&LoadFury;
 
 	pl->ditty=&pkunk_ditty;
@@ -150,12 +151,12 @@ int FireFury(pPlayer pl)
 
 int SpecialFury(pPlayer pl)
 {
-	int r = ran(0,9);
-	if (r<3)
-	{
-		ModifyCrew(pl,4);
-	}
-	play_sfx(&insults[ran(0,13)],pl->plr-1);
+
+	ModifyBatt(pl,2);
+	int r=ran(0,12);
+	play_sfx(&insults[r],pl->plr-1);
+	print("\nspecial:");
+	print(r);
 
 	return 1;
 }
@@ -181,10 +182,10 @@ int DeathFury(pPlayer pl)
 }
 
 
-int aiSpecialFury(pPlayer ai)
+int aiFury(pPlayer ai, pObject ObjectsOfConcern, COUNT ConcernCounter)
 {
-	if (ai->crew<3)
-		return 1;
-	else
-		return 0;
+	if (ai->batt<ai->maxbatt&&ai->special_turn==0&&ran(0,150)<20*ai->ai)
+		ai->ship_input_state |= SPECIAL;
+
+	ship_intelligence(ai,ObjectsOfConcern, ConcernCounter);
 }

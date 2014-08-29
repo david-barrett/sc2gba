@@ -26,7 +26,7 @@ extern unsigned long state;
 
 int FireDreadnaught(pPlayer pl);
 int SpecialDreadnaught(pPlayer pl);
-int aiSpecialDreadnaught(pPlayer ai);
+int aiDreadnaught(pPlayer ShipPtr, pObject ObjectsOfConcern, COUNT ConcernCounter);
 
 void LoadDreadnaught(s16 SpriteStart)
 {
@@ -192,10 +192,11 @@ void SetDreadnaught(pPlayer pl)
 
 	pl->firefunc=&FireDreadnaught;
 	pl->specfunc=&SpecialDreadnaught;
-	pl->aispecfunc=&aiSpecialDreadnaught;
+	pl->aifunc=&aiDreadnaught;
 	pl->loadfunc=&LoadDreadnaught;
 
 	pl->ditty=&urquan_ditty;
+	pl->batt_regen=1;
 
 }
 
@@ -236,12 +237,47 @@ int FireDreadnaught(pPlayer pl)
 	return 0;
 }
 
-int aiSpecialDreadnaught(pPlayer ai)
+int aiDreadnaught(pPlayer ai, pObject ObjectsOfConcern, COUNT ConcernCounter)
 {
-	if (ai->crew>8&&ai->fighters<4)
-		return 1;
-	else
-		return 0;
+
+		pObject lpEvalDesc;
+
+		ObjectsOfConcern[ENEMY_SHIP_INDEX].MoveState = PURSUE;
+		lpEvalDesc = &ObjectsOfConcern[ENEMY_WEAPON_INDEX];
+		if (lpEvalDesc->parent
+				&& lpEvalDesc->MoveState == ENTICE
+				&& (!(lpEvalDesc->type == CREW)
+				|| lpEvalDesc->which_turn <= 8))
+			//	&& (!(lpEvalDesc->ObjectPtr->state_flags & FINITE_LIFE)
+				//|| (lpEvalDesc->ObjectPtr->mass_points >= 4
+			//	&& lpEvalDesc->which_turn == 2
+			//	&& ObjectsOfConcern[ENEMY_SHIP_INDEX].which_turn > 16)))
+			lpEvalDesc->MoveState = PURSUE;
+
+		ship_intelligence(ai,ObjectsOfConcern, ConcernCounter);
+
+
+
+		lpEvalDesc = &ObjectsOfConcern[ENEMY_SHIP_INDEX];
+		{
+
+			pPlayer opp = (pPlayer)ai->opp;
+			if (ai->special_turn == 0
+					&& lpEvalDesc->parent
+					&& ai->crew > 10
+					&& !(opp->ship_flags	& POINT_DEFENSE)
+					&& (ai->special_wait < 6
+					|| opp->ManeuverabilityIndex <= SLOW_SHIP
+					&& !(opp->speed<opp->maxspeed))
+					|| (lpEvalDesc->which_turn <= 12
+					&& (ai->ship_input_state & (LEFT | RIGHT))
+					&& ai->batt >= 20))
+				ai->ship_input_state |= SPECIAL;
+			else
+				ai->ship_input_state &= ~SPECIAL;
+		}
+
+
 }
 
 void MoveURFighters(pWeapon ur)

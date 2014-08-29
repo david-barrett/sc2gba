@@ -677,7 +677,7 @@ void Regen(pPlayer pl)
 	if (pl->batt<pl->maxbatt&&pl->batt_turn==0)
 	{
 		pl->batt_turn=pl->batt_wait*5;
-		ModifyBatt(pl,1);
+		ModifyBatt(pl,pl->batt_regen);
 	}
 
 	//if (pl->ship==TERMINATOR&&pl->shield>0)
@@ -973,7 +973,19 @@ void aiTurn(pPlayer ai)
 
 	//PursueShip ( ai, (pPlayer)ai->opp);
 	//Entice(ai);
-	ship_intelligence (ai);
+	//ship_intelligence (ai);
+	tactical_intelligence (ai);
+
+	if (ai->ship_input_state & LEFT)
+				TurnLeft(ai);
+		else if (ai->ship_input_state & RIGHT)
+				TurnRight(ai);
+		if (ai->ship_input_state & THRUST)
+				Thrust(ai);;
+		if (ai->ship_input_state & WEAPON)
+				Fire(ai);
+		if (ai->ship_input_state & SPECIAL)
+			Special(ai);
 
 	/*
 	//do special?

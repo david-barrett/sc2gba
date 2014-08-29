@@ -18,7 +18,7 @@ extern unsigned long state;
 
 int FireYehat(pPlayer pl);
 int SpecialYehat(pPlayer pl);
-int aiSpecialYehat(pPlayer pl);
+int aiYehat(pPlayer ShipPtr, pObject ObjectsOfConcern, COUNT ConcernCounter);
 
 void LoadYehat(s16 SpriteStart)
 {
@@ -68,6 +68,7 @@ void SetYehat(pPlayer pl)
 	pl->thrust_wait=2;
 	pl->weapon_wait=0;
 	pl->special_wait=2;
+	pl->batt_regen=2;
 
 	s16 o = (pl->plr-1)*13;
 
@@ -83,7 +84,7 @@ void SetYehat(pPlayer pl)
 
 	pl->firefunc=&FireYehat;
 	pl->specfunc=&SpecialYehat;
-	pl->aispecfunc=&aiSpecialYehat;
+	pl->aifunc=&aiYehat;
 	pl->loadfunc=&LoadYehat;
 
 	pl->ditty=&yehat_ditty;
@@ -136,11 +137,71 @@ int FireYehat(pPlayer pl)
 	return ret;
 }
 
-int aiSpecialYehat(pPlayer ai)
+int aiYehat(pPlayer ai, pObject ObjectsOfConcern, COUNT ConcernCounter)
 {
-	if (ai->crew>8&&ai->fighters<4)
-	//if can be hit
-		return 1;
-	else
-		return 0;
+	s16 ShieldStatus;
+	//	STARSHIPPTR StarShipPtr;
+		pObject lpEvalDesc;
+
+		pPlayer opp = (pPlayer)ai->opp;
+
+		ShieldStatus = -1;
+		lpEvalDesc = &ObjectsOfConcern[ENEMY_WEAPON_INDEX];
+		/*
+		if (lpEvalDesc->ObjectPtr && lpEvalDesc->MoveState == ENTICE)
+		{
+			ShieldStatus = 0;
+		//	if (!(lpEvalDesc->	->state_flags & (FINITE_LIFE | CREW_OBJECT)))
+			//	lpEvalDesc->MoveState = PURSUE;
+			//else
+			if (lpEvalDesc.type==CREW))
+			{
+				if (!(lpEvalDesc->ObjectPtr->state_flags & FINITE_LIFE))
+					lpEvalDesc->which_turn <<= 1;
+				else
+				{
+					if ((lpEvalDesc->which_turn >>= 1) == 0)
+						lpEvalDesc->which_turn = 1;
+
+					if (lpEvalDesc->ObjectPtr->mass_points)
+						lpEvalDesc->ObjectPtr = 0;
+					else
+						lpEvalDesc->MoveState = PURSUE;
+				}
+				ShieldStatus = 1;
+			}
+		}
+		*/
+
+		if (ai->special_turn == 0)
+		{
+			ai->ship_input_state &= ~SPECIAL;
+			if (ShieldStatus)
+			{
+				if (ai->crew <= 10
+						&& (ShieldStatus > 0 || lpEvalDesc->parent)
+						&& lpEvalDesc->which_turn <= 2
+						&& (ShieldStatus > 0
+						|| (lpEvalDesc->type==PLAYER)
+						|| PlotIntercept (ai,lpEvalDesc, 2, 0))
+						&& (ran(0,10) < ai->ai))
+					ai->ship_input_state |= SPECIAL;
+	/*
+				if (lpEvalDesc->ObjectPtr
+						&& !(lpEvalDesc->ObjectPtr->state_flags & CREW_OBJECT))
+					lpEvalDesc->ObjectPtr = 0;*/
+			}
+		}
+
+		if ((lpEvalDesc = &ObjectsOfConcern[ENEMY_SHIP_INDEX]))
+		{
+		//	STARSHIPPTR EnemyStarShipPtr;
+
+		//	GetElementStarShip (lpEvalDesc->ObjectPtr, &EnemyStarShipPtr);
+			if (!(opp->ship_flags
+					& IMMEDIATE_WEAPON))
+				lpEvalDesc->MoveState = PURSUE;
+	}
+	ship_intelligence(ai,ObjectsOfConcern, ConcernCounter);
+
 }

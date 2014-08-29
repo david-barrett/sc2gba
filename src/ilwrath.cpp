@@ -18,7 +18,7 @@ extern unsigned long state;
 
 int FireIlwrath(pPlayer pl);
 int SpecialIlwrath(pPlayer pl);
-int aiSpecialIlwrath(pPlayer pl);
+int aiIlwrath(pPlayer ShipPtr, pObject ObjectsOfConcern, COUNT ConcernCounter);
 
 void LoadIlwrath(s16 SpriteStart)
 {
@@ -79,6 +79,7 @@ void SetIlwrath(pPlayer pl)
 	pl->thrust_wait=0;
 	pl->weapon_wait=0;
 	pl->special_wait=13;
+	pl->batt_regen=4;
 
 	s16 o = (pl->plr-1)*13;
 
@@ -94,7 +95,7 @@ void SetIlwrath(pPlayer pl)
 
 	pl->firefunc=&FireIlwrath;
 	pl->specfunc=&SpecialIlwrath;
-	pl->aispecfunc=&aiSpecialIlwrath;
+	pl->aifunc=&aiIlwrath;
 	pl->loadfunc=&LoadIlwrath;
 
 	pl->ditty=&ilwrath_ditty;
@@ -159,8 +160,41 @@ int FireIlwrath(pPlayer pl)
 
 }
 
-int aiSpecialIlwrath(pPlayer ai)
+int aiIlwrath(pPlayer ai, pObject ObjectsOfConcern, COUNT ConcernCounter)
 {
-	if (ai->cloak==0)
-		return 1;
+
+	pObject lpEvalDesc;
+	//STARSHIPPTR StarShipPtr;
+
+		lpEvalDesc = &ObjectsOfConcern[ENEMY_SHIP_INDEX];
+		lpEvalDesc->MoveState = PURSUE;
+		if (lpEvalDesc->parent && lpEvalDesc->which_turn <= 10)
+					/* don't want to dodge when you could be flaming */
+			ObjectsOfConcern[ENEMY_WEAPON_INDEX].parent = 0;
+
+		ship_intelligence(ai,ObjectsOfConcern, ConcernCounter);
+
+		//GetElementStarShip (ShipPtr, &StarShipPtr);
+		if (lpEvalDesc->parent
+				&& (lpEvalDesc->which_turn <= 6
+				|| (lpEvalDesc->which_turn <= 10
+				&& ObjectsOfConcern[ENEMY_WEAPON_INDEX].which_turn <= 10)))
+		{
+			ai->ship_input_state &= ~SPECIAL;
+			if (ai->cloak==1)
+			{
+				ai->ship_input_state &= ~LEFT | RIGHT;
+				ai->ship_input_state |= THRUST;
+			}
+			ai->ship_input_state |= WEAPON;
+		}
+		else if (ai->special_turn == 0)/*if (StarShipPtr->special_counter == 0
+				&& (LOBYTE (GLOBAL (CurrentActivity)) != IN_ENCOUNTER
+				|| !GET_GAME_STATE (PROBE_ILWRATH_ENCOUNTER)))*/
+		{
+			ai->ship_input_state &= ~SPECIAL;
+			if (!ai->cloak==1
+					&& !(ai->ship_input_state & WEAPON))
+				ai->ship_input_state |= SPECIAL;
+	}
 }
