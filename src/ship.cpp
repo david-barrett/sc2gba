@@ -16,6 +16,8 @@ extern int* KEYS;
 extern s8 pilot;
 extern s8 v3do;
 
+extern Object planet;
+
 
 extern pTrail trails;
 extern pAsteroid asteroids;
@@ -26,7 +28,6 @@ extern s32 zoom,screenx,screeny;
 
 extern double scale;
 
-extern s32 planetx,planety;
 
 const s8 EXPX[12] = {5,-10,9,-2,7,0,-6,4,-12,13,-14,8};
 const s8 EXPY[12] = {-7,0,-15,12,-5,4,-9,10,-4,9,-2,4};
@@ -39,34 +40,34 @@ void GenerateStart(pPlayer p,s32 range)
 	s16 dist;
 
 	pPlayer opp=(pPlayer)p->opp;
-	p->actualangle=ran(0,15);
-	p->angle=(p->actualangle*45)>>1;
+	p->object.actualangle=ran(0,15);
+	p->object.angle=(p->object.actualangle*45)>>1;
 
-	p->xspeed = ((20) * (s32)SIN[p->angle])>>8;
-	p->yspeed = ((20) * (s32)COS[p->angle])>>8;
+	p->object.xspeed = ((20) * (s32)SIN[p->object.angle])>>8;
+	p->object.yspeed = ((20) * (s32)COS[p->object.angle])>>8;
 	do
 	{
 		good=0;
 		/*
 		s32 rand=ran(0,1820)-910;//960-50 *2
-		p->xpos=opp->xpos+rand+(rand<0?-50:50);
+		p->object.xpos=opp->object.xpos+rand+(rand<0?-50:50);
 		rand=ran(0,1180)-590;//960-50 *2
-		p->ypos=opp->ypos+rand+(rand<0?-50:50);
+		p->object.ypos=opp->object.ypos+rand+(rand<0?-50:50);
 		*/
 
 		s32 rand=ran(0,range)-(range/2);//960-50 *2
 
 	//	print("\nrand val:=");
 	//	print(rand);
-		p->xpos=opp->xpos+rand+(rand<0?-50:50);
+		p->object.xpos=opp->object.xpos+rand+(rand<0?-50:50);
 
-		p->ypos=opp->ypos+rand+(rand<0?-50:50);
-	//	print("\nxpos:=");
-	//	print(p->xpos);
-	//	print("\nypos:=");
-	//	print(p->ypos);
+		p->object.ypos=opp->object.ypos+rand+(rand<0?-50:50);
+	//	print("\nobject.xpos:=");
+	//	print(p->object.xpos);
+	//	print("\nobject.ypos:=");
+	//	print(p->object.ypos);
 
-		//s16 dist=distanceBetweenPoints(p->xpos,p->ypos,planetx,planety);
+		//s16 dist=distanceBetweenPoints(p->object.xpos,p->object.ypos,planet.xpos,planet.ypos);
 					//if (dist<(p->offset+64)/2)
 					/*
 		if (dist<150)
@@ -75,25 +76,25 @@ void GenerateStart(pPlayer p,s32 range)
 						good=1;
 						break;
 	}
-		//s16 angle = FindAngle(p->xpos,p->ypos,planetx,planety);
+		//s16 angle = FindAngle(p->object.xpos,p->object.ypos,planet.xpos,planet.ypos);
 
-	//	p->angle=angle+(angle>180)?-180:180;
-	p->angle=FindAngle(planetx,planety,p->xpos,p->ypos);
+	//	p->object.angle.object.angle+.object.angle>180)?-180:180;
+	p->object.angle=FindAngle(planet.xpos,planet.ypos,p->object.xpos,p->object.ypos);
 
 
 */
 
-	    xpos = p->xpos;
-	    ypos = p->ypos;
+	    xpos = p->object.xpos;
+	    ypos = p->object.ypos;
 		//check we aint going to hit a planet
-		dist=distanceBetweenPoints(xpos,ypos,planetx,planety);
+		dist=distanceBetweenPoints(xpos,ypos,planet.xpos,planet.ypos);
 		//print("\ndist:=");
 		//print(dist);
 		if (dist<200)
 		{
-			p->xpos=opp->xpos-rand+(rand<0?50:-50);
+			p->object.xpos=opp->object.xpos-rand+(rand<0?50:-50);
 
-			p->ypos=opp->ypos-rand+(rand<0?50:-50);
+			p->object.ypos=opp->object.ypos-rand+(rand<0?50:-50);
 
 				//good=1;
 		}
@@ -101,7 +102,7 @@ void GenerateStart(pPlayer p,s32 range)
 	good=0;
 		for (int i=0;i<6;i++)
 		{
-			dist=distanceBetweenPoints(xpos,ypos,planetx,planety);
+			dist=distanceBetweenPoints(xpos,ypos,planet.xpos,planet.ypos);
 			//if (dist<(p->offset+64)/2)
 			if (dist<200)
 			{
@@ -109,14 +110,14 @@ void GenerateStart(pPlayer p,s32 range)
 				good=1;
 				break;
 			}
-			xpos+=p->xspeed;
-			ypos-=p->yspeed;
+			xpos+=p->object.xspeed;
+			ypos-=p->object.yspeed;
 		}
 	if (good==1)
 	{
-		p->angle=ModifyAngle(p->angle,180);
-		p->xspeed*=-1;
-		p->yspeed*=-1;
+		p->object.angle=ModifyAngle(p->object.angle,180);
+		p->object.xspeed*=-1;
+		p->object.yspeed*=-1;
 	}
 
 
@@ -131,11 +132,11 @@ void DetonateShip(pPlayer pl)
 
 	for (int i=0;i<12;i++)
 	{
-		if (pl->weapon[i].life==-1)
+		if (pl->weapon[i].object.life==-1)
 		{
-			pl->weapon[i].xpos=pl->xpos+(s32)(EXPX[i]*scale);
-			pl->weapon[i].ypos=pl->ypos+(s32)(EXPY[i]*scale);
-			pl->weapon[i].size=8;
+			pl->weapon[i].object.xpos=pl->object.xpos+(s32)(EXPX[i]*scale);
+			pl->weapon[i].object.ypos=pl->object.ypos+(s32)(EXPY[i]*scale);
+			pl->weapon[i].object.size=8;
 			CreateExplosion(&pl->weapon[i],5);
 		}
 	}
@@ -153,26 +154,26 @@ void TurnRight(pPlayer pl)//, int i)
 				return;//ship will spin
 			else //do opposite
 			{
-				pl->actualangle--;
-				if(pl->actualangle==-1)
-					pl->actualangle=15;
+				pl->object.actualangle--;
+				if(pl->object.actualangle==-1)
+					pl->object.actualangle=15;
 				pl->turretangle--;
 				if(pl->turretangle==-1)
 					pl->turretangle=15;
-				pl->angle=(pl->actualangle*45)>>1;
+				pl->object.angle=(pl->object.actualangle*45)>>1;
 
 			}			
 		}
 		else		
 		{
 			
-			pl->actualangle++;
-			if(pl->actualangle==16)
-				pl->actualangle=0;
+			pl->object.actualangle++;
+			if(pl->object.actualangle==16)
+				pl->object.actualangle=0;
 			pl->turretangle++;
 			if(pl->turretangle==16)
 				pl->turretangle=0;
-			pl->angle=(pl->actualangle*45)>>1;
+			pl->object.angle=(pl->object.actualangle*45)>>1;
 		}
 	}
 }
@@ -188,26 +189,26 @@ void TurnLeft(pPlayer pl)//,int i)
 				return;//ship will spin
 			else //do opposite
 			{
-				pl->actualangle++;
-			if(pl->actualangle==16)
-				pl->actualangle=0;
+				pl->object.actualangle++;
+			if(pl->object.actualangle==16)
+				pl->object.actualangle=0;
 			pl->turretangle++;
 			if(pl->turretangle==16)
 				pl->turretangle=0;
 
-			pl->angle=(pl->actualangle*45)>>1;
+			pl->object.angle=(pl->object.actualangle*45)>>1;
 
 			}			
 		}
 		else		
 		{
-			pl->actualangle--;
-			if(pl->actualangle==-1)
-				pl->actualangle=15;
+			pl->object.actualangle--;
+			if(pl->object.actualangle==-1)
+				pl->object.actualangle=15;
 			pl->turretangle--;
 			if(pl->turretangle==-1)
 				pl->turretangle=15;
-			pl->angle=(pl->actualangle*45)>>1;			
+			pl->object.angle=(pl->object.actualangle*45)>>1;			
 			
 		}
 	}
@@ -288,17 +289,17 @@ void Thrust(pPlayer plr)
 		//arilou
 		plr->thrustspeed==plr->maxspeed;
 
-		plr->xspeed = (s32)(double(plr->maxspeed) * (s32)SIN[plr->angle])>>8;
-		plr->yspeed = (s32)(double(plr->maxspeed) * (s32)COS[plr->angle])>>8;
+		plr->object.xspeed = (s32)(double(plr->maxspeed) * (s32)SIN[plr->object.angle])>>8;
+		plr->object.yspeed = (s32)(double(plr->maxspeed) * (s32)COS[plr->object.angle])>>8;
 
 	}
 	else
 	{
 
-		if (plr->angle==plr->thrustangle)
+		if (plr->object.angle==plr->thrustangle)
 		{
 
-			s32 actual_speed=distanceBetweenPoints(0,0,plr->xspeed,plr->yspeed);
+			s32 actual_speed=distanceBetweenPoints(0,0,plr->object.xspeed,plr->object.yspeed);
 			plr->thrustspeed+=plr->accel_inc;
 			if (actual_speed+plr->accel_inc>plr->maxspeed)
 			{
@@ -316,13 +317,13 @@ void Thrust(pPlayer plr)
 				plr->thrustspeed=plr->maxspeed;
 			}
 
-			plr->thrustangle=plr->angle;
+			plr->thrustangle=plr->object.angle;
 		}
-    	x = (s32)(double(plr->thrustspeed) * (s32)SIN[plr->angle])>>8;
-		y = (s32)(double(plr->thrustspeed) * (s32)COS[plr->angle])>>8;
+    	x = (s32)(double(plr->thrustspeed) * (s32)SIN[plr->object.angle])>>8;
+		y = (s32)(double(plr->thrustspeed) * (s32)COS[plr->object.angle])>>8;
 
-		plr->xspeed = (plr->xspeed + x)>>3;
-		plr->yspeed = (plr->yspeed + y)>>3;
+		plr->object.xspeed = (plr->object.xspeed + x)>>3;
+		plr->object.yspeed = (plr->object.yspeed + y)>>3;
 	}
 
 	if (!plr->cloak)
@@ -360,7 +361,7 @@ inline int GetNextTrail(int off)
 {
 	for (int i=0+off;i<5+off;i++)
 	{
-		if (trails[i].life==0)
+		if (trails[i].object.life==0)
 			return i;
 	}
 	return -1;
@@ -370,13 +371,13 @@ void CreateTrail(pPlayer p)
 {
 	int t = GetNextTrail((p->plr-1)*5); //=p1=0 or p2=5
 
-	s32 x = ((p->offset) * (s32)SIN[p->angle])>>8;
-	s32 y = ((p->offset) * (s32)COS[p->angle])>>8;
+	s32 x = ((p->offset) * (s32)SIN[p->object.angle])>>8;
+	s32 y = ((p->offset) * (s32)COS[p->object.angle])>>8;
 	if (t!=-1)
 	{
-		trails[t].life=5;
-		trails[t].xpos=p->xpos-(x);
-		trails[t].ypos=p->ypos+(y);
+		trails[t].object.life=5;
+		trails[t].object.xpos=p->object.xpos-(x);
+		trails[t].object.ypos=p->object.ypos+(y);
 	}
 }
 
@@ -384,16 +385,16 @@ void DrawTrails()
 {
 	for (int i=0;i<10;i++)
 	{
-		if (trails[i].life>0)
+		if (trails[i].object.life>0)
 		{
-			drawOnScreen(&trails[i].xscreen,&trails[i].yscreen,trails[i].xpos,trails[i].ypos,screenx,screeny,4);
-			sprites[32+i].attribute0 = COLOR_256 | SQUARE | MODE_TRANSPARENT | trails[i].yscreen;	//setup sprite info, 256 colour, shape and y-coord
-			sprites[32+i].attribute1 = SIZE_8 | trails[i].xscreen;
+			drawOnScreen(&trails[i].object.xscreen,&trails[i].object.yscreen,trails[i].object.xpos,trails[i].object.ypos,screenx,screeny,4);
+			sprites[32+i].attribute0 = COLOR_256 | SQUARE | MODE_TRANSPARENT | trails[i].object.yscreen;	//setup sprite info, 256 colour, shape and y-coord
+			sprites[32+i].attribute1 =SIZE_8 | trails[i].object.xscreen;
     		sprites[32+i].attribute2 = TrailSprite | PRIORITY(1);
     		//sprites[32+i].attribute2 = FireSprite1+2 | PRIORITY(0); //if i need to see the trail big
-    		trails[i].life--;
+    		trails[i].object.life--;
 		}
-		else if (trails[i].life==0)
+		else if (trails[i].object.life==0)
 		{
 			MoveOffscreen(&sprites[32+i]);
 		}
@@ -405,26 +406,28 @@ void DrawTrails()
 int CreateActualOutline(s32 xpos,s32 ypos,s16 angle,pWeapon w,s32 SpriteStart,s8 life)
 {
 	w->type=TRAIL;
-	w->life=life;
+	w->object.life=life;
 	w->damage=0;
 	w->target=NULL;
 	w->parent=NULL;
 	w->damageparent=0;
+	w->movefunc=0;
 
-	w->size=32;
-	w->angle = angle;
+	w->object.ignorecollision=1;
+	w->object.size=32;
+	w->object.angle =angle;
 
-	w->xspeed = 0;
-	w->yspeed = 0;
+	w->object.xspeed = 0;
+	w->object.yspeed = 0;
 
-	w->xpos = xpos;
-	w->ypos = ypos;
+	w->object.xpos = xpos;
+	w->object.ypos = ypos;
 
-	drawOnScreen(&w->xscreen,&w->yscreen,
-		w->xpos,w->ypos,screenx,screeny,w->size);
+	drawOnScreen(&w->object.xscreen,&w->object.yscreen,
+		w->object.xpos,w->object.ypos,screenx,screeny,w->object.size);
 
-	sprites[w->sprite].attribute0 = COLOR_256 | SQUARE | ROTATION_FLAG | SIZE_DOUBLE | MODE_TRANSPARENT | w->yscreen;	//setup sprite info, 256 colour, shape and y-coord
-    sprites[w->sprite].attribute1 = SIZE_32 | ROTDATA(w->sprite) | w->xscreen;
+	sprites[w->sprite].attribute0 = COLOR_256 | SQUARE | ROTATION_FLAG |SIZE_DOUBLE | MODE_TRANSPARENT | w->object.yscreen;	//setup sprite info, 256 colour, shape and y-coord
+    sprites[w->sprite].attribute1 =SIZE_32 | ROTDATA(w->sprite) | w->object.xscreen;
     sprites[w->sprite].attribute2 = SpriteStart+32 | PRIORITY(2);
 
 
@@ -437,7 +440,7 @@ int CreateOutline(pPlayer pl)
 
 	if (b>=0)
 	{
-		return CreateActualOutline(pl->xpos,pl->ypos,pl->angle,&pl->weapon[b],pl->SpriteStart,5);
+		return CreateActualOutline(pl->object.xpos,pl->object.ypos,pl->object.angle,&pl->weapon[b],pl->SpriteStart,5);
 	}
 	return 0;
 }
@@ -446,23 +449,23 @@ int CreateReinc(pPlayer pl)
 {
 	short d=20*(pl->reinc+1);
 	short r=pl->reinc*4;
-	CreateActualOutline(pl->xpos-d,pl->ypos-d,pl->angle,&pl->weapon[r],pl->SpriteStart,5);
-	CreateActualOutline(pl->xpos-d,pl->ypos+d,pl->angle,&pl->weapon[1+r],pl->SpriteStart,5);
-	CreateActualOutline(pl->xpos+d,pl->ypos-d,pl->angle,&pl->weapon[2+r],pl->SpriteStart,5);
-	CreateActualOutline(pl->xpos+d,pl->ypos+d,pl->angle,&pl->weapon[3+r],pl->SpriteStart,5);
+	CreateActualOutline(pl->object.xpos-d,pl->object.ypos-d,pl->object.angle,&pl->weapon[r],pl->SpriteStart,5);
+	CreateActualOutline(pl->object.xpos-d,pl->object.ypos+d,pl->object.angle,&pl->weapon[1+r],pl->SpriteStart,5);
+	CreateActualOutline(pl->object.xpos+d,pl->object.ypos-d,pl->object.angle,&pl->weapon[2+r],pl->SpriteStart,5);
+	CreateActualOutline(pl->object.xpos+d,pl->object.ypos+d,pl->object.angle,&pl->weapon[3+r],pl->SpriteStart,5);
 	return 1;
 }
 
 void Bounce(pPlayer pl)
 {
-	//pl->xspeed*=-1;
-	//pl->yspeed*=-1;//try 2 instead of 1
+	//pl->object.xspeed*=-1;
+	//pl->object.yspeed*=-1;//try 2 instead of 1
 
-	pl->xspeed=(-1*pl->xspeed)>>1;
-	pl->yspeed=(-1*pl->yspeed)>>1;
+	pl->object.xspeed=(-1*pl->object.xspeed)>>1;
+	pl->object.yspeed=(-1*pl->object.yspeed)>>1;
 
-	pl->xpos+=pl->xspeed;
-	pl->xpos+=pl->xspeed;
+	pl->object.xpos+=pl->object.xspeed;
+	pl->object.xpos+=pl->object.xspeed;
 }
 
 void ProcessPlayer(pPlayer pl)
@@ -484,8 +487,8 @@ void ProcessPlayer(pPlayer pl)
 		}
 		else if(pl->warp==1)
 		{
-			pl->xspeed=0;
-			pl->yspeed=0;
+			pl->object.xspeed=0;
+			pl->object.yspeed=0;
 			pl->warp=0;
 		}
 		else if(pl->reinc>0)
@@ -502,9 +505,9 @@ void ProcessPlayer(pPlayer pl)
 
 		}
 
-		pl->xpos+=pl->xspeed;
-		pl->ypos-=pl->yspeed;
-		pl->speed=distanceBetweenPoints(0,0,pl->xspeed,pl->yspeed);
+	//	pl->object.xpos+=pl->object.xspeed;
+	//	pl->object.ypos-=pl->object.yspeed;
+		pl->speed=distanceBetweenPoints(0,0,pl->object.xspeed,pl->object.yspeed);
 
 		s8 input= pl->ship_input_state;//back it up for transfering to other gba - if and when
 		//as special may alter input in case of orz/supox
@@ -523,7 +526,7 @@ void ProcessPlayer(pPlayer pl)
 		if (pl->ship_input_state & SPECIAL)
 			Special(pl);
 
-
+		pl->ship_input_state=input;
 
 		//pilot
 			if (pilot)
@@ -627,7 +630,7 @@ int nextWeapon(pPlayer pl,int f,int l)
 	//defaults f=1 & l=11
 	for (int i=f;i<l+1;i++)
 	{
-		if (pl->weapon[i].life<0)
+		if (pl->weapon[i].object.life<0)
 			return i;
 	}
 	return -1;

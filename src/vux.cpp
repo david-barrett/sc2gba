@@ -48,6 +48,8 @@ int SpecialVux(pPlayer pl);
 int aiVux(pPlayer ShipPtr, pObject ObjectsOfConcern, COUNT ConcernCounter);
 void SetVuxPilot(pPlayer p);
 void RestoreGFXVux(pPlayer p);
+void MoveLimpet(pWeapon ur);
+void HitLimpet(pWeapon ur,void*);
 
 void LoadVux(s16 SpriteStart)
 {
@@ -100,28 +102,31 @@ int SpecialVux(pPlayer pl)
 	if (b>0)
 	{
 		pl->weapon[b].type=LIMPET;
-		pl->weapon[b].life=1;
+		pl->weapon[b].object.life=1;
 		pl->weapon[b].status=80;
 		pl->weapon[b].damage=0;
 		pl->weapon[b].target=pl->opp;
 		pl->weapon[b].parent=pl;
 		pl->weapon[b].damageparent=0;
+		pl->weapon[b].movefunc=&MoveLimpet;
+		pl->weapon[b].hitfunc=&HitLimpet;
+		pl->weapon[b].object.ignorecollision=0;
 
-		pl->weapon[b].size=8;
-		pl->weapon[b].angle = 0;
+		pl->weapon[b].object.size=8;
+		pl->weapon[b].object.angle = 0;
 
-		pl->weapon[b].xspeed=0;
-		pl->weapon[b].yspeed=0;
+		pl->weapon[b].object.xspeed=0;
+		pl->weapon[b].object.yspeed=0;
 
 
-		pl->weapon[b].xpos = pl->xpos-((s32)(2 * SIN[pl->angle])>>8);
-		pl->weapon[b].ypos = pl->ypos+((s32)(2 * COS[pl->angle])>>8);
+		pl->weapon[b].object.xpos = pl->object.xpos-((s32)(2 * SIN[pl->object.angle])>>8);
+		pl->weapon[b].object.ypos = pl->object.ypos+((s32)(2 * COS[pl->object.angle])>>8);
 
-		drawOnScreen(&pl->weapon[b].xscreen,&pl->weapon[b].yscreen,
-			pl->weapon[b].xpos,pl->weapon[b].ypos,screenx,screeny,pl->weapon[b].size);
+		drawOnScreen(&pl->weapon[b].object.xscreen,&pl->weapon[b].object.yscreen,
+			pl->weapon[b].object.xpos,pl->weapon[b].object.ypos,screenx,screeny,pl->weapon[b].object.size);
 
-	 	sprites[pl->weapon[b].sprite].attribute0 = COLOR_256 | SQUARE | ROTATION_FLAG | SIZE_DOUBLE | MODE_TRANSPARENT | pl->weapon[b].yscreen;	//setup sprite info, 256 colour, shape and y-coord
-		sprites[pl->weapon[b].sprite].attribute1 = SIZE_8 | ROTDATA(pl->weapon[b].sprite) | pl->weapon[b].xscreen;
+	 	sprites[pl->weapon[b].sprite].attribute0 = COLOR_256 | SQUARE | ROTATION_FLAG |SIZE_DOUBLE | MODE_TRANSPARENT | pl->weapon[b].object.yscreen;	//setup sprite info, 256 colour, shape and y-coord
+		sprites[pl->weapon[b].sprite].attribute1 =SIZE_8 | ROTDATA(pl->weapon[b].sprite) | pl->weapon[b].object.xscreen;
 		sprites[pl->weapon[b].sprite].attribute2 = pl->SpriteStart+98 | PRIORITY(1);
 		ret=1;
 		play_sfx(&vux_limpet,pl->plr-1);
@@ -155,7 +160,7 @@ void SetVux(pPlayer pl)
 			pl->special_wait=SPECIAL_WAIT;
 			pl->batt_regen=ENERGY_REGENERATION;
 
-	pl->mass=SHIP_MASS;
+	pl->object.mass_points=SHIP_MASS;
 
 	s16 o = (pl->plr-1)*13;
 
@@ -212,36 +217,39 @@ int FireVux(pPlayer pl)
 
 
 	pl->weapon[b].type=LASER;
-	pl->weapon[b].life=1;
+	pl->weapon[b].object.life=2;
 	pl->weapon[b].damage=-1;
 	pl->weapon[b].target=pl->opp;
 	pl->weapon[b].parent=pl;
 	pl->weapon[b].damageparent=0;
+	pl->weapon[b].movefunc=0;
+	pl->weapon[b].hitfunc=0;
+	pl->weapon[b].object.ignorecollision=0;
 
-	pl->weapon[b].size=(b==3?8:32);
-	pl->weapon[b].angle = pl->angle;
+	pl->weapon[b].object.size=(b==3?8:32);
+	pl->weapon[b].object.angle = pl->object.angle;
 
 	s32 off=(b==3?106:(b*32)+25);
 
-	pl->weapon[b].xspeed=0;
-	pl->weapon[b].yspeed=0;
+	pl->weapon[b].object.xspeed=0;
+	pl->weapon[b].object.yspeed=0;
 
 
-	pl->weapon[b].xpos = pl->xpos+((off * (s32)SIN[pl->angle])>>8);
-	pl->weapon[b].ypos = pl->ypos-((off * (s32)COS[pl->angle])>>8);
+	pl->weapon[b].object.xpos = pl->object.xpos+((off * (s32)SIN[pl->object.angle])>>8);
+	pl->weapon[b].object.ypos = pl->object.ypos-((off * (s32)COS[pl->object.angle])>>8);
 
-	drawOnScreen(&pl->weapon[b].xscreen,&pl->weapon[b].yscreen,
-		pl->weapon[b].xpos,pl->weapon[b].ypos,screenx,screeny,pl->weapon[b].size);
+	drawOnScreen(&pl->weapon[b].object.xscreen,&pl->weapon[b].object.yscreen,
+		pl->weapon[b].object.xpos,pl->weapon[b].object.ypos,screenx,screeny,pl->weapon[b].object.size);
 
-	sprites[pl->weapon[b].sprite].attribute0 = COLOR_256 | SQUARE | ROTATION_FLAG | SIZE_DOUBLE | MODE_TRANSPARENT | pl->weapon[b].yscreen;	//setup sprite info, 256 colour, shape and y-coord
+	sprites[pl->weapon[b].sprite].attribute0 = COLOR_256 | SQUARE | ROTATION_FLAG |SIZE_DOUBLE | MODE_TRANSPARENT | pl->weapon[b].object.yscreen;	//setup sprite info, 256 colour, shape and y-coord
 	if (b==3)
 	{
-    	sprites[pl->weapon[b].sprite].attribute1 = SIZE_8 | ROTDATA(pl->weapon[b].sprite) | pl->weapon[b].xscreen;
+    	sprites[pl->weapon[b].sprite].attribute1 =SIZE_8 | ROTDATA(pl->weapon[b].sprite) | pl->weapon[b].object.xscreen;
     	sprites[pl->weapon[b].sprite].attribute2 = pl->SpriteStart+96 | PRIORITY(1);
 	}
     else
     {
-    	sprites[pl->weapon[b].sprite].attribute1 = SIZE_32 | ROTDATA(pl->weapon[b].sprite) | pl->weapon[b].xscreen;
+    	sprites[pl->weapon[b].sprite].attribute1 =SIZE_32 | ROTDATA(pl->weapon[b].sprite) | pl->weapon[b].object.xscreen;
     	sprites[pl->weapon[b].sprite].attribute2 = pl->SpriteStart+64 | PRIORITY(1);
 	}
 
@@ -287,44 +295,33 @@ void SetVuxPilot(pPlayer pl)
 	int off=(pl->plr==1)?0:6;
 
 	sprites[43+off].attribute0 = COLOR_256 | SQUARE  | 160;
-	sprites[43+off].attribute1 = SIZE_32 | 240;
+	sprites[43+off].attribute1 =SIZE_32 | 240;
 	sprites[43+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+64 | PRIORITY(2);
 
 	sprites[44+off].attribute0 = COLOR_256 | SQUARE  | 160;
-	sprites[44+off].attribute1 = SIZE_32 | 240;
+	sprites[44+off].attribute1 =SIZE_32 | 240;
 	sprites[44+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+96 | PRIORITY(2);
 
 	sprites[45+off].attribute0 = COLOR_256 | WIDE  | 160;
-	sprites[45+off].attribute1 = SIZE_32 | 240;
+	sprites[45+off].attribute1 =SIZE_32 | 240;
 	sprites[45+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+128 | PRIORITY(2);
 
 	sprites[46+off].attribute0 = COLOR_256 |WIDE  | 160;
-	sprites[46+off].attribute1 = SIZE_8 | 240;
+	sprites[46+off].attribute1 =SIZE_8 | 240;
 	sprites[46+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+128+16 | PRIORITY(2);
 
 	sprites[47+off].attribute0 = COLOR_256 | TALL  | 160;
-	sprites[47+off].attribute1 = SIZE_32 | 240;
+	sprites[47+off].attribute1 =SIZE_32 | 240;
 	sprites[47+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+128+20 | PRIORITY(2);
 }
 
-void MoveLimpet(pWeapon ur)
+void HitLimpet(pWeapon ur,void* p)
 {
-	s16 angle;
 	pPlayer target=(pPlayer)ur->target;
-
 	pPlayer parent=(pPlayer)ur->parent;
-	ur->status--;
-
-	if(ur->status==0)
-	{
-		ur->life=0;
-		return;
-	}
-
-	if (DetectWeaponToShip(target,ur)==1)
-	{
-		//attach
-		ur->life=0;
+	pPlayer ship=(pPlayer)p;
+	
+	ur->object.life=0;
 		AddLimpet(target);
 		play_sfx(&vux_bite,parent->plr-1);
 		if (target->turn_wait <9)
@@ -346,6 +343,19 @@ void MoveLimpet(pWeapon ur)
 			--target->accel_inc;
 			target->maxspeed =	target->accel_inc * num_thrusts;
 		}
+
+}
+void MoveLimpet(pWeapon ur)
+{
+	s16 angle;
+	pPlayer target=(pPlayer)ur->target;
+
+	pPlayer parent=(pPlayer)ur->parent;
+	ur->status--;
+
+	if(ur->status==0)
+	{
+		ur->object.life=0;
 		return;
 	}
 
@@ -353,10 +363,10 @@ void MoveLimpet(pWeapon ur)
 	if (target->crew>0)
 	{
 
-		angle = FindAngle(ur->xpos,ur->ypos,target->xpos,target->ypos);
+	angle = FindAngle(ur->object.xpos,ur->object.ypos,target->object.xpos,target->object.ypos);
 
-		ur->xpos+=((2) * (s32)SIN[angle])>>8;
-		ur->ypos-=((2) * (s32)COS[angle])>>8;
+		ur->object.xspeed=((2) * (s32)SIN[angle])>>8;
+		ur->object.yspeed=((2) * (s32)COS[angle])>>8;
 	}
 
 }
@@ -367,12 +377,12 @@ void RestoreGFXVux(pPlayer p)
 	//im sure laser will be fine...
 	for(int i=4;i<12;i++)
 	{
-		if (p->weapon[i].life>0)
+		if (p->weapon[i].object.life>0)
 		{
 			if(p->weapon[i].type==LIMPET)
 			{
-			sprites[p->weapon[i].sprite].attribute0 = COLOR_256 | SQUARE | ROTATION_FLAG | SIZE_DOUBLE | MODE_TRANSPARENT | 160;	//setup sprite info, 256 colour, shape and y-coord
-			sprites[p->weapon[i].sprite].attribute1 = SIZE_8 | ROTDATA(p->weapon[i].sprite) | 240;
+			sprites[p->weapon[i].sprite].attribute0 = COLOR_256 | SQUARE | ROTATION_FLAG |SIZE_DOUBLE | MODE_TRANSPARENT | 160;	//setup sprite info, 256 colour, shape and y-coord
+			sprites[p->weapon[i].sprite].attribute1 =SIZE_8 | ROTDATA(p->weapon[i].sprite) | 240;
    			sprites[p->weapon[i].sprite].attribute2 = p->SpriteStart+98 | PRIORITY(1);
 			}
 		}

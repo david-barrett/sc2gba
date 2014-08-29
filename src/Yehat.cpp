@@ -115,7 +115,7 @@ void SetYehat(pPlayer pl)
 		pl->special_wait=SPECIAL_WAIT;
 		pl->batt_regen=ENERGY_REGENERATION;
 
-	pl->mass=SHIP_MASS;
+	pl->object.mass_points=SHIP_MASS;
 
 		pl->offset=10;
 
@@ -144,7 +144,7 @@ void SetYehat(pPlayer pl)
 	pl->pilot_sprite=(1024+512+32)/16;
 	pl->pilots[0].x=0;
 	pl->pilots[0].y=0;
-	pl->pilots[1].x=0;
+	pl->pilots[1].x=511;
 	pl->pilots[1].y=0;
 	pl->pilots[2].x=3;
 	pl->pilots[2].y=1;
@@ -169,35 +169,38 @@ int FireYehat(pPlayer pl)
 	if (b>=0)
 	{
 	pl->weapon[b].type=SIMPLE;
-	pl->weapon[b].life=10;//range
+	pl->weapon[b].object.life=10;//range
 	pl->weapon[b].damage=-3;//6 suspect 6 was for both guns;
 	pl->weapon[b].target=pl->opp;
 	pl->weapon[b].parent=pl;
 	pl->weapon[b].damageparent=0;
+	pl->weapon[b].movefunc=0;
+	pl->weapon[b].hitfunc=0;
+	pl->weapon[b].object.ignorecollision=0;
 
-	pl->weapon[b].size=8;
-	pl->weapon[b].angle = pl->angle;
+	pl->weapon[b].object.size=8;
+	pl->weapon[b].object.angle = pl->object.angle;
 
 	s32 speed=20;
-	pl->weapon[b].xspeed = ((speed * (s32)SIN[pl->angle])>>8);///SPEED_REDUCT;
-	pl->weapon[b].yspeed = ((speed * (s32)COS[pl->angle])>>8);///SPEED_REDUCT;
+	pl->weapon[b].object.xspeed = ((speed * (s32)SIN[pl->object.angle])>>8);///SPEED_REDUCT;
+	pl->weapon[b].object.yspeed = ((speed * (s32)COS[pl->object.angle])>>8);///SPEED_REDUCT;
 
-	//pl->weapon[b].xpos = pl->xpos+((52 * (s32)SIN[pl->angle+(i==0?-30:+30)])>>8)/3;
-	//pl->weapon[b].ypos = pl->ypos-((52 * (s32)COS[pl->angle+(i==0?-30:+30)])>>8)/3;
+	//pl->weapon[b].object.xpos = pl->object.xpos+((52 * (s32)SIN[pl->object.angle+(i==0?-30:+30)])>>8)/3;
+	//pl->weapon[b].object.ypos = pl->object.ypos-((52 * (s32)COS[pl->object.angle+(i==0?-30:+30)])>>8)/3;
 
-	pl->weapon[b].xpos = pl->xpos+((52 * (s32)SIN[ModifyAngle(pl->angle,(i==0?-30:+30))])>>8)/3;
-	pl->weapon[b].ypos = pl->ypos-((52 * (s32)COS[ModifyAngle(pl->angle,(i==0?-30:+30))])>>8)/3;
+	pl->weapon[b].object.xpos = pl->object.xpos+((52 * (s32)SIN[ModifyAngle(pl->object.angle,(i==0?-30:+30))])>>8)/3;
+	pl->weapon[b].object.ypos = pl->object.ypos-((52 * (s32)COS[ModifyAngle(pl->object.angle,(i==0?-30:+30))])>>8)/3;
 
 	#ifdef MISSILE_START
-	pl->weapon[b].xpos-=pl->weapon[b].xspeed;
-	pl->weapon[b].ypos+=pl->weapon[b].yspeed;
+	pl->weapon[b].object.xpos-=pl->weapon[b].object.xspeed;
+	pl->weapon[b].object.ypos+=pl->weapon[b].object.yspeed;
 	#endif
 
-	drawOnScreen(&pl->weapon[b].xscreen,&pl->weapon[b].yscreen,
-		pl->weapon[b].xpos,pl->weapon[b].ypos,screenx,screeny,pl->weapon[b].size);
+	drawOnScreen(&pl->weapon[b].object.xscreen,&pl->weapon[b].object.yscreen,
+		pl->weapon[b].object.xpos,pl->weapon[b].object.ypos,screenx,screeny,pl->weapon[b].object.size);
 
-	sprites[pl->weapon[b].sprite].attribute0 = COLOR_256 | SQUARE | ROTATION_FLAG | SIZE_DOUBLE | MODE_TRANSPARENT | pl->weapon[b].yscreen;	//setup sprite info, 256 colour, shape and y-coord
-    sprites[pl->weapon[b].sprite].attribute1 = SIZE_8 | ROTDATA(pl->weapon[b].sprite) | pl->weapon[b].xscreen;
+	sprites[pl->weapon[b].sprite].attribute0 = COLOR_256 | SQUARE | ROTATION_FLAG |SIZE_DOUBLE | MODE_TRANSPARENT | pl->weapon[b].object.yscreen;	//setup sprite info, 256 colour, shape and y-coord
+    sprites[pl->weapon[b].sprite].attribute1 =SIZE_8 | ROTDATA(pl->weapon[b].sprite) | pl->weapon[b].object.xscreen;
     sprites[pl->weapon[b].sprite].attribute2 = pl->SpriteStart+96 | PRIORITY(1);
 
     ret++;
@@ -218,23 +221,23 @@ int aiYehat(pPlayer ai, pObject ObjectsOfConcern, COUNT ConcernCounter)
 		ShieldStatus = 1;
 		lpEvalDesc = &ObjectsOfConcern[ENEMY_WEAPON_INDEX];
 		/*
-		if (lpEvalDesc->ObjectPtr && lpEvalDesc->MoveState == ENTICE)
+		if (lpEvalDesc->tr && lpEvalDesc->MoveState == ENTICE)
 		{
 			ShieldStatus = 0;
-		//	if (!(lpEvalDesc->	->state_flags & (FINITE_LIFE | CREW_OBJECT)))
+		//	if (!(lpEvalDesc->	->state_flags & (FINITE.object.life | CREW_OBJECT)))
 			//	lpEvalDesc->MoveState = PURSUE;
 			//else
 			if (lpEvalDesc.type==CREW))
 			{
-				if (!(lpEvalDesc->ObjectPtr->state_flags & FINITE_LIFE))
+				if (!(lpEvalDesc->tr->state_flags & FINITE.object.life))
 					lpEvalDesc->which_turn <<= 1;
 				else
 				{
 					if ((lpEvalDesc->which_turn >>= 1) == 0)
 						lpEvalDesc->which_turn = 1;
 
-					if (lpEvalDesc->ObjectPtr->mass_points)
-						lpEvalDesc->ObjectPtr = 0;
+					if (lpEvalDesc->tr->object.object.mass_points_points_points)
+						lpEvalDesc->tr = 0;
 					else
 						lpEvalDesc->MoveState = PURSUE;
 				}
@@ -267,9 +270,9 @@ int aiYehat(pPlayer ai, pObject ObjectsOfConcern, COUNT ConcernCounter)
 
 
 	/*
-				if (lpEvalDesc->ObjectPtr
-						&& !(lpEvalDesc->ObjectPtr->state_flags & CREW_OBJECT))
-					lpEvalDesc->ObjectPtr = 0;*/
+				if (lpEvalDesc->tr
+						&& !(lpEvalDesc->tr->state_flags & CREW_OBJECT))
+					lpEvalDesc->tr = 0;*/
 			}
 		}
 
@@ -277,7 +280,7 @@ int aiYehat(pPlayer ai, pObject ObjectsOfConcern, COUNT ConcernCounter)
 		{
 		//	STARSHIPPTR EnemyStarShipPtr;
 
-		//	GetElementStarShip (lpEvalDesc->ObjectPtr, &EnemyStarShipPtr);
+		//	GetElementStarShip (lpEvalDesc->tr, &EnemyStarShipPtr);
 			if (!(opp->ship_flags
 					& IMMEDIATE_WEAPON))
 				lpEvalDesc->MoveState = PURSUE;
@@ -292,23 +295,23 @@ void SetYehatPilot(pPlayer pl)
 	int off=(pl->plr==1)?0:6;
 
 	sprites[43+off].attribute0 = COLOR_256 | TALL  | 160;
-	sprites[43+off].attribute1 = SIZE_64 | 240;
+	sprites[43+off].attribute1 =SIZE_64 | 240;
 	sprites[43+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+64 | PRIORITY(2);
 
 	sprites[44+off].attribute0 = COLOR_256 | TALL  | 160;
-	sprites[44+off].attribute1 = SIZE_64 | 240;
+	sprites[44+off].attribute1 =SIZE_64 | 240;
 	sprites[44+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+128 | PRIORITY(2);
 
 	sprites[45+off].attribute0 = COLOR_256 | SQUARE  | 160;
-	sprites[45+off].attribute1 = SIZE_16 | 240;
+	sprites[45+off].attribute1 =SIZE_16 | 240;
 	sprites[45+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+128+64 | PRIORITY(2);
 
 	sprites[46+off].attribute0 = COLOR_256 | SQUARE  | 160;
-	sprites[46+off].attribute1 = SIZE_16 | 240;
+	sprites[46+off].attribute1 =SIZE_16 | 240;
 	sprites[46+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+128+64+8 | PRIORITY(2);
 
 	sprites[47+off].attribute0 = COLOR_256 | WIDE  | 160;
-	sprites[47+off].attribute1 = SIZE_8 | 240;
+	sprites[47+off].attribute1 =SIZE_8 | 240;
 	sprites[47+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+128+64+16 | PRIORITY(2);
 }
 
@@ -328,12 +331,12 @@ void RestoreGFXYehat(pPlayer p)
 {
 	for(int i=0;i<12;i++)
 	{
-		if (p->weapon[i].life>0)
+		if (p->weapon[i].object.life>0)
 		{
 			if(p->weapon[i].type==SIMPLE)
 			{
-			sprites[p->weapon[i].sprite].attribute0 = COLOR_256 | SQUARE | ROTATION_FLAG | SIZE_DOUBLE | MODE_TRANSPARENT | 160;	//setup sprite info, 256 colour, shape and y-coord
-			sprites[p->weapon[i].sprite].attribute1 = SIZE_8 | ROTDATA(p->weapon[i].sprite) | 240;
+			sprites[p->weapon[i].sprite].attribute0 = COLOR_256 | SQUARE | ROTATION_FLAG |SIZE_DOUBLE | MODE_TRANSPARENT | 160;	//setup sprite info, 256 colour, shape and y-coord
+			sprites[p->weapon[i].sprite].attribute1 =SIZE_8 | ROTDATA(p->weapon[i].sprite) | 240;
    			sprites[p->weapon[i].sprite].attribute2 = p->SpriteStart+96 | PRIORITY(1);
 			}
 		}

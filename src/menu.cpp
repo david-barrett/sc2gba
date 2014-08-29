@@ -88,7 +88,7 @@ void DrawLetter(char letter,s16 sprite,  s16 x, s16 y)
 	//a=97 z=122 p = 112
 	int off=(int)letter-97;
 	sprites[sprite].attribute0 = COLOR_256 | SQUARE | y;
-	sprites[sprite].attribute1 = SIZE_8 | x;
+	sprites[sprite].attribute1 =SIZE_8 | x;
 	sprites[sprite].attribute2 = SpriteLettersStart+off*2 | PRIORITY(1);
 }
 
@@ -98,7 +98,7 @@ void DrawNumber(int num,s16 sprite,  s16 x, s16 y)
 		num=0;
 	int off=(num+27)*2;
 	sprites[sprite].attribute0 = COLOR_256 | SQUARE | y;
-	sprites[sprite].attribute1 = SIZE_8 | x;
+	sprites[sprite].attribute1 =SIZE_8 | x;
 	sprites[sprite].attribute2 = SpriteLettersStart+off | PRIORITY(1);
 
 }
@@ -264,7 +264,7 @@ void options()
 	DrawLetter('t',43,x+30,exit);
 
 	sprites[44].attribute0 = COLOR_256 | SQUARE | y;
-	sprites[44].attribute1 = SIZE_8 | x-10;
+	sprites[44].attribute1 =SIZE_8 | x-10;
 	sprites[44].attribute2 = SpriteLettersStart+26*2 | PRIORITY(1);
 
 	WaitForVsync();
@@ -407,7 +407,7 @@ int drawstartmenu()
 	DrawLetter('s',46,x+60,y+20);
 
 	sprites[54].attribute0 = COLOR_256 | SQUARE | y;
-	sprites[54].attribute1 = SIZE_8 | x-10;
+	sprites[54].attribute1 =SIZE_8 | x-10;
 	sprites[54].attribute2 = SpriteLettersStart+26*2 | PRIORITY(1);
 
 	WaitForVsync();
@@ -495,7 +495,7 @@ skill choose_ai()
 				DrawLetter('d',53,x+70,y+30);
 
 				sprites[54].attribute0 = COLOR_256 | SQUARE | y;
-				sprites[54].attribute1 = SIZE_8 | x-10;
+				sprites[54].attribute1 =SIZE_8 | x-10;
 				sprites[54].attribute2 = SpriteLettersStart+26*2 | PRIORITY(1);
 
 				WaitForVsync();
@@ -569,8 +569,8 @@ void DrawTitle()
 						OAMData[loop] = gfx_data[loop];
 			}*/
 
-			sprites[30].attribute0 = COLOR_256 | TALL | ROTATION_FLAG | SIZE_DOUBLE | MODE_TRANSPARENT | 20;	//setup sprite info, 256 colour, shape and y-coord
-			sprites[30].attribute1 = SIZE_64 | ROTDATA(30) | 50;            //size 32x32 and x-coord
+			sprites[30].attribute0 = COLOR_256 | TALL | ROTATION_FLAG |SIZE_DOUBLE | MODE_TRANSPARENT | 20;	//setup sprite info, 256 colour, shape and y-coord
+			sprites[30].attribute1 =SIZE_64 | ROTDATA(30) | 50;            
 			sprites[30].attribute2 = SpriteTitleStart | PRIORITY(1); //pointer to tile where sprite starts
 			//sprites[30].attribute2 = SC2TITLE_START | PRIORITY(1); //pointer to tile where sprite starts
 			RotateSprite(30, 0, 128,128);

@@ -97,29 +97,32 @@ int FireArilou(pPlayer pl)
 
 
 			pl->weapon[b].type=LASER;
-			pl->weapon[b].life=1;
+			pl->weapon[b].object.life=2;
 			pl->weapon[b].damage=-1;
 			pl->weapon[b].target=pl->opp;
 			pl->weapon[b].parent=pl;
-			pl->weapon[b].damageparent=0;
+			pl->weapon[b].damageparent=0;			
+			pl->weapon[b].movefunc=0;			
+			pl->weapon[b].hitfunc=0;
+			pl->weapon[b].object.ignorecollision=0;
 
-			pl->weapon[b].size=32;//(b==3?8:32);
-			pl->weapon[b].angle = FindAngle(pl->xpos,pl->ypos,opp->xpos,opp->ypos);
+			pl->weapon[b].object.size=32;//(b==3?8:32);
+			pl->weapon[b].object.angle = FindAngle(pl->object.xpos,pl->object.ypos,opp->object.xpos,opp->object.ypos);
 
 			s32 off=(b==0?13:13+(b*32));
 
-			pl->weapon[b].xspeed=0;
-			pl->weapon[b].yspeed=0;
+			pl->weapon[b].object.xspeed=0;
+			pl->weapon[b].object.yspeed=0;
 
 
-			pl->weapon[b].xpos = pl->xpos+((off * (s32)SIN[pl->weapon[b].angle])>>8);
-			pl->weapon[b].ypos = pl->ypos-((off * (s32)COS[pl->weapon[b].angle])>>8);
+			pl->weapon[b].object.xpos = pl->object.xpos+((off * (s32)SIN[pl->weapon[b].object.angle])>>8);
+			pl->weapon[b].object.ypos = pl->object.ypos-((off * (s32)COS[pl->weapon[b].object.angle])>>8);
 
-			drawOnScreen(&pl->weapon[b].xscreen,&pl->weapon[b].yscreen,
-				pl->weapon[b].xpos,pl->weapon[b].ypos,screenx,screeny,pl->weapon[b].size);
+			drawOnScreen(&pl->weapon[b].object.xscreen,&pl->weapon[b].object.yscreen,
+				pl->weapon[b].object.xpos,pl->weapon[b].object.ypos,screenx,screeny,pl->weapon[b].object.size);
 
-			sprites[pl->weapon[b].sprite].attribute0 = COLOR_256 | SQUARE | ROTATION_FLAG | SIZE_DOUBLE | MODE_TRANSPARENT | pl->weapon[b].yscreen;	//setup sprite info, 256 colour, shape and y-coord
-			sprites[pl->weapon[b].sprite].attribute1 = SIZE_32 | ROTDATA(pl->weapon[b].sprite) | pl->weapon[b].xscreen;
+			sprites[pl->weapon[b].sprite].attribute0 = COLOR_256 | SQUARE | ROTATION_FLAG |SIZE_DOUBLE | MODE_TRANSPARENT | pl->weapon[b].object.yscreen;	//setup sprite info, 256 colour, shape and y-coord
+			sprites[pl->weapon[b].sprite].attribute1 =SIZE_32 | ROTDATA(pl->weapon[b].sprite) | pl->weapon[b].object.xscreen;
 			sprites[pl->weapon[b].sprite].attribute2 = pl->SpriteStart+64 | PRIORITY(1);
 		}
 	return 1;
@@ -171,7 +174,7 @@ void SetArilou(pPlayer pl)
 	pl->ditty=&arilou_ditty;
 
 	pl->ship_flags = IMMEDIATE_WEAPON;
-	pl->mass=SHIP_MASS;
+	pl->object.mass_points=SHIP_MASS;
 
 	pl->pilot_sprite=(1024+512)/16;
 	pl->pilots[0].x=15;
@@ -187,7 +190,7 @@ void SetArilou(pPlayer pl)
 
 	pl->charging=0;
 	for (int i=8;i<12;i++)
-		pl->weapon[i].life=-2;
+		pl->weapon[i].object.life=-2;
 
 }
 
@@ -224,11 +227,11 @@ int aiArilou(pPlayer ai, pObject ObjectsOfConcern, COUNT ConcernCounter)
 
 
 				/*if (((opp->ship_flags	& SEEKING_WEAPON)
-						//&& lpEvalDesc->ObjectPtr->next.image.farray ==
+						//&& lpEvalDesc->tr->next.image.farray ==
 						//EnemyStarShipPtr->RaceDescPtr->ship_data.weapon
 						) ||
 						((opp->ship_flags & SEEKING_SPECIAL)
-						// &&	lpEvalDesc->ObjectPtr->next.image.farray ==
+						// &&	lpEvalDesc->tr->next.image.farray ==
 						//EnemyStarShipPtr->RaceDescPtr->ship_data.special))
 						})*/
 				if ((opp->ship_flags	& SEEKING_WEAPON)&&(opp->ship_flags & SEEKING_SPECIAL))
@@ -257,23 +260,23 @@ void SetArilouPilot(pPlayer pl)
 	int off=(pl->plr==1)?0:6;
 
 	sprites[43+off].attribute0 = COLOR_256 | TALL  | 160;
-	sprites[43+off].attribute1 = SIZE_32 | 240;
+	sprites[43+off].attribute1 =SIZE_32 | 240;
 	sprites[43+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+64 | PRIORITY(2);
 
 	sprites[44+off].attribute0 = COLOR_256 | TALL  | 160;
-	sprites[44+off].attribute1 = SIZE_32 | 240;
+	sprites[44+off].attribute1 =SIZE_32 | 240;
 	sprites[44+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+80 | PRIORITY(2);
 
 	sprites[45+off].attribute0 = COLOR_256 | SQUARE  | 160;
-	sprites[45+off].attribute1 = SIZE_16 | 240;
+	sprites[45+off].attribute1 =SIZE_16 | 240;
 	sprites[45+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+96 | PRIORITY(1);
 
 	sprites[46+off].attribute0 = COLOR_256 |TALL  | 160;
-	sprites[46+off].attribute1 = SIZE_32 | 240;
+	sprites[46+off].attribute1 =SIZE_32 | 240;
 	sprites[46+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+104 | PRIORITY(1);
 
 	sprites[47+off].attribute0 = COLOR_256 | TALL  | 160;
-	sprites[47+off].attribute1 = SIZE_32 | 240;
+	sprites[47+off].attribute1 =SIZE_32 | 240;
 	sprites[47+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+120 | PRIORITY(2);
 }
 
@@ -286,10 +289,10 @@ void RestoreGFXArilou(pPlayer p)
 void PostArilou(pPlayer p)
 {
 	//update then remove inertia
-	p->xpos+=p->xspeed;
-	p->ypos-=p->yspeed;
+	p->object.xpos+=p->object.xspeed;
+	p->object.ypos-=p->object.yspeed;
 
-	p->xspeed=0;
-	p->yspeed=0;
+	p->object.xspeed=0;
+	p->object.yspeed=0;
 
 }

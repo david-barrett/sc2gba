@@ -25,7 +25,8 @@
 s16 TurnShip (pPlayer ai, s16 angle);
 extern pAsteroid asteroids;
 extern s16 planet_screenx,planet_screeny;
-extern s32 planetx,planety;
+//extern s32 planet.xpos,planet.ypos;
+extern Object planet;
 
 void Pursue (pPlayer ShipPtr, pObject obj);
 void Entice (pPlayer ShipPtr, pObject obj);
@@ -45,26 +46,26 @@ PlotIntercept (pPlayer ElementPtr0, pObject ElementPtr1, COUNT
 {
 
 	max_turns;
-	s32 x1 = ElementPtr0->xpos+ElementPtr0->xspeed;
-	s32 y1 = ElementPtr0->ypos+ElementPtr0->yspeed;
-	s32 x2 = ElementPtr1->xpos+ElementPtr1->xspeed;
-	s32 y2 = ElementPtr1->ypos+ElementPtr1->yspeed;
+	s32 x1 = ElementPtr0->object.xpos+ElementPtr0->object.xspeed;
+	s32 y1 = ElementPtr0->object.ypos+ElementPtr0->object.yspeed;
+	s32 x2 = ElementPtr1->object.xpos+ElementPtr1->object.xspeed;
+	s32 y2 = ElementPtr1->object.ypos+ElementPtr1->object.yspeed;
 
-	s32 hx1 = ElementPtr0->xpos+ElementPtr0->xspeed<<1;
-	s32 hy1 = ElementPtr0->ypos+ElementPtr0->yspeed<<1;
-	s32 hx2 = ElementPtr1->xpos+ElementPtr1->xspeed<<1;
-	s32 hy2 = ElementPtr1->ypos+ElementPtr1->yspeed<<1;
+	s32 hx1 = ElementPtr0->object.xpos+ElementPtr0->object.xspeed<<1;
+	s32 hy1 = ElementPtr0->object.ypos+ElementPtr0->object.yspeed<<1;
+	s32 hx2 = ElementPtr1->object.xpos+ElementPtr1->object.xspeed<<1;
+	s32 hy2 = ElementPtr1->object.ypos+ElementPtr1->object.yspeed<<1;
 
-	s16 size = (ElementPtr0->offset+ElementPtr1->size)+margin_of_error;
+	s16.object.size = (ElementPtr0->offset+ElementPtr1->object.size)+margin_of_error;
 	for (s16 i=0;i<max_turns;i++)
 	{
-		if ((distanceBetweenPoints(x1,y1,x2,y2)<size)
-				||(distanceBetweenPoints(x1-hx1,y1-hy1,x2-hx2,y2-hy2)<size))
+		if ((distanceBetweenPoints(x1,y1,x2,y2).object.size)
+				||(distanceBetweenPoints(x1-hx1,y1-hy1,x2-hx2,y2-hy2).object.size))
 			return i+1;
-		x1+=ElementPtr0->xspeed;
-		y1+=ElementPtr0->yspeed;
-		x2+=ElementPtr1->xspeed;
-		y1+=ElementPtr1->yspeed;
+		x1+=ElementPtr0->object.xspeed;
+		y1+=ElementPtr0->object.yspeed;
+		x2+=ElementPtr1->object.xspeed;
+		y1+=ElementPtr1->object.yspeed;
 	}
 	return 0;
 }
@@ -74,8 +75,8 @@ COUNT
 PlotIntercept (pPlayer ElementPtr0, pObject ElementPtr1, COUNT
 		max_turns, COUNT margin_of_error)
 {
-	s32 x1 = ElementPtr0->xpos+ElementPtr0->xspeed;
-	s32 y1 = ElementPtr0->ypos-ElementPtr0->yspeed;
+	s32 x1 = ElementPtr0->object.xpos+ElementPtr0->object.xspeed;
+	s32 y1 = ElementPtr0->object.ypos-ElementPtr0->object.yspeed;
 	s32 x2 = ElementPtr1->xpos+ElementPtr1->xspeed;
 	s32 y2 = ElementPtr1->ypos-ElementPtr1->yspeed;
 	s16 size = (ElementPtr0->offset+ElementPtr1->size)+margin_of_error;
@@ -83,48 +84,48 @@ PlotIntercept (pPlayer ElementPtr0, pObject ElementPtr1, COUNT
 	{
 		if (distanceBetweenPoints(x1,y1,x2,y2)<size)
 			return i;
-		x1+=ElementPtr0->xspeed;
-		y1-=ElementPtr0->yspeed;
+		x1+=ElementPtr0->object.xspeed;
+		y1-=ElementPtr0->object.yspeed;
 		x2+=ElementPtr1->xspeed;
 		y1-=ElementPtr1->yspeed;
 	}
 	/*
-	register SIZE dy;
-	register SIZE time_y_0, time_y_1;
+	register.object.size dy;
+	register.object.size time_y_0, time_y_1;
 	POINT dst[2];
 	RECT r0, r1;
-	SIZE dx_0, dy_0, dx_1, dy_1;
+.object.size dx_0, dy_0, dx_1, dy_1;
 
-	if ((ElementPtr0->state_flags | ElementPtr1->state_flags) & FINITE_LIFE)
+	if ((ElementPtr0->state_flags | ElementPtr1->state_flags) & FINITE.object.life)
 	{
-		if (!(ElementPtr0->state_flags & FINITE_LIFE))
+		if (!(ElementPtr0->state_flags & FINITE.object.life))
 		{
-			if (ElementPtr1->life_span < max_turns)
-				max_turns = ElementPtr1->life_span;
+			if (ElementPtr1->object.life_span < max_turns)
+				max_turns = ElementPtr1->object.life_span;
 		}
-		else if (!(ElementPtr1->state_flags & FINITE_LIFE))
+		else if (!(ElementPtr1->state_flags & FINITE.object.life))
 		{
-			if (ElementPtr0->life_span < max_turns)
-				max_turns = ElementPtr0->life_span;
+			if (ElementPtr0->object.life_span < max_turns)
+				max_turns = ElementPtr0->object.life_span;
 		}
 		else
 		{
-			if (ElementPtr0->life_span < max_turns)
-				max_turns = ElementPtr0->life_span;
-			if (ElementPtr1->life_span < max_turns)
-				max_turns = ElementPtr1->life_span;
+			if (ElementPtr0->object.life_span < max_turns)
+				max_turns = ElementPtr0->object.life_span;
+			if (ElementPtr1->object.life_span < max_turns)
+				max_turns = ElementPtr1->object.life_span;
 		}
 	}
 
 	dst[0] = ElementPtr0->current.location;
 	GetCurrentVelocityComponents (&ElementPtr0->velocity, &dx_0, &dy_0);
-	dx_0 = (SIZE)VELOCITY_TO_WORLD ((long)dx_0 * (long)max_turns);
-	dy_0 = (SIZE)VELOCITY_TO_WORLD ((long)dy_0 * (long)max_turns);
+	dx_0 = .object.size)VELOCITY_TO_WORLD ((long)dx_0 * (long)max_turns);
+	dy_0 = .object.size)VELOCITY_TO_WORLD ((long)dy_0 * (long)max_turns);
 
 	dst[1] = ElementPtr1->current.location;
 	GetCurrentVelocityComponents (&ElementPtr1->velocity, &dx_1, &dy_1);
-	dx_1 = (SIZE)VELOCITY_TO_WORLD ((long)dx_1 * (long)max_turns);
-	dy_1 = (SIZE)VELOCITY_TO_WORLD ((long)dy_1 * (long)max_turns);
+	dx_1 = .object.size)VELOCITY_TO_WORLD ((long)dx_1 * (long)max_turns);
+	dy_1 = .object.size)VELOCITY_TO_WORLD ((long)dy_1 * (long)max_turns);
 
 	if (margin_of_error)
 	{
@@ -156,8 +157,8 @@ PlotIntercept (pPlayer ElementPtr0, pObject ElementPtr1, COUNT
 			|| (time_y_0 > 0 && dy >= time_y_0)
 			|| (time_y_1 < 0 && dy <= time_y_1))
 	{
-		register SIZE dx;
-		register SIZE time_x_0, time_x_1;
+		register.object.size dx;
+		register.object.size time_x_0, time_x_1;
 
 		if (margin_of_error)
 		{
@@ -186,7 +187,7 @@ PlotIntercept (pPlayer ElementPtr0, pObject ElementPtr1, COUNT
 				time_y_0 = time_y_1 = 0;
 			else
 			{
-				SIZE t;
+			.object.size t;
 				long time_beg, time_end, fract;
 
 				if (time_y_1 < 0)
@@ -253,12 +254,12 @@ PlotIntercept (pPlayer ElementPtr0, pObject ElementPtr1, COUNT
 				if ((time_beg *= max_turns) < fract)
 					time_y_0 = 0;
 				else
-					time_y_0 = (SIZE)(time_beg / fract);
+					time_y_0 = .object.size)(time_beg / fract);
 
 				if (time_end >= fract) // just in case of overflow
 					time_y_1 = max_turns - 1;
 				else
-					time_y_1 = (SIZE)((time_end * max_turns) / fract);
+					time_y_1 = .object.size)((time_end * max_turns) / fract);
 			}
 
 			if (time_y_0 <= time_y_1)
@@ -401,7 +402,7 @@ s16
 ship_weapons (pPlayer ShipPtr, pObject obj,  COUNT		margin_of_error)
 //ELEMENTPTR OtherPtr, COUNT		margin_of_error)
 {
-//	SIZE delta_x, delta_y;
+//.object.size delta_x, delta_y;
 //	COUNT n, num_weapons;
 //	ELEMENT Ship;
 //	HELEMENT Weapon[6];
@@ -448,10 +449,10 @@ ship_weapons (pPlayer ShipPtr, pObject obj,  COUNT		margin_of_error)
 				//wrong wrong wrong
 				//need to use weapon speed,off set etc
 				pPlayer opp=(pPlayer)ShipPtr->opp;
-				s16 angle = FindAngle(ShipPtr->xpos,ShipPtr->ypos,opp->xpos,opp->ypos);
+				s16 angle = FindAngle(ShipPtr->object.xpos,ShipPtr->object.ypos,opp->object.xpos,opp->object.ypos);
 			//	if (PlotIntercept (ShipPtr, (pPlayer)ShipPtr->opp,
 			//			ShipPtr->range, margin_of_error))
-				if ((TurnAngle(angle,ShipPtr->angle,45)==0)&&InRange(ShipPtr->xpos,ShipPtr->ypos,opp->xpos,opp->ypos,ShipPtr->range))
+				if ((TurnAngle(angle,ShipPtr->object.angle,45)==0)&&InRange(ShipPtr->object.xpos,ShipPtr->object.ypos,opp->object.xpos,opp->object.ypos,ShipPtr->range))
 				{
 					return 1;
 					//UnlockElement (w);
@@ -514,7 +515,7 @@ ship_intelligence (pPlayer ShipPtr, pObject ObjectsOfConcern, COUNT ConcernCount
 	while (ConcernCounter--)
 	{
 		--ObjectsOfConcern;
-	//if 	(ObjectsOfConcern->ObjectPtr)
+	//if 	(ObjectsOfConcern->object.tr)
 	//	{
 
 			if (!ShipMoved && ObjectsOfConcern->MoveState !=NO_MOVEMENT
@@ -549,7 +550,7 @@ TurnShip (pPlayer ai, s16 angle)
 	//STARSHIPPTR StarShipPtr;
 
 	//GetElementStarShip (ShipPtr, &StarShipPtr);
-	f = ShipPtr->angle;
+	f = ShipPtr->object.angle;
 	ship_delta_facing = ModifyAngle(angle ,f*-1);
 	if (ship_delta_facing)
 	{
@@ -584,9 +585,9 @@ TurnShip (pPlayer ai, s16 angle)
 	}
 
 */
-//	print("\n angle=");
-//	print(angle);
-	int ret=TurnAngle(angle,ai->angle,23);
+//	print("\n.object.angle=");
+//	print.object.angle);
+	int ret=TurnAngle(angle,ai->object.angle,23);
 	if (ret<0)
 		ai->ship_input_state |= LEFT;
 	else if (ret>0)
@@ -604,7 +605,7 @@ ThrustShip (pPlayer ShipPtr, s16 angle)
 
 	if (ShipPtr->ship_input_state & THRUST)
 		ShouldThrust = 1;
-	else if (ShipPtr->angle==GetVelocityTravelAngle (ShipPtr->xspeed,ShipPtr->yspeed)
+	else if (ShipPtr->object.angle==GetVelocityTravelAngle (ShipPtr->object.xspeed,ShipPtr->object.yspeed)
 			//&& (StarShipPtr->cur_status_flags
 			&&(ShipPtr->speed>=ShipPtr->maxspeed))//& (SHIP_AT_MAX_SPEED | SHIP_BEYOND_MAX_SPEED))
 		//	&& !(StarShipPtr->cur_status_flags & SHIP_IN_GRAVITY_WELL))
@@ -614,10 +615,10 @@ ThrustShip (pPlayer ShipPtr, s16 angle)
 		s16 ship_delta_facing;
 
 		//ship_delta_facing = ModifyAngle(angle,45
-			//	- ShipPtr->angle );
-		if ((TurnAngle(angle,ShipPtr->angle,45)==0)
+			//	- ShipPtr->object.angle );
+		if ((TurnAngle(angle,ShipPtr->object.angle,45)==0)
 				|| ((ShipPtr->speed>=ShipPtr->maxspeed)
-				&& (TurnAngle(angle,ShipPtr->angle,180)==0)))
+				&& (TurnAngle(angle,ShipPtr->object.angle,180)==0)))
 			ShouldThrust = 1;
 		else
 			ShouldThrust = 0;
@@ -637,7 +638,7 @@ void
 PursueWeapon (pPlayer ShipPtr, pWeapon w)
 {
 
-	s16 desired_thrust_angle = FindAngle(ShipPtr->xpos,ShipPtr->ypos,w->xpos,w->ypos);
+	s16 desired_thrust_angle = FindAngle(ShipPtr->object.xpos,ShipPtr->object.ypos,w->object.xpos,w->object.ypos);
 
 	if (ShipPtr->turn_turn==0)
 		TurnShip (ShipPtr, desired_thrust_angle);
@@ -650,7 +651,7 @@ void
 Pursue (pPlayer ShipPtr, pObject obj)
 {
 
-	s16 desired_thrust_angle = FindAngle(ShipPtr->xpos,ShipPtr->ypos,obj->xpos,obj->ypos);
+	s16 desired_thrust_angle = FindAngle(ShipPtr->object.xpos,ShipPtr->object.ypos,obj->xpos,obj->ypos);
 	s16 desired_turn_angle = ModifyAngle(desired_thrust_angle,180);
 	// other player's ship
 
@@ -675,7 +676,7 @@ Pursue (pPlayer ShipPtr, pObject obj)
 				u8 fire_flags;
 				COUNT facing;
 
-				//for (fire_flags = FIRES_FORE, facing = enemyShipPtr->angle;
+				//for (fire_flags = FIRES_FORE, facing = enemyShipPtr->object.angle;
 				//		fire_flags <= FIRES_LEFT;
 				//		fire_flags <<= 1, ModifyAngle(facing,90))
 				for (int i=0;i<3;i++)
@@ -683,17 +684,17 @@ Pursue (pPlayer ShipPtr, pObject obj)
 					if (i==2)
 					{
 						fire_flags=FIRES_RIGHT;
-						facing=ModifyAngle(enemyShipPtr->angle,90);
+						facing=ModifyAngle(enemyShipPtr->object.angle,90);
 					}
 					else if (i==1)
 					{
 						fire_flags=FIRES_LEFT;
-						facing=ModifyAngle(enemyShipPtr->angle,-90);
+						facing=ModifyAngle(enemyShipPtr->object.angle,-90);
 					}
 					else
 					{
 						fire_flags=FIRES_FORE;
-						facing=enemyShipPtr->angle;
+						facing=enemyShipPtr->object.angle;
 					}
 
 					if
@@ -705,13 +706,13 @@ Pursue (pPlayer ShipPtr, pObject obj)
 
 						&& (
 							// he's moving
-						(enemyShipPtr->xspeed != 0 || enemyShipPtr->yspeed != 0)
+						(enemyShipPtr->object.xspeed != 0 || enemyShipPtr->object.yspeed != 0)
 						&&
 							// he's coasting backwards
-						TurnAngle(enemyShipPtr->angle,GetVelocityTravelAngle (enemyShipPtr->xspeed,enemyShipPtr->yspeed),180)==0)
+						TurnAngle(enemyShipPtr->object.angle,GetVelocityTravelAngle (enemyShipPtr->object.xspeed,enemyShipPtr->object.yspeed),180)==0)
 					//	ModifyAngle (
-					//	(GetVelocityTravelAngle (enemyStartShipPtr->xspeed,enemyStartShipPtr->yspeed),
-					//	+ 180 - enemyStartShipPtr->angle + (45 + (45 >> 1)))
+					//	(GetVelocityTravelAngle (enemyStartShipPtr->object.xspeed,enemyStartShipPtr->object.yspeed),
+					//	+ 180 - enemyStartShipPtr->object.angle + (45 + (45 >> 1)))
 					//	<= ((45 + (45 >> 1)) << 1))
 					)
 					{
@@ -724,17 +725,17 @@ Pursue (pPlayer ShipPtr, pObject obj)
 			}
 
 			if (desired_thrust_angle != desired_turn_angle
-					&& (enemyShipPtr->xspeed || enemyShipPtr->yspeed)
+					&& (enemyShipPtr->object.xspeed || enemyShipPtr->object.yspeed)
 				//	&& EvalDescPtr->which_turn >= 24
-					&& (TurnAngle (desired_thrust_angle,GetVelocityTravelAngle (enemyShipPtr->xspeed,enemyShipPtr->yspeed),90)==0)
+					&& (TurnAngle (desired_thrust_angle,GetVelocityTravelAngle (enemyShipPtr->object.xspeed,enemyShipPtr->object.yspeed),90)==0)
 					&& (TurnAngle(
-						GetVelocityTravelAngle (enemyShipPtr->xspeed,enemyShipPtr->yspeed),
-					GetVelocityTravelAngle (enemyShipPtr->xspeed,enemyShipPtr->yspeed),45)
+						GetVelocityTravelAngle (enemyShipPtr->object.xspeed,enemyShipPtr->object.yspeed),
+					GetVelocityTravelAngle (enemyShipPtr->object.xspeed,enemyShipPtr->object.yspeed),45)
 					==0)
 					&& ((ShipPtr->speed>=ShipPtr->maxspeed)
 					&& (ShipPtr->speed<enemyShipPtr->maxspeed))
 				//	|| (ship_flags & DONT_CHASE))
-					|| (TurnAngle(desired_turn_angle,ShipPtr->angle,45)==0))
+					|| (TurnAngle(desired_turn_angle,ShipPtr->object.angle,45)==0))
 					{
 
 				desired_thrust_angle = desired_turn_angle;
@@ -759,7 +760,7 @@ Entice (pPlayer ShipPtr, pObject obj)//, EVALUATE_DESCPTR EvalDescPtr)
 	pPlayer opp=(pPlayer)ShipPtr->opp;
 	//INPUT_STATE maneuver_state;
 	COUNT desired_thrust_angle, desired_turn_angle;
-	COUNT cone_of_fire, travel_angle;
+	COUNT cone_of_fire, travelangle;
 	s16  delta_x, delta_y;
 	s16  ship_delta_x, ship_delta_y;
 	s16  other_delta_x, other_delta_y;
@@ -776,7 +777,7 @@ Entice (pPlayer ShipPtr, pObject obj)//, EVALUATE_DESCPTR EvalDescPtr)
 	ShipPtr->next.location.y =
 			ShipPtr->current.location.y + ship_delta_y;
 
-	OtherObjPtr = (ELEMENTPTR)EvalDescPtr->ObjectPtr;
+	OtherObjPtr = (ELEMENTPTR)EvalDescPtr->object.tr;
 	OtherVelocity = OtherObjPtr->velocity;
 	GetNextVelocityComponents (&OtherVelocity,
 			&other_delta_x, &other_delta_y, EvalDescPtr->which_turn);
@@ -790,7 +791,7 @@ Entice (pPlayer ShipPtr, pObject obj)//, EVALUATE_DESCPTR EvalDescPtr)
 
 	desired_thrust_angle = ARCTAN (delta_x, delta_y);
 	*/
-	desired_thrust_angle = FindAngle(ShipPtr->xpos+ShipPtr->xspeed,ShipPtr->ypos-ShipPtr->yspeed,
+	desired_thrust_angle = FindAngle(ShipPtr->object.xpos+ShipPtr->object.xspeed,ShipPtr->object.ypos-ShipPtr->object.yspeed,
 		obj->xpos+obj->xspeed,obj->ypos-obj->yspeed);
 
 
@@ -806,10 +807,10 @@ Entice (pPlayer ShipPtr, pObject obj)//, EVALUATE_DESCPTR EvalDescPtr)
 /*
 	delta_x = ship_delta_x - other_delta_x;
 	delta_y = ship_delta_y - other_delta_y;
-	travel_angle = ARCTAN (delta_x, delta_y);
+	travelangle = ARCTAN (delta_x, delta_y);
 	*/
-	travel_angle=FindAngle(ShipPtr->xpos+ShipPtr->xspeed,ShipPtr->ypos-ShipPtr->yspeed,
-		opp->xpos,opp->ypos);
+	travelangle=FindAngle(ShipPtr->object.xpos+ShipPtr->object.xspeed,ShipPtr->object.ypos-ShipPtr->object.yspeed,
+		opp->object.xpos,opp->object.ypos);
 	desired_turn_angle = ModifyAngle (desired_thrust_angle,180);
 
 	//GetElementStarShip (ShipPtr, &StarShipPtr);
@@ -821,9 +822,9 @@ Entice (pPlayer ShipPtr, pObject obj)//, EVALUATE_DESCPTR EvalDescPtr)
 	{
 		desired_turn_angle = ModifyAngle(desired_turn_angle,-1*obj->angle);
 
-		TurnAngle(desired_turn_angle,ShipPtr->angle,0)<0?desired_thrust_angle = LEFT:desired_thrust_angle = RIGHT;
+		TurnAngle(desired_turn_angle,ShipPtr->object.angle,0)<0?desired_thrust_angle = LEFT:desired_thrust_angle = RIGHT;
 		/*
-		if (NORMALIZE_FACING (ANGLE_TO_FACING (desired_turn_angle)))
+		if (NORMALIZE_FACING .object.angle_TO_FACING (desired_turn_angle)))
 		{
 			if (desired_turn_angle <= HALF_CIRCLE)
 				desired_thrust_angle = RIGHT;
@@ -832,8 +833,8 @@ Entice (pPlayer ShipPtr, pObject obj)//, EVALUATE_DESCPTR EvalDescPtr)
 		}
 		else
 		{
-			desired_turn_angle = NORMALIZE_ANGLE (
-					FACING_TO_ANGLE (StarShipPtr->ShipFacing)
+			desired_turn_angle = NORMALIZE.object.angle (
+					FACING_TO.object.angle (StarShipPtr->ShipFacing)
 					- EvalDescPtr->facing
 					);
 			if ((desired_turn_angle & (HALF_CIRCLE - 1)) == 0)
@@ -856,13 +857,13 @@ Entice (pPlayer ShipPtr, pObject obj)//, EVALUATE_DESCPTR EvalDescPtr)
 
 		//desired_thrust_angle = desired_thrust_angle;
 	}
-	//else if (GRAVITY_MASS (OtherObjPtr->mass_points))
+	//else if (GRAVITY_MASS (OtherObjPtr->object.object.mass_points_points_points))
 	else if (obj->type==PLANET)
 	{
 		COUNT planet_facing,awayfacing;
 
 		planet_facing = desired_thrust_angle;
-		cone_of_fire = ModifyAngle(planet_facing,90-ShipPtr->angle);
+		cone_of_fire = ModifyAngle(planet_facing,90-ShipPtr->object.angle);
 
 		awayfacing=ModifyAngle(planet_facing,180);
 
@@ -873,20 +874,20 @@ Entice (pPlayer ShipPtr, pObject obj)//, EVALUATE_DESCPTR EvalDescPtr)
 			maneuver_state &= ~THRUST;
 
 				// if not pointing towards planet
-		if (TurnAngle(ShipPtr->angle,awayfacing,90)==0)
+		if (TurnAngle(ShipPtr->object.angle,awayfacing,90)==0)
 			desired_turn_angle = desired_thrust_angle;
 				// if pointing directly at planet
-		else if (TurnAngle(ShipPtr->angle,planet_facing,90)==0)
-			desired_turn_angle = travel_angle;
+		else if (TurnAngle(ShipPtr->object.angle,planet_facing,90)==0)
+			desired_turn_angle = travelangle;
 		else /*if (cone_of_fire == 0
-				|| cone_of_fire == ANGLE_TO_FACING (QUADRANT << 1)
+				|| cone_of_fire ==.object.angle_TO_FACING (QUADRANT << 1)
 				|| (!(maneuver_state & THRUST)
-				&& (cone_of_fire < ANGLE_TO_FACING (OCTANT)
-				|| cone_of_fire > ANGLE_TO_FACING ((QUADRANT << 1) - OCTANT))))*/
+				&& (cone_of_fire <.object.angle_TO_FACING (OCTANT)
+				|| cone_of_fire >.object.angle_TO_FACING ((QUADRANT << 1) - OCTANT))))*/
 		{
-			desired_turn_angle = (ShipPtr->angle);
-			if (TurnAngle(desired_turn_angle,travel_angle,180)!=0)
-				desired_turn_angle = travel_angle;
+			desired_turn_angle = (ShipPtr->object.angle);
+			if (TurnAngle(desired_turn_angle,travelangle,180)!=0)
+				desired_turn_angle = travelangle;
 			if (ShipPtr->thrust_wait == 0)
 				maneuver_state |= THRUST;
 		}
@@ -920,15 +921,15 @@ Entice (pPlayer ShipPtr, pObject obj)//, EVALUATE_DESCPTR EvalDescPtr)
 						// he's dangerous in this direction
 				//	(ship_flags & fire_flags)&&
 						// he's facing direction you want to go
-					 //(cone_of_fire = NORMALIZE_ANGLE (
+					 //(cone_of_fire = NORMALIZE.object.angle (
 					//desired_turn_angle - facing + OCTANT
 					//)) <= QUADRANT
-					(TurnAngle(desired_turn_angle,opp->angle,45)==0)
+					(TurnAngle(desired_turn_angle,opp->object.angle,45)==0)
 						// he's moving
-					&& ((opp->xspeed != 0 || opp->yspeed != 0)
+					&& ((opp->object.xspeed != 0 || opp->object.yspeed != 0)
 						// he's coasting backwards
-					&&TurnAngle(opp->angle,GetVelocityTravelAngle (opp->xspeed,opp->yspeed),180)==0)
-					//&& NORMALIZE_ANGLE (
+					&&TurnAngle(opp->object.angle,GetVelocityTravelAngle (opp->object.xspeed,opp->object.yspeed),180)==0)
+					//&& NORMALIZE.object.angle (
 					//(GetVelocityTravelAngle (&OtherVelocity) + HALF_CIRCLE)
 					//- facing + OCTANT) <= QUADRANT)
 				)
@@ -974,9 +975,9 @@ Entice (pPlayer ShipPtr, pObject obj)//, EVALUATE_DESCPTR EvalDescPtr)
 			if
 			(
 					// pointed straight at him
-				(TurnAngle (desired_thrust_angle,ShipPtr->angle,45)==0)
+				(TurnAngle (desired_thrust_angle,ShipPtr->object.angle,45)==0)
 
-					// or not exposed to business end
+					// or not eobject.xposed to business end
 					//TODO
 				//|| cone_of_fire > QUADRANT
 			)
@@ -988,7 +989,7 @@ Entice (pPlayer ShipPtr, pObject obj)//, EVALUATE_DESCPTR EvalDescPtr)
 			{
 
 
-				desired_thrust_angle = ShipPtr->angle;
+				desired_thrust_angle = ShipPtr->object.angle;
 				desired_turn_angle = desired_thrust_angle;
 			}
 		}
@@ -1000,7 +1001,7 @@ Entice (pPlayer ShipPtr, pObject obj)//, EVALUATE_DESCPTR EvalDescPtr)
 							// and already at full speed
 				&&(ShipPtr->speed>=ShipPtr->maxspeed)
 							// and facing away from enemy
-					&& ((TurnAngle(desired_turn_angle,ShipPtr->angle,180)==0)
+					&& ((TurnAngle(desired_turn_angle,ShipPtr->object.angle,180)==0)
 							// or not on collision course
 					|| !PlotIntercept (
 							ShipPtr, obj, 30, CLOSE_RANGE_WEAPON << 1
@@ -1021,10 +1022,10 @@ Entice (pPlayer ShipPtr, pObject obj)//, EVALUATE_DESCPTR EvalDescPtr)
 					maneuver_state &= ~(LEFT | RIGHT);
 				}
 
-				if (TurnAngle(desired_thrust_angle,ShipPtr->angle,45)==0)
+				if (TurnAngle(desired_thrust_angle,ShipPtr->object.angle,45)==0)
 				{
 
-					desired_thrust_angle = ShipPtr->angle;
+					desired_thrust_angle = ShipPtr->object.angle;
 				}
 				else
 				{
@@ -1079,7 +1080,7 @@ tactical_intelligence (pPlayer StarShipPtr )
 	//if (StarShipPtr->ai==STANDARD)
 	//	++StarShipPtr->special_counter;
 
-	ShipFacing = StarShipPtr->angle;
+	ShipFacing = StarShipPtr->object.angle;
 
 //need object
 	for (ConcernCounter = 0;
@@ -1119,39 +1120,28 @@ tactical_intelligence (pPlayer StarShipPtr )
 
 	pPlayer opp = (pPlayer)StarShipPtr->opp;
 
-	Object tmp_obj;
-
-	tmp_obj.type=PLAYER;
-	tmp_obj.parent=(void*)StarShipPtr;
-	tmp_obj.xpos=StarShipPtr->xpos;
-	tmp_obj.ypos=StarShipPtr->ypos ;
-	tmp_obj.xscreen=StarShipPtr->xscreen;
-	tmp_obj.yscreen=StarShipPtr->yscreen;
-	tmp_obj.angle=StarShipPtr->angle;
-	tmp_obj.xspeed=StarShipPtr->xspeed;
-	tmp_obj.yspeed=StarShipPtr->yspeed;
-	tmp_obj.life=-1;
-	tmp_obj.size=StarShipPtr->offset;
-
+	Object tmp_obj=StarShipPtr->object;	
+/*
+	
 	gameObjs[0].type=PLAYER;
 	gameObjs[0].parent=(void*)opp;
-	gameObjs[0].xpos=opp->xpos;
-	gameObjs[0].ypos=opp->ypos ;
-	gameObjs[0].xscreen=opp->xscreen;
-	gameObjs[0].yscreen=opp->yscreen;
-	gameObjs[0].angle=opp->angle;
-	gameObjs[0].xspeed=opp->xspeed;
-	gameObjs[0].yspeed=opp->yspeed;
+	gameObjs[0].xpos=opp->object.xpos;
+	gameObjs[0].ypos=opp->object.ypos ;
+	gameObjs[0].xscreen=opp->object.xscreen;
+	gameObjs[0].yscreen=opp->object.yscreen;
+	gameObjs[0].angle=opp->object.angle;
+	gameObjs[0].xspeed=opp->object.xspeed;
+	gameObjs[0].yspeed=opp->object.yspeed;
 	gameObjs[0].life=-1;
 	gameObjs[0].size=opp->offset*2;
 
 
 	gameObjs[1].type=PLANET;
 	gameObjs[1].parent=0; // fix??
-	gameObjs[1].xpos=planetx;
-	gameObjs[1].ypos=planety;
-	gameObjs[1].xscreen=planet_screenx;
-	gameObjs[1].yscreen=planet_screeny;
+	gameObjs[1].xpos=planet.xpos;
+	gameObjs[1].ypos=planet.ypos;
+	gameObjs[1].xscreen=planet.screenx;
+	gameObjs[1].yscreen=planet.screeny;
 	gameObjs[1].angle=0;
 	gameObjs[1].xspeed=0;
 	gameObjs[1].yspeed=0;
@@ -1162,39 +1152,41 @@ tactical_intelligence (pPlayer StarShipPtr )
 	{
 		gameObjs[i+2].type=ASTEROID;
 		gameObjs[i+2].parent=&asteroids[i];
-		gameObjs[i+2].xpos=asteroids[i].xpos;
-		gameObjs[i+2].ypos=asteroids[i].ypos ;
-		gameObjs[i+2].xscreen=asteroids[i].xscreen;
-		gameObjs[i+2].yscreen=asteroids[i].yscreen;
-		gameObjs[i+2].angle=asteroids[i].angle;
-		gameObjs[i+2].xspeed=asteroids[i].xspeed;
-		gameObjs[i+2].yspeed=asteroids[i].yspeed;
+		gameObjs[i+2].xpos=asteroids[i].object.xpos;
+		gameObjs[i+2].ypos=asteroids[i].object.ypos ;
+		gameObjs[i+2].xscreen=asteroids[i].object.xscreen;
+		gameObjs[i+2].yscreen=asteroids[i].object.yscreen;
+		gameObjs[i+2].angle=asteroids[i].object.angle;
+		gameObjs[i+2].xspeed=asteroids[i].object.xspeed;
+		gameObjs[i+2].yspeed=asteroids[i].object.yspeed;
 		gameObjs[i+2].life=-1;
 		gameObjs[i+2].size=16;
 	}
 	int j=7;
 	for (int i=0;i<12;i++)
 		{
-			if (opp->weapon[i].life>0)
+			if (opp->weapon[i].object.life>0)
 			{
 				gameObjs[j].type=opp->weapon[i].type;
 				gameObjs[j].parent=&opp->weapon[i];
-				gameObjs[j].xpos=opp->weapon[i].xpos;
-				gameObjs[j].ypos=opp->weapon[i].ypos ;
-				gameObjs[j].xscreen=opp->weapon[i].xscreen;
-				gameObjs[j].yscreen=opp->weapon[i].yscreen;
-				gameObjs[j].angle=opp->weapon[i].angle;
-				gameObjs[j].xspeed=opp->weapon[i].xspeed;
-				gameObjs[j].yspeed=opp->weapon[i].yspeed;
-				gameObjs[j].life=opp->weapon[i].life;
-				gameObjs[j].size=opp->weapon[i].size;
+				gameObjs[j].xpos=opp->weapon[i].object.xpos;
+				gameObjs[j].ypos=opp->weapon[i].object.ypos ;
+				gameObjs[j].xscreen=opp->weapon[i].object.xscreen;
+				gameObjs[j].yscreen=opp->weapon[i].object.yscreen;
+				gameObjs[j].angle=opp->weapon[i].object.angle;
+				gameObjs[j].xspeed=opp->weapon[i].object.xspeed;
+				gameObjs[j].yspeed=opp->weapon[i].object.yspeed;
+				gameObjs[j].life=opp->weapon[i].object.life;
+				gameObjs[j].size=opp->weapon[i].object.size;
 				j++;
 			}
 	}
+	*/
 
-	for (int i=0;i<j;i++)
+	for (int i=0;i<19;i++)
 	{
-		Object ed=gameObjs[i];
+		
+		Object ed=*(StarShipPtr->objlist[i]);
 
 
 
@@ -1203,7 +1195,7 @@ tactical_intelligence (pPlayer StarShipPtr )
 	/*
 		if (CollisionPossible (ed.ObjectPtr, &Ship))
 		{
-			SIZE dx, dy;
+		.object.size dx, dy;
 
 			dx = ed.ObjectPtr->next.location.x
 					- Ship.next.location.x;
@@ -1211,7 +1203,7 @@ tactical_intelligence (pPlayer StarShipPtr )
 					- Ship.next.location.y;
 			dx = WRAP_DELTA_X (dx);
 			dy = WRAP_DELTA_Y (dy);
-			if (GRAVITY_MASS (ed.ObjectPtr->mass_points))
+			if (GRAVITY_MASS (ed.ObjectPtr->object.object.mass_points_points_points))
 			{
 				COUNT maneuver_turn, ship_bounds;
 				RECT ship_footprint;
@@ -1275,15 +1267,15 @@ tactical_intelligence (pPlayer StarShipPtr )
 					ed.which_turn = 1;
 */
 				ObjectsOfConcern[ENEMY_SHIP_INDEX] = ed;
-				//ObjectsOfConcern[ENEMY_SHIP_INDEX].angle = opp->angle;
-				//ObjectsOfConcern[ENEMY_SHIP_INDEX].angle = opp->angle;
+				//ObjectsOfConcern[ENEMY_SHIP_INDEX].angle = opp->object.angle;
+				//ObjectsOfConcern[ENEMY_SHIP_INDEX].angle = opp->object.angle;
 				int tmp=PlotIntercept(StarShipPtr,&ed,20,0);
 
 				ObjectsOfConcern[ENEMY_SHIP_INDEX].which_turn = tmp==0?100:tmp;
 
 
 				if (ShipMoved
-				//		|| ed.ObjectPtr->mass_points > MAX_SHIP_MASS
+				//		|| ed.ObjectPtr->object.object.mass_points_points_points > MAX_SHIP_MASS
 						|| (opp->range < LONG_RANGE_WEAPON
 						&& (opp->range <= CLOSE_RANGE_WEAPON
 						|| (opp->range >= LONG_RANGE_WEAPON
@@ -1314,8 +1306,8 @@ tactical_intelligence (pPlayer StarShipPtr )
 				//if (ed.type==ASTEROID||ed.type==PLANET)
 				//{
 
-					ed.which_turn = distanceBetweenPoints(StarShipPtr->xpos,
-						StarShipPtr->xpos,ed.xpos,ed.ypos);
+					ed.which_turn = distanceBetweenPoints(StarShipPtr->object.xpos,
+						StarShipPtr->object.xpos,ed.xpos,ed.ypos);
 
 					if (ed.which_turn <
 							ObjectsOfConcern[FIRST_EMPTY_INDEX].which_turn)
@@ -1348,15 +1340,15 @@ tactical_intelligence (pPlayer StarShipPtr )
 					if ((!(ed.life!=-1 ||ed.type==CREW)
 							&& StarShipPtr->maxspeed > 8 )
 							|| TurnAngle(GetVelocityTravelAngle (ed.xspeed,ed.yspeed),
-							GetVelocityTravelAngle (StarShipPtr->xspeed,StarShipPtr->yspeed),180)==0)
+							GetVelocityTravelAngle (StarShipPtr->object.xspeed,StarShipPtr->object.yspeed),180)==0)
 					{
 
 						//ed.which_turn = 0;
 					}
 					else
 					{
-						ed.which_turn = distanceBetweenPoints(StarShipPtr->xpos,
-							StarShipPtr->xpos,ed.xpos,ed.ypos);
+						ed.which_turn = distanceBetweenPoints(StarShipPtr->object.xpos,
+							StarShipPtr->object.xpos,ed.xpos,ed.ypos);
 
 						ed.MoveState = ENTICE;
 						if (UltraManeuverable)
@@ -1400,8 +1392,8 @@ tactical_intelligence (pPlayer StarShipPtr )
 					//|| ed.ObjectPtr->preprocess_func == crew_preprocess)
 					&& ObjectsOfConcern[CREW_OBJECT_INDEX].which_turn > 1)
 			{
-				ed.which_turn = distanceBetweenPoints(StarShipPtr->xpos,
-							StarShipPtr->xpos,ed.xpos,ed.ypos);
+				ed.which_turn = distanceBetweenPoints(StarShipPtr->object.xpos,
+							StarShipPtr->object.xpos,ed.xpos,ed.ypos);
 
 				if (ed.which_turn == 0)
 					ed.which_turn = 1;
@@ -1432,7 +1424,7 @@ tactical_intelligence (pPlayer StarShipPtr )
 
 /* not sure if I need this?
 
-	StarShipPtr->angle = angle;
+	StarShipPtr->object.angle =.object.angle;
 	{
 		s16 InputState;
 

@@ -119,7 +119,7 @@ void SetUtwig(pPlayer pl)
 		pl->special_wait=SPECIAL_WAIT;
 		pl->batt_regen=ENERGY_REGENERATION;
 
-	pl->mass=SHIP_MASS;
+	pl->object.mass_points=SHIP_MASS;
 
 	pl->offset=16;
 
@@ -173,52 +173,55 @@ int FireUtwig(pPlayer pl)
 	if (b>=0)
 	{
 	pl->weapon[b].type=SIMPLE;
-	pl->weapon[b].life=MISSILE_LIFE;//range
+	pl->weapon[b].object.life=MISSILE_LIFE;//range
 	pl->weapon[b].damage=-1*MISSILE_DAMAGE;//6 suspect 6 was for both guns;
 	pl->weapon[b].target=pl->opp;
 	pl->weapon[b].parent=pl;
 	pl->weapon[b].damageparent=0;
+	pl->weapon[b].movefunc=0;
+	pl->weapon[b].hitfunc=0;
+	pl->weapon[b].object.ignorecollision=0;
 
-	pl->weapon[b].size=8;
-	pl->weapon[b].angle = pl->angle;
+	pl->weapon[b].object.size=8;
+	pl->weapon[b].object.angle = pl->object.angle;
 
 	s32 speed=20;
-	pl->weapon[b].xspeed = ((MISSILE_SPEED * (s32)SIN[pl->angle])>>8);///SPEED_REDUCT;
-	pl->weapon[b].yspeed = ((MISSILE_SPEED * (s32)COS[pl->angle])>>8);///SPEED_REDUCT;
+	pl->weapon[b].object.xspeed = ((MISSILE_SPEED * (s32)SIN[pl->object.angle])>>8);///SPEED_REDUCT;
+	pl->weapon[b].object.yspeed = ((MISSILE_SPEED * (s32)COS[pl->object.angle])>>8);///SPEED_REDUCT;
 
-	//pl->weapon[b].xpos = pl->xpos+((52 * (s32)SIN[pl->angle+(i==0?-30:+30)])>>8)/3;
-	//pl->weapon[b].ypos = pl->ypos-((52 * (s32)COS[pl->angle+(i==0?-30:+30)])>>8)/3;
+	//pl->weapon[b].object.xpos = pl->object.xpos+((52 * (s32)SIN[pl->object.angle+(i==0?-30:+30)])>>8)/3;
+	//pl->weapon[b].object.ypos = pl->object.ypos-((52 * (s32)COS[pl->object.angle+(i==0?-30:+30)])>>8)/3;
 
 	s16 angle;
 
 	if (i==0)
-		angle=ModifyAngle(pl->angle,-55);
+		angle=ModifyAngle(pl->object.angle,-55);
 	else if (i==1)
-		angle=ModifyAngle(pl->angle,-35);
+		angle=ModifyAngle(pl->object.angle,-35);
 	else if (i==2)
-		angle=ModifyAngle(pl->angle,-10);
+		angle=ModifyAngle(pl->object.angle,-10);
 	else if (i==3)
-		angle=ModifyAngle(pl->angle,15);
+		angle=ModifyAngle(pl->object.angle,15);
 	else if (i==4)
-		angle=ModifyAngle(pl->angle,45);
+		angle=ModifyAngle(pl->object.angle,45);
 	else if (i==5)
-		angle=ModifyAngle(pl->angle,65);
+		angle=ModifyAngle(pl->object.angle,65);
 
 
 
-	pl->weapon[b].xpos = pl->xpos+((52 * (s32)SIN[angle])>>8)/3;
-	pl->weapon[b].ypos = pl->ypos-((52 * (s32)COS[angle])>>8)/3;
+	pl->weapon[b].object.xpos = pl->object.xpos+((52 * (s32)SIN[angle])>>8)/3;
+	pl->weapon[b].object.ypos = pl->object.ypos-((52 * (s32)COS[angle])>>8)/3;
 
 	#ifdef MISSILE_START
-	pl->weapon[b].xpos-=pl->weapon[b].xspeed;
-	pl->weapon[b].ypos+=pl->weapon[b].yspeed;
+	pl->weapon[b].object.xpos-=pl->weapon[b].object.xspeed;
+	pl->weapon[b].object.ypos+=pl->weapon[b].object.yspeed;
 	#endif
 
-	drawOnScreen(&pl->weapon[b].xscreen,&pl->weapon[b].yscreen,
-		pl->weapon[b].xpos,pl->weapon[b].ypos,screenx,screeny,pl->weapon[b].size);
+	drawOnScreen(&pl->weapon[b].object.xscreen,&pl->weapon[b].object.yscreen,
+		pl->weapon[b].object.xpos,pl->weapon[b].object.ypos,screenx,screeny,pl->weapon[b].object.size);
 
-	sprites[pl->weapon[b].sprite].attribute0 = COLOR_256 | SQUARE | ROTATION_FLAG | SIZE_DOUBLE | MODE_TRANSPARENT | pl->weapon[b].yscreen;	//setup sprite info, 256 colour, shape and y-coord
-    sprites[pl->weapon[b].sprite].attribute1 = SIZE_8| ROTDATA(pl->weapon[b].sprite) | pl->weapon[b].xscreen;
+	sprites[pl->weapon[b].sprite].attribute0 = COLOR_256 | SQUARE | ROTATION_FLAG |SIZE_DOUBLE | MODE_TRANSPARENT | pl->weapon[b].object.yscreen;	//setup sprite info, 256 colour, shape and y-coord
+    sprites[pl->weapon[b].sprite].attribute1 =SIZE_8| ROTDATA(pl->weapon[b].sprite) | pl->weapon[b].object.xscreen;
     sprites[pl->weapon[b].sprite].attribute2 = pl->SpriteStart+64 | PRIORITY(1);
 
     ret++;
@@ -251,18 +254,18 @@ int aiUtwig(pPlayer ai, pObject ObjectsOfConcern, COUNT ConcernCounter)
 			if (lpEvalDesc->parent && lpEvalDesc->MoveState == ENTICE)
 			{
 				ShieldStatus = 0;
-				//if (!(lpEvalDesc->ObjectPtr->state_flags & FINITE_LIFE))
+				//if (!(lpEvalDesc->tr->state_flags & FINITE.object.life))
 				//	lpEvalDesc->MoveState = PURSUE;
 				//else
 				if
-				//(lpEvalDesc->ObjectPtr->mass_points ||
+				//(lpEvalDesc->tr->object.object.mass_points_points_points ||
 						 (lpEvalDesc->type== CREW) //)
 				{
 					if ((lpEvalDesc->which_turn >>= 1) == 0)
 						lpEvalDesc->which_turn = 1;
 
-					//if (lpEvalDesc->ObjectPtr->mass_points)
-					//	lpEvalDesc->ObjectPtr = 0;
+					//if (lpEvalDesc->tr->object.object.mass_points_points_points)
+					//	lpEvalDesc->tr = 0;
 				//	else
 						lpEvalDesc->MoveState = PURSUE;
 					ShieldStatus = 1;
@@ -308,23 +311,23 @@ void SetUtwigPilot(pPlayer pl)
 	int off=(pl->plr==1)?0:6;
 
 	sprites[43+off].attribute0 = COLOR_256 | TALL  | 160;
-	sprites[43+off].attribute1 = SIZE_32 | 240;
+	sprites[43+off].attribute1 =SIZE_32 | 240;
 	sprites[43+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+64 | PRIORITY(2);
 
 	sprites[44+off].attribute0 = COLOR_256 | TALL  | 160;
-	sprites[44+off].attribute1 = SIZE_32 | 240;
+	sprites[44+off].attribute1 =SIZE_32 | 240;
 	sprites[44+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+80 | PRIORITY(2);
 
 	sprites[45+off].attribute0 = COLOR_256 | TALL  | 160;
-	sprites[45+off].attribute1 = SIZE_64 | 240;
+	sprites[45+off].attribute1 =SIZE_64 | 240;
 	sprites[45+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+96 | PRIORITY(2);
 
 	sprites[46+off].attribute0 = COLOR_256 | TALL  | 160;
-	sprites[46+off].attribute1 = SIZE_8 | 240;
+	sprites[46+off].attribute1 =SIZE_8 | 240;
 	sprites[46+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+160 | PRIORITY(1);
 
 	sprites[47+off].attribute0 = COLOR_256 | SQUARE  | 160;
-	sprites[47+off].attribute1 = SIZE_8 | 240;
+	sprites[47+off].attribute1 =SIZE_8 | 240;
 	sprites[47+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+164 | PRIORITY(1);
 }
 
@@ -350,12 +353,12 @@ void RestoreGFXUtwig(pPlayer p)
 {
 	for(int i=0;i<12;i++)
 	{
-		if (p->weapon[i].life>0)
+		if (p->weapon[i].object.life>0)
 		{
 			if(p->weapon[i].type==SIMPLE)
 			{
-			sprites[p->weapon[i].sprite].attribute0 = COLOR_256 | SQUARE | ROTATION_FLAG | SIZE_DOUBLE | MODE_TRANSPARENT | 160;	//setup sprite info, 256 colour, shape and y-coord
-			sprites[p->weapon[i].sprite].attribute1 = SIZE_8 | ROTDATA(p->weapon[i].sprite) | 240;
+			sprites[p->weapon[i].sprite].attribute0 = COLOR_256 | SQUARE | ROTATION_FLAG |SIZE_DOUBLE | MODE_TRANSPARENT | 160;	//setup sprite info, 256 colour, shape and y-coord
+			sprites[p->weapon[i].sprite].attribute1 =SIZE_8 | ROTDATA(p->weapon[i].sprite) | 240;
    			sprites[p->weapon[i].sprite].attribute2 = p->SpriteStart+64 | PRIORITY(1);
 			}
 		}

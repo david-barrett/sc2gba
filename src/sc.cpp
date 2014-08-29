@@ -31,7 +31,7 @@ pOAMEntry sprites;
 s8 pilot;
 skill aiskill=GOOD;
 s8 demo;
-s8 planet;
+s8 planetc;
 s8 sound;
 s8 scaled;
 s8 v3do;
@@ -40,7 +40,8 @@ s8 v3do;
 pRotData rotData;// = (pRotData)sprites;
 
 extern const unsigned short sc2title[];
-s32 planetx,planety;
+//s32 planet.xpos,planet.ypos;
+Object planet;
 
 int* KEYS =  (int*)0x04000130;
 unsigned long state;
@@ -48,6 +49,10 @@ unsigned long state;
 //battery
 #define GAMEPAK_RAM  ((u8*)0x0E000000)
 u8 *pSaveMemory = GAMEPAK_RAM;
+
+#define MULTIBOOT int __gba_multiboot;
+
+//MULTIBOOT
 
 
 int ran(int min, int max)
@@ -187,15 +192,15 @@ int main()
 p1->SpriteStart =P1_SpriteStart;
 p2->SpriteStart =P2_SpriteStart;
 
-planet=0;
-	planetx=screencentrex;
-	planety=screencentrey;
+planetc=0;
+	planet.xpos=screencentrex;
+	planet.ypos=screencentrey;
 
 //tests
-p1->xpos = 3638;	//variables to hold position of sprite on screen
-p1->ypos = 3623;
-p2->xpos = 3562;	//variables to hold position of sprite on screen
-p2->ypos = 3577;
+p1->object.xpos = 3638;	//variables to hold position of sprite on screen
+p1->object.ypos = 3623;
+p2->object.xpos = 3562;	//variables to hold position of sprite on screen
+p2->object.ypos = 3577;
 
 	//switch on interupts for timers 0 & 1
 	REG_IE=0x0008 | 0x0010;
@@ -205,9 +210,9 @@ p2->ypos = 3577;
 for (int i=0;i<12;i++)
 {
 	p1->weapon[i].sprite=i+1;
-	p1->weapon[i].life=-1;
+	p1->weapon[i].object.life=-1;
 	p2->weapon[i].sprite=i+14;
-	p2->weapon[i].life=-1;
+	p2->weapon[i].object.life=-1;
 }
 // transparncy
 
@@ -307,10 +312,10 @@ for (int i=0;i<12;i++)
 		p1->ai=PLAYER1;
 		p2->ai=aiskill;
 
-		planet++;
+		planetc++;
 
-		sprites[30].attribute0 = COLOR_256 | SQUARE | ROTATION_FLAG | SIZE_DOUBLE | MODE_TRANSPARENT | 20;	//setup sprite info, 256 colour, shape and y-coord
-		sprites[30].attribute1 = SIZE_8 | ROTDATA(30) | 50;
+		sprites[30].attribute0 = COLOR_256 | SQUARE | ROTATION_FLAG |SIZE_DOUBLE | MODE_TRANSPARENT | 20;	//setup sprite info, 256 colour, shape and y-coord
+		sprites[30].attribute1 =SIZE_8 | ROTDATA(30) | 50;
 		MoveSprite(&sprites[30],240,160);
 		//set to point to 0.
 		WaitForVsync();

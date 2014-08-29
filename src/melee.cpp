@@ -1,3 +1,4 @@
+
 //////////////////////////////////////////////////////////////////////////
 // File: 	star control gba.cpp                                            	//
 // Description: a sc2 clone			//
@@ -33,7 +34,8 @@ pAsteroid asteroids;
 int turn;
 
 s16 planet_screenx,planet_screeny;
-extern s32 planetx,planety;
+//extern s32 planet.xpos,planet.ypos;
+extern Object planet;
 
 
 
@@ -54,7 +56,7 @@ s32 zoom,screenx,screeny;
 s8 yswap=0;
 s8 xswap=0;
 
-#define ASIZE  512 //128 // 512 ?
+int CalculateGravity (pObject ElementPtr,pObject TestElementPtr);
 
 
 char s[100];
@@ -195,7 +197,7 @@ void WaitForVsync()
 
 void DrawExplosion(pWeapon w)
 {
-	s16 life=w->life;
+	s16 life=w->object.life;
 
 	s16 off=0;
 
@@ -203,9 +205,9 @@ void DrawExplosion(pWeapon w)
 	{
 		if (life==2)
 			off=2;
-		w->size=8;
-		sprites[w->sprite].attribute0 = COLOR_256 | SQUARE | ROTATION_FLAG | SIZE_DOUBLE | MODE_TRANSPARENT | w->yscreen;	//setup sprite info, 256 colour, shape and y-coord
-	    sprites[w->sprite].attribute1 = SIZE_8 | ROTDATA(w->sprite) | w->xscreen;
+		w->object.size=8;
+		sprites[w->sprite].attribute0 = COLOR_256 | SQUARE | ROTATION_FLAG |SIZE_DOUBLE | MODE_TRANSPARENT | w->object.yscreen;	//setup sprite info, 256 colour, shape and y-coord
+	    sprites[w->sprite].attribute1 =SIZE_8 | ROTDATA(w->sprite) | w->object.xscreen;
     	sprites[w->sprite].attribute2 = FireSprite1+off | PRIORITY(0);
 	}
 	else if (life<=5)
@@ -215,30 +217,38 @@ void DrawExplosion(pWeapon w)
 			off=12;
 		else if (life==5)
 			off=20;
-		w->size=16;
-		sprites[w->sprite].attribute0 = COLOR_256 | SQUARE | ROTATION_FLAG | SIZE_DOUBLE | MODE_TRANSPARENT | w->yscreen;	//setup sprite info, 256 colour, shape and y-coord
-		sprites[w->sprite].attribute1 = SIZE_16 | ROTDATA(w->sprite) | w->xscreen;
+		w->object.size=16;
+		sprites[w->sprite].attribute0 = COLOR_256 | SQUARE | ROTATION_FLAG |SIZE_DOUBLE | MODE_TRANSPARENT | w->object.yscreen;	//setup sprite info, 256 colour, shape and y-coord
+		sprites[w->sprite].attribute1 =SIZE_16 | ROTDATA(w->sprite) | w->object.xscreen;
 	    sprites[w->sprite].attribute2 = FireSprite1+off | PRIORITY(0);
 	}
 
 }
 
+void MoveExplosion(pWeapon w)
+{
+	w->object.life--;
+	DrawExplosion(w);
+}
+
 void CreateExplosion(pWeapon w,s16 life)
 {
-	w->life=life;;
-	w->xspeed=0;
-	w->yspeed=0;
+	w->object.life=life;;
+	w->object.xspeed=0;
+	w->object.yspeed=0;
 	w->type=EXP;
-	w->angle=0;
+	w->movefunc=&MoveExplosion;
+	w->object.ignorecollision=1;
+	w->object.angle=0;
 	if (life<3)
-		w->size=8;
+		w->object.size=8;
 	else
-		w->size=16;
+		w->object.size=16;
 
 
-	drawOnScreen(&(w->xscreen),&(w->yscreen),
-			w->xpos,w->ypos,screenx,screeny,w->size);
-	MoveSprite(&sprites[w->sprite], w->xscreen, w->yscreen);
+	drawOnScreen(&(w->object.xscreen),&(w->object.yscreen),
+			w->object.xpos,w->object.ypos,screenx,screeny,w->object.size);
+	MoveSprite(&sprites[w->sprite], w->object.xscreen, w->object.yscreen);
 
 	DrawExplosion(w);
 }
@@ -247,15 +257,15 @@ void CreateExplosion(pWeapon w,s16 life)
 
 int DetectWeaponToShip(pPlayer p,pWeapon w)
 {
-	//square (w.xpos-4,w.ypos-4), (w.xpos+4,w.ypos+4)
-	//square (p.xpos-16,w.ypos-16), (w.xpos+16,w.ypos+16)
+	//square (w.object.xpos-4,w.object.ypos-4), (w.object.xpos+4,w.object.ypos+4)
+	//square (p.object.xpos-16,w.object.ypos-16), (w.object.xpos+16,w.object.ypos+16)
 
 	s16 offset=p->offset;///2;
 
 	//tmp
-//	offset+=(w->size>>2);
+//	offset+=(w->object.size>>2);
 
-	if (w->xpos>p->xpos-offset&&w->xpos<p->xpos+offset&&w->ypos>p->ypos-offset&&w->ypos<p->ypos+offset)
+	if (w->object.xpos>p->object.xpos-offset&&w->object.xpos<p->object.xpos+offset&&w->object.ypos>p->object.ypos-offset&&w->object.ypos<p->object.ypos+offset)
 	{
 		return 1;
 	}
@@ -265,13 +275,13 @@ int DetectWeaponToShip(pPlayer p,pWeapon w)
 
 int DetectWeaponToWeapon(pWeapon tar,pWeapon w)
 {
-	//square (w.xpos-4,w.ypos-4), (w.xpos+4,w.ypos+4)
-	//square (p.xpos-16,w.ypos-16), (w.xpos+16,w.ypos+16)
+	//square (w.object.xpos-4,w.object.ypos-4), (w.object.xpos+4,w.object.ypos+4)
+	//square (p.object.xpos-16,w.object.ypos-16), (w.object.xpos+16,w.object.ypos+16)
 
-	s16 offset=tar->size>>1;
+	s16 offset=tar->object.size>>1;
 
 
-	if (w->xpos>tar->xpos-offset&&w->xpos<tar->xpos+offset&&w->ypos>tar->ypos-offset&&w->ypos<tar->ypos+offset)
+	if (w->object.xpos>tar->object.xpos-offset&&w->object.xpos<tar->object.xpos+offset&&w->object.ypos>tar->object.ypos-offset&&w->object.ypos<tar->object.ypos+offset)
 	{
 		return 1;
 	}
@@ -321,7 +331,7 @@ s16 FindAngle(s32 x,s32 y, s32 ox, s32 oy)
 
 	angle = (s16) (atan(r) * 180 / PI); //maybe find a way to calc this?
 	if (angle<0) //make positive
-		angle=(angle*-1);
+		angle=angle*-1;
 
 	//normalise to nearest 15.
 	//big assumption:tan only returns 0-90?
@@ -369,7 +379,7 @@ int InRange(s32 xpos,s32 ypos,s32 txpos,s32 typos,s16 range)
 	return (distanceBetweenPoints(xpos,ypos,txpos,typos)<range);
 
 	/*
-	if (xpos>txpos-range&&xpos<txpos+range&&ypos>typos-range&&ypos<typos+range)
+	if (object.xpos>tobject.xpos-range&&object.xpos<tobject.xpos+range&&object.ypos>tobject.ypos-range&&object.ypos<tobject.ypos+range)
 	{
 		return 1;
 	}
@@ -377,303 +387,28 @@ int InRange(s32 xpos,s32 ypos,s32 txpos,s32 typos,s16 range)
 	*/
 }
 
-
-
-void MoveBullets(pPlayer pl)
+void MoveBullet(pWeapon w)
 {
-	pPlayer p;
-	pPlayer o;
-
-	for (int i=0;i<12;i++)
-	{
-		if (pl->weapon[i].life==0)
+		if (w->object.life==0)
 		{
-			sprites[pl->weapon[i].sprite].attribute0 = 160;  //y to > 159
-			sprites[pl->weapon[i].sprite].attribute1 = 240; //x to > 239
-			sprites[pl->weapon[i].sprite].attribute2 = 0;
-			pl->weapon[i].life--;
+			sprites[w->sprite].attribute0 = 160;  //y to > 159
+			sprites[w->sprite].attribute1 = 240; //x to > 239
+			sprites[w->sprite].attribute2 = 0;
+			w->object.life--;
 		}
-
-		if (pl->weapon[i].life>0)
+		else if (w->object.life>0)
 		{
-
-			if (pl->weapon[i].type==SIMPLE||pl->weapon[i].type==ILWRATHFIRE
-				||pl->weapon[i].type==LASER||pl->weapon[i].type==RECOIL)
-			{
-				if (pl->weapon[i].type==ILWRATHFIRE)
-					DrawExplosion(&pl->weapon[i]);
-				pPlayer target=(pPlayer)pl->weapon[i].target;
-				pl->weapon[i].xpos+=pl->weapon[i].xspeed;
-				pl->weapon[i].ypos-=pl->weapon[i].yspeed;
-
-
-				pl->weapon[i].life--;
-
-
-			}//simple
-			else if (pl->weapon[i].type==UR_FIGHTERS)
-			{
-				MoveURFighters(&pl->weapon[i]);
-			}
-			else if (pl->weapon[i].type==UR_FIGHTERS_FIRE)
-			{
-				pl->weapon[i].life--;
-			}
-			else if(pl->weapon[i].type==EXP)
-			{
-				pl->weapon[i].life--;
-				DrawExplosion(&pl->weapon[i]);
-			}
-			else if(pl->weapon[i].type==TRAIL)
-			{
-					pl->weapon[i].life--;
-			}
-			else if(pl->weapon[i].type==LIMPET)
-			{
-				MoveLimpet(&pl->weapon[i]);
-			}
-			else if(pl->weapon[i].type==CREW)
-			{
-				MoveCrew(&pl->weapon[i]);
-			}
-			else if(pl->weapon[i].type==BUTT)
-			{
-				MoveButt(&pl->weapon[i]);
-			}
+			if (w->movefunc!=0)
+				w->movefunc(w);
 			else
-			{
-				if (pl->weapon[i].movefunc!=0)
-					(pl->weapon[i].movefunc)(&pl->weapon[i]);
-			}
-			drawOnScreen(&(pl->weapon[i].xscreen),&(pl->weapon[i].yscreen),
-				pl->weapon[i].xpos,pl->weapon[i].ypos,screenx,screeny,pl->weapon[i].size);
-			MoveSprite(&sprites[pl->weapon[i].sprite], pl->weapon[i].xscreen, pl->weapon[i].yscreen);
-			RotateSprite(pl->weapon[i].sprite, pl->weapon[i].angle, zoom,zoom);
-		}//end if life>0
-	}//end for loop
-
-}
-/*
-s8
-Intercept (pObject ElementPtr0, pObject ElementPtr1, COUNT
-		max_turns, COUNT margin_of_error)
-{
-	max_turns;
-	s32 x1 = ElementPtr0->xpos;//+ElementPtr0->xspeed;
-	s32 y1 = ElementPtr0->ypos;//+ElementPtr0->yspeed;
-	s32 x2 = ElementPtr1->xpos;//+ElementPtr1->xspeed;
-	s32 y2 = ElementPtr1->ypos;//+ElementPtr1->yspeed;
-
-	s32 hx1 = ElementPtr0->xspeed<<1;
-	s32 hy1 = ElementPtr0->yspeed<<1;
-	s32 hx2 = ElementPtr1->xspeed<<1;
-	s32 hy2 = ElementPtr1->yspeed<<1;
-
-	s16 size = ((ElementPtr0->size+ElementPtr1->size)+margin_of_error);
-//	for (s16 i=0;i<max_turns;i++)
-//	{
-		if ((distanceBetweenPoints(x1,y1,x2,y2)<size))
-				//||(distanceBetweenPoints(x1+hx1,y1-hy1,x2-hx2,y2-hy2)<size))
-			return 1;
-//		x1+=ElementPtr0->xspeed;
-//		y1+=ElementPtr0->yspeed;
-//		x2+=ElementPtr1->xspeed;
-//		y1+=ElementPtr1->yspeed;
-//	}
-	return 0;
-}
-
-*/
-void DetectBullets(pPlayer pl)
-{
-	pPlayer target;
-	int stop;
-	s32 halfx,halfy;
-	s16 angle;
-	s32 tmp;
-//	Object o1,o2;
-	for (int i=0;i<12;i++)
-	{
-
-		stop=1;  //stop processing when destroyedto save time
-		if (pl->weapon[i].life>=0)
-		{
-			/*
-			if (pl->weapon[i].type==LASER)
-			{
-				angle=ModifyAngle(pl->weapon[i].angle,180);
-				halfx=((pl->weapon[i].size * (s32)SIN[pl->angle])>>9);
-				halfy=((pl->weapon[i].size * (s32)COS[pl->angle])>>9);
-			}
-			else
-			{
-				halfx=pl->weapon[i].xspeed>>1;
-				halfy=pl->weapon[i].yspeed>>1;
-			}
-			*/
-
-
-
-			if (pl->weapon[i].type==SIMPLE||pl->weapon[i].type==ILWRATHFIRE
-				||pl->weapon[i].type==LASER||pl->weapon[i].type==BLADES
-				||pl->weapon[i].type==RECOIL)
-			{
-				target=(pPlayer)pl->weapon[i].target;
-/*
-				if (pl->weapon[i].type!=LASER)
-				{
-					o1.xpos=pl->weapon[i].xpos-pl->weapon[i].xspeed;
-					o1.ypos=pl->weapon[i].ypos-pl->weapon[i].yspeed ;
-					o1.xspeed=pl->weapon[i].xspeed;
-					o1.yspeed=pl->weapon[i].yspeed;
-					o1.size=2;//(pl->weapon[i].size<<2);
-				}
-				else
-				{
-					tmp=(pl->weapon[i].size * (s32)SIN[pl->weapon[i].angle])>>9;
-					o1.xpos=pl->weapon[i].xpos;//-(tmp<<1);
-					o1.xspeed=tmp;
-
-					tmp=(pl->weapon[i].size * (s32)COS[pl->weapon[i].angle])>>9;
-					o1.ypos=pl->weapon[i].ypos;//-(tmp<<1) ;
-					o1.yspeed=tmp;
-					o1.size=2;
-				}
-
-				//opp ship
-				o2.xpos=target->xpos;//-target->xspeed;
-				o2.ypos=target->ypos;//-target->yspeed ;
-				o2.xspeed=target->xspeed;
-				o2.yspeed=target->yspeed;
-				o2.size=target->offset;
-*/
-				if (DetectWeaponToShip(target,&pl->weapon[i]))
-		//		if (Intercept (&o1 , &o2,1,0))
-				{					
-					if (pl->weapon[i].type==RECOIL)
-					{				
-						target->xspeed+=pl->weapon[i].xspeed;
-						target->yspeed+=pl->weapon[i].yspeed;
-					}
-					ModifyCrew(target,pl->weapon[i].damage);
-					if (pl->weapon[i].type!=LASER)
-						CreateExplosion(&pl->weapon[i],5);/*
-
-					
-					else
-					{
-						s8 d=nextWeapon(pl);
-						if (d>0)
-							CreateExplosion(&pl->weapon[d],5);
-					}*/
-					stop=0;
-					
-				}
-
-
-				//parent ship
-				if (pl->weapon[i].damageparent==1&&stop)
-				{
-					/*
-					o2.xpos=pl->xpos;//-pl->xspeed;
-					o2.ypos=pl->ypos;//-pl->yspeed ;
-					o2.xspeed=pl->xspeed;
-					o2.yspeed=pl->yspeed;
-					o2.size=pl->offset;
-					*/
-					if (DetectWeaponToShip((pPlayer)pl->weapon[i].parent,&pl->weapon[i]))
-				//	if (Intercept (&o1 , &o2,1,0))
-					{
-						ModifyCrew((pPlayer)pl->weapon[i].parent,pl->weapon[i].damage);
-						if (pl->weapon[i].type!=LASER)
-							CreateExplosion(&pl->weapon[i],5);
-							/*
-						else
-						{
-							s8 d=nextWeapon(pl);
-							if (d>0)
-								CreateExplosion(&pl->weapon[d],5);
-						}*/
-						stop=0;
-					}
-				}
-
-
-
-				//opp weapon
-
-				if (stop)
-				{
-				for (int j=0;j<12;j++)
-				{
-					if (target->weapon[j].life>0)
-					if (DetectWeaponToWeapon(&target->weapon[j],&pl->weapon[i])==1)
-					{
-						if (pl->weapon[i].damageparent==0&&target->weapon[j].damageparent==0)
-						//ie so two fighters dont kill each other
-						{
-						pl->weapon[i].life=0;
-						if (target->weapon[j].type!=LASER)
-						{
-							sprites[target->weapon[j].sprite].attribute0 = 160;  //y to > 159
-							sprites[target->weapon[j].sprite].attribute1 = 240; //x to > 239
-							sprites[target->weapon[j].sprite].attribute2 = 0;
-							target->weapon[j].life=+pl->weapon[i].damage;
-						}
-						stop=0;
-						break;
-						}
-					}
-				}
-				}
+				w->object.life--;
+			drawOnScreen(&(w->object.xscreen),&(w->object.yscreen),
+				w->object.xpos,w->object.ypos,screenx,screeny,w->object.size);
+			MoveSprite(&sprites[w->sprite], w->object.xscreen, w->object.yscreen);
+			RotateSprite(w->sprite, w->object.angle, zoom,zoom);
 		}
-		if (pl->weapon[i].type!=EXP)
-		{
-				s16 dist;
-				//planet
-				if (stop)
-				{
-					dist = distanceBetweenPoints(pl->weapon[i].xpos,pl->weapon[i].ypos,planetx,planety);
-					if (dist<(pl->weapon[i].size+64)/2)
-					{
-							//pl->weapon[i].life=0;
-							stop=0;
-					}
-				}
-
-				//asteroids
-				if (stop)
-				{
-					for (int j=0;j<5;j++)
-					{
-						dist = distanceBetweenPoints(pl->weapon[i].xpos,pl->weapon[i].ypos,
-							asteroids[j].xpos,asteroids[j].ypos);
-
-						if (dist<((pl->weapon[i].size+25)>>1)&&asteroids[j].life>0)
-						{
-						//	pl->weapon[i].life=0;
-							asteroids[j].life=0;
-							stop=0;
-							break;
-						}
-					}
-				}
-				if (stop==0&&pl->weapon[i].type!=EXP&&pl->weapon[i].type!=LASER)
-				{
-					//pl->weapon[i].life=0;
-					sprites[pl->weapon[i].sprite].attribute0 = 160;  //y to > 159
-					sprites[pl->weapon[i].sprite].attribute1 = 240; //x to > 239
-					sprites[pl->weapon[i].sprite].attribute2 = 0;
-					pl->weapon[i].life--;
-				}
-			}
-		}
-	}
 
 }
-
-
-
 
 
 void RotateSprite(int rotDataIndex, s32 angle, s32 x_scale,s32 y_scale)
@@ -705,93 +440,115 @@ s32 distanceBetweenPoints(s32 xpos1,s32 ypos1,s32 xpos2,s32 ypos2)
 	else
 		y=ypos2-ypos1;
 
-	z = (s32)sqrt((x*x)+(y*y));
-	return z;
+	//old way
+	//z = (s32)sqrt((x*x)+(y*y));
+	//return z;
+	
+		
+	u32 min, max, approx;
+
+   if ( x < y )
+   {
+      min = x;
+      max = y;
+   } else {
+      min = y;
+      max = x;
+   }
+
+   approx = ( max * 1007 ) + ( min * 441 );
+   if ( max < ( min << 4 ))
+      approx -= ( max * 40 );
+
+   // add 512 for proper rounding
+   return (( approx + 512 ) >> 10 );
+
+
 }
 
 inline void findCentre(s32 *x,s32 *y,pPlayer p1,pPlayer p2)
 {
-	*x = ((p1->xpos+p2->xpos)/2);//-32;
-	*y = ((p1->ypos+p2->ypos)/2);//-32;
+	*x = ((p1->object.xpos+p2->object.xpos)/2);//-32;
+	*y = ((p1->object.ypos+p2->object.ypos)/2);//-32;
 }
 
 void shifteverythingx(pPlayer p1,pPlayer p2,int shift)
 {
 	//shift everything except the planet
 
-	p1->xpos+=shift;
-	p2->xpos+=shift;
+	p1->object.xpos+=shift;
+	p2->object.xpos+=shift;
 	screenx+=shift;
 	int i;
 	for (i=0;i<12;i++)
 	{
-		p1->weapon[i].xpos+=shift;
-		p2->weapon[i].xpos+=shift;
+		p1->weapon[i].object.xpos+=shift;
+		p2->weapon[i].object.xpos+=shift;
 	}
 	for (i=0;i<10;i++)
 	{
-		trails[i].xpos+=shift;
+		trails[i].object.xpos+=shift;
 	}
 
 	//asteroids
 	for (i=0;i<5;i++)
 	{
-		asteroids[i].xpos+=shift;
+		asteroids[i].object.xpos+=shift;
 		/*
-		if (asteroids[i].xpos<screenx-(960+64))
+		if (asteroids[i].object.xpos<screenx-(960+64))
 						{
-							asteroids[i].xpos+=(1919+64);
+							asteroids[i].object.xpos+=(1919+64);
 
 						}
-						else if (asteroids[i].xpos>screenx+(960+64))
+						else if (asteroids[i].object.xpos>screenx+(960+64))
 						{
-							asteroids[i].xpos-=(1919+64);
+							asteroids[i].object.xpos-=(1919+64);
 
 						}
 		*/
 	}
 
 	//planet
-	planetx+=shift;
+	planet.xpos+=shift;
 }
 
 void shifteverythingy(pPlayer p1,pPlayer p2,int shift)
 {
 	//shift everything except the planet
 
-	p1->ypos+=shift;
-	p2->ypos+=shift;
+	p1->object.ypos+=shift;
+	p2->object.ypos+=shift;
 	screeny+=shift;
 	int i;
 	for (i=0;i<12;i++)
 	{
-		p1->weapon[i].ypos+=shift;
-		p2->weapon[i].ypos+=shift;
+		p1->weapon[i].object.ypos+=shift;
+		p2->weapon[i].object.ypos+=shift;
 	}
 	for (i=0;i<10;i++)
 	{
-		trails[i].ypos+=shift;
+		trails[i].object.ypos+=shift;
 	}
 	//asteroids
 	for (i=0;i<5;i++)
 	{
-		asteroids[i].ypos+=shift;
+		asteroids[i].object.ypos+=shift;
 		/*
-				if (asteroids[i].ypos<screencentrey-(640+64))
+				if (asteroids[i].object.ypos<screencentrey-(640+64))
 				{
 
-					asteroids[i].ypos+=(1279+64);
+					asteroids[i].object.ypos+=(1279+64);
 				}
-				else if (asteroids[i].ypos>screencentrex+(640+64))
+				else if (asteroids[i].object.ypos>screencentrex+(640+64))
 				{
 
-					asteroids[i].ypos-=(1279+64);
+					asteroids[i].object.ypos-=(1279+64);
 
 		}*/
 	}
 
 	//planet
-	planety+=shift;
+	planet.ypos+=shift;
 
 
 }
@@ -831,7 +588,7 @@ void setScreen(pPlayer p1,pPlayer p2,Bg* bg0,Bg* bg1)
 	x=screenx-50;
 	y=screenx-50;
 
-	s32 d= distanceBetweenPoints(p1->xpos,p1->ypos,p2->xpos,p2->ypos);
+	s32 d= distanceBetweenPoints(p1->object.xpos,p1->object.ypos,p2->object.xpos,p2->object.ypos);
 	//Calcuate zoom level
 
 
@@ -862,19 +619,19 @@ void setScreen(pPlayer p1,pPlayer p2,Bg* bg0,Bg* bg1)
 
 		//if reached the end of space swap ships
 /*
-		s32 xd = p1->xpos-p2->xpos;
+		s32 xd = p1->object.xpos-p2->object.xpos;
 		if (xd<-960 || xd>960)
 		{
 			if (screenx>1000)
 				shifteverythingx(p1,p2,-500);
 			else
 				shifteverythingx(p1,p2,500);
-			swap(&p1->xpos,&p2->xpos);
+			swap(&p1->object.xpos,&p2->object.xpos);
 		}
-		s32 yd = p1->ypos-p2->ypos;
+		s32 yd = p1->object.ypos-p2->object.ypos;
 		if (yd<-640 || yd>640)
 		{
-			swap(&p1->ypos,&p2->ypos);
+			swap(&p1->object.ypos,&p2->object.ypos);
 			if (screeny>1000)
 				shifteverythingy(p1,p2,-500);
 			else
@@ -897,12 +654,12 @@ void setScreen(pPlayer p1,pPlayer p2,Bg* bg0,Bg* bg1)
 // NEW WAY ??
 
 
-		s32 xd = p1->xpos-p2->xpos;
-		s32 yd = p1->ypos-p2->ypos;
+		s32 xd = p1->object.xpos-p2->object.xpos;
+		s32 yd = p1->object.ypos-p2->object.ypos;
 		if (xswap==0&&(xd<-960||xd>960))
 		{
 			xswap=5;
-			swap(&p1->xpos,&p2->xpos);
+			swap(&p1->object.xpos,&p2->object.xpos);
 			#ifdef DEBUG
 			print("\nscreen x=");
 			print(screenx);
@@ -910,16 +667,16 @@ void setScreen(pPlayer p1,pPlayer p2,Bg* bg0,Bg* bg1)
 
 			if (screenx<screencentrex)
 			{
-				p1->xpos+=960;
-				p2->xpos+=960;
+				p1->object.xpos+=960;
+				p2->object.xpos+=960;
 				screenx+=960;
 			//	shifteverythingx(p1,p2,959);
 			}
 			else
 			{
 				screenx-=960;
-				p1->xpos-=960;
-				p2->xpos-=960;
+				p1->object.xpos-=960;
+				p2->object.xpos-=960;
 			//	shifteverythingx(p1,p2,-959);
 			}
 
@@ -929,7 +686,7 @@ void setScreen(pPlayer p1,pPlayer p2,Bg* bg0,Bg* bg1)
 		if (yswap==0&&(yd<-640 || yd>640))
 		{
 			yswap=5;
-			swap(&p1->ypos,&p2->ypos);
+			swap(&p1->object.ypos,&p2->object.ypos);
 			#ifdef DEBUG
 			print("\nbefore flipabout to add/minus 500 screen y=");
 			print(screeny);
@@ -938,8 +695,8 @@ void setScreen(pPlayer p1,pPlayer p2,Bg* bg0,Bg* bg1)
 			if (screeny<screencentrey)
 			{
 
-				p1->ypos+=640;
-				p2->ypos+=640;
+				p1->object.ypos+=640;
+				p2->object.ypos+=640;
 				screeny+=640;
 		//		shifteverythingy(p1,p2,639);
 			}
@@ -947,8 +704,8 @@ void setScreen(pPlayer p1,pPlayer p2,Bg* bg0,Bg* bg1)
 			{
 
 				screeny-=640;
-				p1->ypos-=640;
-				p2->ypos-=640;
+				p1->object.ypos-=640;
+				p2->object.ypos-=640;
 				//shifteverythingy(p1,p2,-639);
 			}
 			#ifdef DEBUG
@@ -1009,14 +766,14 @@ void setScreen(pPlayer p1,pPlayer p2,Bg* bg0,Bg* bg1)
 
 
 
-	drawOnScreen(&p1->xscreen,&p1->yscreen,p1->xpos,p1->ypos,screenx,screeny,32,1);
-	drawOnScreen(&p2->xscreen,&p2->yscreen,p2->xpos,p2->ypos,screenx,screeny,32,1);
+	drawOnScreen(&p1->object.xscreen,&p1->object.yscreen,p1->object.xpos,p1->object.ypos,screenx,screeny,32,1);
+	drawOnScreen(&p2->object.xscreen,&p2->object.yscreen,p2->object.xpos,p2->object.ypos,screenx,screeny,32,1);
 }
 
 void drawOnScreen(s16* x,s16* y,s32 xpos,s32 ypos, s16 screenx, s16 yscreen,s16 size,s16 player)
 {
-//	*x = (s16)(((xpos-screenx)*scale)+centrex-(size/scale));
-//	*y = (s16)(((ypos-screeny)*scale)+centrey-(size/scale));
+//	*x = (s16)(((xpos-screenx)*scale)+centrex->object.size/scale));
+//	*y = (s16)(((ypos-screeny)*scale)+centrey->object.size/scale));
 
 
 	*x = (s16)(((xpos-screenx)*scale)+centrex-(size));
@@ -1047,15 +804,15 @@ void drawOnScreen(s16* x,s16* y,s32 xpos,s32 ypos, s16 screenx, s16 yscreen,s16 
 int CanHitOpp(pPlayer pl)
 {
 	pPlayer opp = (pPlayer)pl->opp;
-	s16 angle = FindAngle(pl->xpos,pl->ypos,opp->xpos,opp->ypos);
+	s16 angle = FindAngle(pl->object.xpos,pl->object.ypos,opp->object.xpos,opp->object.ypos);
 
-	s16 a1 = 360+angle;
-	s16 a2 = 360+pl->angle;
+	s16 a1 = 360.object.angle;
+	s16 a2 = 360+pl->object.angle;
 
 	s16 x=30;
 	if (pl->ship==FURY)
 		x=100;
-	if (a1>a2-x&&a1<a2+x)//are they roughly at right angle?
+	if (a1>a2-x&&a1<a2+x)//are they roughly at right.object.angle?
 	{
 		return 1;
 	}
@@ -1085,7 +842,7 @@ int TurnAngle(s16 yourangle, s16 desiredangle,s8 precision)
 			return-1;
 	}
 
-	//if (yourangle>desiredangle)//else
+	//if (your angle>desired object.angle)//else
 	else
 	{
 		if (diff>180)
@@ -1097,8 +854,272 @@ int TurnAngle(s16 yourangle, s16 desiredangle,s8 precision)
 	return 0;
 }
 
+void
+collide (pObject ElementPtr0, pObject ElementPtr1)
+{
+	s16 speed,dx_rel, dy_rel;
+	s16 TravelAngle0, TravelAngle1, ImpactAngle0, ImpactAngle1;
+	s16 RelTravelAngle, Directness;
+
+	dx_rel = ElementPtr0->xpos
+			- ElementPtr1->xpos;
+	dy_rel = ElementPtr0->ypos
+			- ElementPtr1->ypos;
+	ImpactAngle0 = FindAngle (0,0,dx_rel, dy_rel);
+	ImpactAngle1 = ModifyAngle(ImpactAngle0,180);
+
+	
+	TravelAngle0 = FindAngle (0,0,ElementPtr0->xspeed,ElementPtr0->yspeed);	
+	TravelAngle1 = FindAngle (0,0,ElementPtr1->xspeed,ElementPtr1->yspeed);
+	dx_rel = ElementPtr0->xspeed - ElementPtr1->xspeed;
+	dy_rel = ElementPtr0->yspeed - ElementPtr1->yspeed;
+	RelTravelAngle =  (s16)(atan(double(dx_rel/ dy_rel)) * 180 / PI);
+	speed = distanceBetweenPoints(0,0,dx_rel,dy_rel);
+	
+	Directness = ModifyAngle(RelTravelAngle, -1* ImpactAngle0);
+	if (Directness <= 90 || Directness >= 270)
+			/* shapes just scraped each other but still collided,
+			 * they will collide again unless we fudge it.
+			 */
+	{
+	
+		Directness = 180;
+		ImpactAngle0 = ModifyAngle(TravelAngle0,180);
+		ImpactAngle1 = ModifyAngle(TravelAngle1,180);
+	
+	}
 
 
+	if (ElementPtr0->xpos == ElementPtr0->lastxpos
+			&& ElementPtr0->ypos == ElementPtr0->lastypos
+			&& ElementPtr1->xpos == ElementPtr1->lastypos
+			&& ElementPtr1->ypos == ElementPtr1->lastypos)
+	{
+		if (ElementPtr0->state_flags & ElementPtr1->state_flags & DEFY_PHYSICS)
+		{
+			ImpactAngle0 = ModifyAngle(TravelAngle0,135);//HALF_CIRCLE - OCTANT);
+			ImpactAngle1 = ModifyAngle(TravelAngle1,135);//HALF_CIRCLE - OCTANT);
+			ElementPtr0->xspeed=0;
+			ElementPtr0->yspeed=0;
+			ElementPtr1->xspeed=0;
+			ElementPtr1->yspeed=0;
+		}
+		ElementPtr0->state_flags |= (DEFY_PHYSICS | COLLISION);
+		ElementPtr1->state_flags |= (DEFY_PHYSICS | COLLISION);
+	}
+
+	{
+		s16 mass0, mass1;
+		long scalar;
+
+		mass0 = ElementPtr0->mass_points /* << 2 */;
+		mass1 = ElementPtr1->mass_points /* << 2 */;
+		
+		scalar = ((s32)(SIN [Directness]* speed  * mass0 * mass1)>>7);
+
+#ifdef DEBUG
+		print("\n scalar=");print(scalar);
+		print("\n speed=");print(speed);
+		print("\n directness=");print(Directness);
+#endif
+
+		if (!GRAVITY_MASS (ElementPtr0->mass_points + 1))
+		{
+			if (ElementPtr0->type==PLAYER)
+			{
+				pPlayer StarShipPtr = (pPlayer)ElementPtr0->parent;
+				
+				//StarShipPtr->cur_status_flags &=
+				//		~(SHIP_AT_MAX_SPEED | SHIP_BEYOND_MAX_SPEED);
+				if (!(ElementPtr0->state_flags & DEFY_PHYSICS))
+				{
+					if (StarShipPtr->turn_turn < COLLISION_TURN_WAIT)
+						StarShipPtr->turn_turn += COLLISION_TURN_WAIT;
+					if (StarShipPtr->thrust_turn < COLLISION_THRUST_WAIT)
+						StarShipPtr->thrust_turn += COLLISION_THRUST_WAIT;
+				}
+			}
+			
+			speed = (s32)(scalar / ((long)mass0 * (mass0 + mass1)));			
+
+			if (speed<3)
+				speed=3;
+			else if (speed>20)
+				speed=20;
+			ElementPtr0->xspeed+=(s32)(SIN[ImpactAngle0]*speed)>>8;
+			ElementPtr0->yspeed-=(s32)(COS[ImpactAngle0]*speed)>>8;
+
+
+
+			
+
+			#ifdef DEBUG
+			print("\nspeed=");print(speed);
+			print("\n e0 xspeed=");print(ElementPtr0->xspeed);
+			print("\n e0 yspeed=");print(ElementPtr0->yspeed);
+			#endif
+
+			
+			
+		}
+
+		if (!GRAVITY_MASS (ElementPtr1->mass_points + 1))
+		{
+			if (ElementPtr1->type==PLAYER)
+			{
+				pPlayer StarShipPtr = (pPlayer)ElementPtr0->parent;
+				
+				//StarShipPtr->cur_status_flags &=
+				//		~(SHIP_AT_MAX_SPEED | SHIP_BEYOND_MAX_SPEED);
+				if (!(ElementPtr1->state_flags & DEFY_PHYSICS))
+				{
+					if (StarShipPtr->turn_turn < COLLISION_TURN_WAIT)
+						StarShipPtr->turn_turn += COLLISION_TURN_WAIT;
+					if (StarShipPtr->thrust_turn < COLLISION_THRUST_WAIT)
+						StarShipPtr->thrust_turn += COLLISION_THRUST_WAIT;
+				}
+			}
+
+			speed = (s16)(scalar / ((long)mass1 * (mass0 + mass1)));
+			if (speed<3)
+				speed=3;
+			else if (speed>20)
+				speed=20;
+			ElementPtr1->xspeed+=(s32)(SIN[ImpactAngle1]*speed)>>8;
+			ElementPtr1->yspeed-=(s32)(COS[ImpactAngle1]*speed)>>8;
+			
+			
+			#ifdef DEBUG
+			print("\nspeed=");print(speed);
+			print("\n e1 xspeed=");print(ElementPtr1->xspeed);
+			print("\n e1 yspeed=");print(ElementPtr1->yspeed);
+			#endif
+			
+
+			
+		}
+	}
+}
+
+void ProcessCollision(pObject o1, pObject o2)
+{
+	pPlayer p=0;
+	pWeapon w=0;
+
+	s8 o1type=0,o2type=0;
+	
+
+	if (o1->type==PLAYER||o1->type==ASTEROID||o1->type==PLANET)//or asteroid or planet
+		o1type=1;
+	if (o2->type==PLAYER||o2->type==ASTEROID||o2->type==PLANET)//or asteroid or planet
+		o2type=1;
+
+
+
+	if (o1type&&o2type)	//both objects that collide  - easy!
+	{		
+		
+		//ShipCollide((pPlayer)o1->parent,(pPlayer)o2->parent);
+		collide(o1,o2);
+
+		if (o1->type==PLAYER&&o2->type==PLANET)
+		{
+			ModifyCrew((pPlayer)o1->parent,-2);
+		}
+
+		//blazer damage also here?
+		if (o1->type==PLAYER&&o2->type==PLAYER)
+		{
+			pPlayer s1=(pPlayer)o1->parent;
+			pPlayer s2=(pPlayer)o2->parent;
+
+			if (s1->blaze)
+				ModifyCrew(s2,-2);
+			if (s2->blaze)
+				ModifyCrew(s1,-2);
+		}
+		
+		return;
+	}
+	else if (!(o1type||o2type))//both bullets  - easier
+	{
+		pWeapon w1=(pWeapon)o1->parent;
+		pWeapon w2=(pWeapon)o2->parent;
+		
+		if (w1->parent!=w2->parent)
+		{
+		//cancel each other
+		o1->life=0;
+		o2->life=0;
+		}
+	}
+	else //must be 1 bullet and 1 other 
+	{
+		
+		pWeapon w;
+		pObject other;
+		pPlayer p;
+
+		if (o1type)
+		{
+			w=(pWeapon)o2->parent;
+			other=o1;
+		}
+		else
+		{
+			w=(pWeapon)o1->parent;
+			other=o2;
+		}
+
+		if (other->type==PLAYER)
+		{
+			
+			p=(pPlayer)other->parent;
+			if (w->target==p||w->damageparent)
+			{
+				
+				if (w->hitfunc==0)//simple case
+				{	
+				
+					ModifyCrew(p,w->damage);
+								
+					if (w->type!=LASER)
+						CreateExplosion(w,5);
+				//	else
+				//		w->object.life=0;
+				}
+				else	
+				w->hitfunc(w,p);
+			}
+		}
+		else
+		{
+			w->object.life=0;
+			if (other->type==ASTEROID)
+			{
+				other->life=0;
+			}
+		}
+	}	
+
+}
+
+
+
+int CheckCollision(pObject o1, pObject o2)
+{	
+	if (distanceBetweenPoints(o1->xpos,o1->ypos,o2->xpos,o2->ypos)<((o1->size+o2->size)>>1))	
+		return 1;
+		
+	if (distanceBetweenPoints(o1->xpos+((o1->xpos+o1->lastxpos)>>1),
+			o1->ypos+((o1->ypos+o1->lastypos)>>1),
+			o2->xpos+((o2->xpos+o2->lastxpos)>>1),
+			o2->ypos+((o2->ypos+o2->lastypos)>>1))<((o1->size+o2->size)>>1))	
+		return 2;
+		
+	return 0;
+
+}
 
 
 int ModifyAngle(s16 a,int o)
@@ -1111,6 +1132,215 @@ int ModifyAngle(s16 a,int o)
 	return r;
 }
 
+void ShipCollide(pPlayer p1,pPlayer p2)  //tmp holding pen for this crap
+{
+
+  			//this isnt too great
+  			if (distanceBetweenPoints(p1->object.xpos,p1->object.ypos,p2->object.xpos,p2->object.ypos)<(p1->offset+p2->offset)&&p1->crew>0&&p2->crew>0)
+  			{
+			//	ModifyCrew(p1,-2);
+			//	ModifyCrew(p2,-2);
+			#ifdef DEBUG
+			print("players hit each other");
+			#endif
+				if (p1->object.xspeed==0&&p1->object.yspeed==0)
+				{
+					p1->object.xspeed=(-p2->object.xspeed)>>1;
+					p1->object.yspeed=(-p2->object.yspeed)>>1;
+				}
+				if (p2->object.xspeed==0&&p2->object.yspeed==0)
+				{
+					p2->object.xspeed=(-p1->object.xspeed)>>1;
+					p2->object.yspeed=(-p1->object.yspeed)>>1;
+				}
+
+				Bounce(p1);
+				Bounce(p2);
+
+				if (p1->blaze==1)
+					ModifyCrew(p2,-3);
+
+				if (p1->blaze==2)
+					ModifyCrew(p1,-3);
+/*
+				s32 x=p1->object.xspeed;
+				s32 y=p1->object.yspeed;
+
+				p1->object.xspeed=(p1->object.xspeed*-p2->object.object.mass_points_points+2)+(p2->object.xspeed*p1->object.object.mass_points_points)>>(p2->object.object.mass_points_points+p1->object.object.mass_points_points);
+				p1->object.yspeed=(p1->object.yspeed*-p2->object.object.mass_points_points+2)+(p2->object.yspeed*p1->object.object.mass_points_points)>>(p2->object.object.mass_points_points+p1->object.object.mass_points_points);
+
+				p2->object.xspeed=(p2->object.xspeed*-p1->object.object.mass_points_points+2)+(x*p2->object.object.mass_points_points)>>(p1->object.object.mass_points_points+p1->object.object.mass_points_points);
+				p2->object.yspeed=(p2->object.yspeed*-p1->object.object.mass_points_points+2)+(y*p2->object.object.mass_points_points)>>(p1->object.object.mass_points_points+p1->object.object.mass_points_points);
+
+/*
+
+				if (p1->object.xspeed==0&&p1->object.yspeed==0&&(p2->object.xspeed!=0||p2->object.yspeed!=0))
+				{
+					//p1 stationary /p2 not
+					s32 x=p2->object.xspeed;
+					s32 y=p2->object.xspeed;
+
+					p1->object.xspeed=x/p2->object.object.mass_points_points;
+					p1->object.yspeed=y/p2->object.object.mass_points_points;
+
+					p2->object.xspeed=x/(p1->object.object.mass_points_points*2);
+					p2->object.yspeed=y/(p1->object.object.mass_points_points*2);
+				}
+				else if (p2->object.xspeed==0&&p2->object.yspeed==0&&(p1->object.xspeed!=0||p1->object.yspeed!=0))
+				{
+					//p2 stationary /p1 not
+					s32 x=p1->object.xspeed;
+					s32 y=p1->object.xspeed;
+
+					p2->object.xspeed=x/p1->object.object.mass_points_points;
+					p2->object.yspeed=y/p1->object.object.mass_points_points;
+
+					p1->object.xspeed=x/(p2->object.object.mass_points_points*2);
+					p1->object.yspeed=y/(p2->object.object.mass_points_points*2);
+				}
+				else if ((p2->object.xspeed!=0||p2->object.yspeed!=0)&&(p1->object.xspeed!=0||p1->object.yspeed!=0)) */
+				{
+
+					/*
+					print("distance between ships");
+					print(distanceBetweenPoints(p1->object.xpos,p1->object.ypos,p2->object.xpos,p2->object.ypos));
+					print("\n player 1 object.xpos");
+										print(p1->object.xpos);
+										print("\n player 1 object.ypos");
+										print(p1->object.ypos);
+										print("\n player 2 object.xpos");
+										print(p2->object.xpos);
+										print("\n player 2 object.ypos");
+					print(p2->object.ypos);
+
+					print("\n player 1 xpseed");
+					print(p1->object.xspeed);
+					print("\n player 1 ypseed");
+					print(p1->object.yspeed);
+					print("\n player 2 xpseed");
+					print(p2->object.xspeed);
+					print("\n player 2 ypseed");
+					print(p2->object.yspeed);
+
+
+					//both ships moving
+
+					s32 Impac.object.angle1=FindAngle(p1->object.xpos,p1->object.ypos,p2->object.xpos,p2->object.ypos);
+					s32 Impac.object.angle2=ModifyAngle(Impac.object.angle1,180);
+					s32 Trave.object.angle1=distanceBetweenPoints(0,0,p1->object.xspeed,p1->object.yspeed);
+					s32 Trave.object.angle2=distanceBetweenPoints(0,0,p2->object.xspeed,p2->object.yspeed);
+					print("Imapact.object.angle 1");
+					print(Impac.object.angle1);
+
+					print("Imapact.object.angle 2");
+					print(Impac.object.angle2);
+
+					//s32 Directness = ModifyAngle(Impac.object.angle1,
+					//	-1*FindAngle(p1->object.xpos+p1->object.xspeed,p1->object.ypos+p1->object.yspeed,p2->object.xpos+p2->object.xspeed,p2->object.ypos+p2->object.yspeed));
+					s32 Directness = ModifyAngle(Trave.object.angle1,-Trave.object.angle2);
+
+					print("a2");
+					print(FindAngle(p1->object.xpos+p1->object.xspeed,p1->object.ypos+p1->object.yspeed,p2->object.xpos+p2->object.xspeed,p2->object.ypos+p2->object.yspeed));
+					print("\ndirectness (ipa1 - a2)");
+										print(Directness);
+
+					double scalar = SIN [Directness] * double((p1->object.object.mass_points_points * p2->object.object.mass_points_points));
+
+					s32 speed =  (s32)(scalar / double((p1->object.object.mass_points_points * (p1->object.object.mass_points_points + p2->object.object.mass_points_points))))>>8;
+
+
+
+					p1->object.xspeed-= (s32)((speed) * (s32)SIN[Impac.object.angle1])>>8;
+					p1->object.yspeed+= (s32)((speed) * (s32)COS[Impac.object.angle1])>>8;
+
+					if (p1->object.xspeed+p1->object.yspeed==0)
+					{
+						p1->object.xspeed-= (s32)((4) * (s32)SIN[Impac.object.angle1])>>8;
+						p1->object.yspeed+= (s32)((4) * (s32)COS[Impac.object.angle1])>>8;
+					}
+
+
+
+					speed =  (s32)(scalar / double((p2->object.object.mass_points_points * (p2->object.object.mass_points_points + p1->object.object.mass_points_points))))>>8;
+
+					p2->object.xspeed-= (s32)((speed) * (s32)SIN[Impac.object.angle2])>>8;
+					p2->object.yspeed+= (s32)((speed) * (s32)COS[Impac.object.angle2])>>8;
+
+					if (p2->object.xspeed+p2->object.yspeed==0)
+					{
+						p2->object.xspeed-= (s32)((4) * (s32)SIN[Impac.object.angle2])>>8;
+						p2->object.yspeed+= (s32)((4) * (s32)COS[Impac.object.angle2])>>8;
+					}
+*/
+/*
+
+
+
+
+					s32 x=p1->object.xspeed;
+					s32 y=p1->object.xspeed;
+
+					p1->object.xspeed=((p1->object.xspeed*p1->object.object.mass_points_points)-(p2->object.xspeed*(p2->object.object.mass_points_points+1)))/p1->object.object.mass_points_points;
+					p1->object.yspeed=((p1->object.yspeed*p1->object.object.mass_points_points)-(p2->object.yspeed*(p2->object.object.mass_points_points+1)))/p1->object.object.mass_points_points;
+
+					p2->object.xspeed=((p2->object.xspeed*p2->object.object.mass_points_points)-(y*(p1->object.object.mass_points_points+1)))/p2->object.object.mass_points_points;
+					p2->object.yspeed=((p2->object.xspeed*p2->object.object.mass_points_points)-(x*(p1->object.object.mass_points_points+1)))/p2->object.object.mass_points_points;
+					*/
+					/*
+					print("after");
+									print("\n player 1 xpseed");
+														print(p1->object.xspeed);
+														print("\n player 1 ypseed");
+														print(p1->object.yspeed);
+														print("\n player 2 xpseed");
+														print(p2->object.xspeed);
+														print("\n player 2 ypseed");
+					print(p2->object.yspeed);
+					*/
+				}
+				/*
+					if (p1->object.xspeed==0&&p2->object.xspeed!=0)
+					{
+									//p1 stationary /p2 not
+									s32 x=p2->object.xspeed;
+									p1->object.xspeed=x/p2->object.object.mass_points_points;
+				}
+									s32 y=p2->object.xspeed;
+
+
+									p1->object.yspeed=y/p2->object.object.mass_points_points;
+
+									p2->object.xspeed=x/(p1->object.object.mass_points_points*2);
+									p2->object.yspeed=x/(p1->object.object.mass_points_points*2);
+								}
+								else if (p2->object.xspeed==0&&p2->object.yspeed==0&&(p1->object.xspeed!=0||p1->object.yspeed!=0))
+								{
+									//p2 stationary /p1 not
+									s32 x=p1->object.xspeed;
+									s32 y=p1->object.xspeed;
+
+									p2->object.xspeed=x/p1->object.object.mass_points_points;
+									p2->object.yspeed=y/p1->object.object.mass_points_points;
+
+									p1->object.xspeed=x/(p2->object.object.mass_points_points*2);
+									p1->object.xspeed=x/(p2->object.object.mass_points_points*2);
+								}
+								else if ((p2->object.xspeed!=0||p2->object.yspeed!=0)&&(p1->object.xspeed!=0||p1->object.yspeed!=0))
+								{
+									//both ships moving
+									s32 x=p1->object.xspeed;
+									s32 y=p1->object.xspeed;
+
+									p1->object.xspeed=(p1->object.xspeed*p1->object.object.mass_points_points)-(p2->object.xspeed*(p2->object.object.mass_points_points+1));
+									p1->object.yspeed=(p1->object.yspeed*p1->object.object.mass_points_points)-(p2->object.yspeed*(p2->object.object.mass_points_points+1));
+
+									p2->object.xspeed=(p2->object.xspeed*p2->object.object.mass_points_points)-(y*(p1->object.object.mass_points_points+1));
+									p2->object.yspeed=(p2->object.xspeed*p2->object.object.mass_points_points)-(x*(p1->object.object.mass_points_points+1));
+				}
+				*/
+
+			}
+}
 
 
 
@@ -1136,19 +1366,21 @@ void Melee(pPlayer p1,pPlayer p2,Bg *bg0, Bg *bg1)
 	trails=(pTrail)malloc(sizeof(Trail)*10);
 	for (int i=0;i<10;i++)
 	{
-		trails->life=0;
+		trails->object.life=0;
 	}
 
 	asteroids=(pAsteroid)malloc(sizeof(Asteroid)*5);
 	{
 		for(int i=0;i<5;i++)
 		{
-			asteroids->life=-1;
+			asteroids[i].object.type=ASTEROID;
+			asteroids[i].object.parent=&asteroids[i];
+			asteroids[i].object.life=-1;
 		}
 	}
 
-	planetx=screencentrex;
-	planety=screencentrey;
+	planet.xpos=screencentrex;
+	planet.ypos=screencentrey;
 
 
 	SetupBackground(bg0,bg1);
@@ -1180,21 +1412,21 @@ void Melee(pPlayer p1,pPlayer p2,Bg *bg0, Bg *bg1)
 	setScreen(p1,p2,bg0,bg1);
 
 		//create pl1 + pl2
-       	sprites[0].attribute0 = COLOR_256 | SQUARE | ROTATION_FLAG | SIZE_DOUBLE | MODE_TRANSPARENT | p1->yscreen;	//setup sprite info, 256 colour, shape and y-coord
-        sprites[0].attribute1 = SIZE_32 | ROTDATA(0) | p1->xscreen;            //size 32x32 and x-coord
+       	sprites[0].attribute0 = COLOR_256 | SQUARE | ROTATION_FLAG |SIZE_DOUBLE | MODE_TRANSPARENT | p1->object.yscreen;	//setup sprite info, 256 colour, shape and y-coord
+        sprites[0].attribute1 =SIZE_32 | ROTDATA(0) | p1->object.xscreen;            
         sprites[0].attribute2 = p1->SpriteStart+p1->spriteoffset | PRIORITY(1);                      //pointer to tile where sprite starts
 
-		sprites[13].attribute0 = COLOR_256 | SQUARE | ROTATION_FLAG | SIZE_DOUBLE | MODE_TRANSPARENT |p2->yscreen;//setup sprite info, 256 colour, shape and y-coord
-        sprites[13].attribute1 = SIZE_32 | ROTDATA(13) | p2->xscreen;           //size 16x16 and x-coord
+		sprites[13].attribute0 = COLOR_256 | SQUARE | ROTATION_FLAG |SIZE_DOUBLE | MODE_TRANSPARENT |p2->object.yscreen;//setup sprite info, 256 colour, shape and y-coord
+        sprites[13].attribute1 =SIZE_32 | ROTDATA(13) | p2->object.xscreen;           
         sprites[13].attribute2 = p2->SpriteStart+p2->spriteoffset | PRIORITY(1);     //pointer to tile where sprite starts
 /*
         //test loop
         	zoom=100;
         	screenx=120;
 			screeny=80;
-			p1->xpos=120;
-			p1->ypos=80;
-			p1->angle=0;
+			p1->object.xpos=120;
+			p1->object.ypos=80;
+			p1->object.angle=0;
 			MoveSprite(&sprites[13], -100, -100);
 			while (1)
 			{
@@ -1207,9 +1439,9 @@ void Melee(pPlayer p1,pPlayer p2,Bg *bg0, Bg *bg1)
 					{
 						zoom++;
     				}
-    				drawOnScreen(&p1->xscreen,&p1->yscreen,p1->xpos,p1->ypos,screenx,screeny,32,1);
-    					RotateSprite(0, p1->angle, zoom, zoom);
-					MoveSprite(&sprites[0], p1->xscreen, p1->yscreen);
+    				drawOnScreen(&p1->object.xscreen,&p1->object.yscreen,p1->object.xpos,p1->object.ypos,screenx,screeny,32,1);
+    					RotateSprite(0, p1->object.angle, zoom, zoom);
+					MoveSprite(&sprites[0], p1->object.xscreen, p1->object.yscreen);
 				WaitForVsync();					//waits for the screen to stop drawing
 				CopyOAM();
 
@@ -1222,23 +1454,23 @@ void Melee(pPlayer p1,pPlayer p2,Bg *bg0, Bg *bg1)
 // test show explos
 // handy for testing sprites
         	sprites[60].attribute0 = COLOR_256 | SQUARE  | 130;	//setup sprite info, 256 colour, shape and y-coord
-				sprites[60].attribute1 = SIZE_32 | 100;
+				sprites[60].attribute1 =SIZE_32 | 100;
 			   	sprites[60].attribute2 = SpriteAsteroidStart | PRIORITY(0);
 /*
 			   	sprites[61].attribute0 = COLOR_256 | SQUARE | 130;	//setup sprite info, 256 colour, shape and y-coord
-				sprites[61].attribute1 = SIZE_8 | 20;
+				sprites[61].attribute1 =SIZE_8 | 20;
 			   	sprites[61].attribute2 = FireSprite1+2 | PRIORITY(0);
 
 			   	sprites[62].attribute0 = COLOR_256 | SQUARE  | 130;	//setup sprite info, 256 colour, shape and y-coord
-				sprites[62].attribute1 = SIZE_16 | 40;
+				sprites[62].attribute1 =SIZE_16 | 40;
 			   	sprites[62].attribute2 = FireSprite1+10 | PRIORITY(0);
 
 			   	sprites[63].attribute0 = COLOR_256 | SQUARE   | 130;	//setup sprite info, 256 colour, shape and y-coord
-				sprites[63].attribute1 = SIZE_16 | 60;
+				sprites[63].attribute1 =SIZE_16 | 60;
 			   	sprites[63].attribute2 = FireSprite1+18 | PRIORITY(0);
 
 			   	sprites[64].attribute0 = COLOR_256 | SQUARE  | 130;	//setup sprite info, 256 colour, shape and y-coord
-				sprites[64].attribute1 = SIZE_16 | 80;
+				sprites[64].attribute1 =SIZE_16 | 80;
 			   	sprites[64].attribute2 = FireSprite1+26 | PRIORITY(0);
 */
 
@@ -1251,28 +1483,28 @@ void Melee(pPlayer p1,pPlayer p2,Bg *bg0, Bg *bg1)
 if (pilot)
 {
 sprites[42].attribute0 = COLOR_256 | TALL  | 0;
-sprites[42].attribute1 = SIZE_64 | 509;
+sprites[42].attribute1 =SIZE_64 | 509;
 sprites[42].attribute2 = p1->SpriteStart+p1->pilot_sprite | PRIORITY(3);
 p1->loadpilots(p1);
 
 sprites[48].attribute0 = COLOR_256 | TALL  | 0;
-sprites[48].attribute1 = SIZE_64 | 179;
+sprites[48].attribute1 =SIZE_64 | 179;
 sprites[48].attribute2 = p2->SpriteStart+p2->pilot_sprite | PRIORITY(3);
 p2->loadpilots(p2);
 }
 //load pause
 
 sprites[55].attribute0 = COLOR_256 | TALL  | 240;
-sprites[55].attribute1 = SIZE_32 | 160;
+sprites[55].attribute1 =SIZE_32 | 160;
 sprites[55].attribute2 = PauseSpriteStart | PRIORITY(0);
 sprites[56].attribute0 = COLOR_256 | TALL  | 240;
-sprites[56].attribute1 = SIZE_32 | 160;
+sprites[56].attribute1 =SIZE_32 | 160;
 sprites[56].attribute2 = PauseSpriteStart+16 | PRIORITY(0);
 sprites[57].attribute0 = COLOR_256 | TALL  | 240;
-sprites[57].attribute1 = SIZE_32 | 160;
+sprites[57].attribute1 =SIZE_32 | 160;
 sprites[57].attribute2 = PauseSpriteStart+32 | PRIORITY(0);
 sprites[58].attribute0 = COLOR_256 | TALL  | 240;
-sprites[58].attribute1 = SIZE_32 | 160;
+sprites[58].attribute1 =SIZE_32 | 160;
 sprites[58].attribute2 = PauseSpriteStart+48 | PRIORITY(0);
 
 		SetupStatus(p1,p2);
@@ -1282,284 +1514,144 @@ sprites[58].attribute2 = PauseSpriteStart+48 | PRIORITY(0);
 		//s8 EndGame1=20;
 		//s8 EndGame2=20;
 		//UpdateStatus();
-
-		while(p1->EndGame&&p2->EndGame)                                //main loop
+		
+		p1->object.type=PLAYER;
+		p1->object.parent=&p1;
+		p2->object.type=PLAYER;
+		p2->object.parent=&p2;
+		planet.type=PLANET;
+		planet.parent=&planet;
+		planet.state_flags=DEFY_PHYSICS;
+		planet.xspeed=0;
+		planet.yspeed=0;
+		planet.size=64;
+		planet.ignorecollision=0;
+		
+		Object *GameObjs[32];//list of all objects in the game
+		
+		
+		//setup some pointers
+		
+		//create lists of ai oppents;
+		
+		//0 - opp
+		//1 - planet
+		//2 - 13 - opp weapons
+		//14-18 asteroids
+		
+		p1->objlist[0] = &p2->object;
+		p1->objlist[1] = &planet;
+		p2->objlist[0] = &p1->object;
+		p2->objlist[1] = &planet;
+		
+		
+		
+		GameObjs[0]=&p1->object;
+		GameObjs[1]=&p2->object;
+		GameObjs[31]=&planet;
+		
+		//hacky
+		p1->object.size=p1->offset*2;
+		p2->object.size=p2->offset*2;		
+		p1->object.life=100;
+		p2->object.life=100;
+		p1->object.parent=p1;
+		p2->object.parent=p2;
+		
+		for (int i=0;i<12;i++)
+		{
+			p1->objlist[i+2] = &(p2->weapon[i].object);
+			p2->objlist[i+2] = &(p1->weapon[i].object);
+			p1->weapon[i].object.type=WEAPON;
+			p2->weapon[i].object.type=WEAPON;
+			p1->weapon[i].object.ignorecollision=0;	
+			p2->weapon[i].object.ignorecollision=0;	
+			p1->weapon[i].object.parent=&(p1->weapon[i]);
+			p2->weapon[i].object.parent=&(p2->weapon[i]);
+			GameObjs[i+2]=&(p1->weapon[i].object);
+			GameObjs[i+14]=&(p2->weapon[i].object);
+			
+		}
+	
+		for (int i=0;i<5;i++)
+		{
+			asteroids[i].object.type=ASTEROID;	
+			asteroids[i].object.ignorecollision=0;
+			asteroids[i].object.mass_points=3;
+			asteroids[i].object.size=20;
+			p1->objlist[i+14]=&asteroids[i].object;
+			p2->objlist[i+14]=&asteroids[i].object;
+			GameObjs[i+26]=&asteroids[i].object;
+		}
+			
+		
+		while(p1->EndGame&&p2->EndGame)                                //melee loop
         {
-
+        
+			//do all collision detection here			
+			for (int s=0;s<32;s++)
+			{	
+				if (GameObjs[s]->life>0&&GameObjs[s]->ignorecollision!=1)
+				for (int t=s+1;t<32;t++)
+				{
+					if (GameObjs[t]->life>0&&GameObjs[t]->ignorecollision!=1)
+						if (CheckCollision(GameObjs[s],GameObjs[t]))
+							ProcessCollision(GameObjs[s],GameObjs[t]);
+				}
+				CalculateGravity(&planet,GameObjs[s]);
+			}
+			
+			setScreen(p1,p2,bg0,bg1);
+			
+			//get keys or ai
 			ProcessPlayer(p1);
 			ProcessPlayer(p2);
-
-
-
-  			//should also check for collisions with
-  			//other player
-  			//this isnt too great
-  			if (distanceBetweenPoints(p1->xpos,p1->ypos,p2->xpos,p2->ypos)<(p1->offset+p2->offset)&&p1->crew>0&&p2->crew>0)
-  			{
-			//	ModifyCrew(p1,-2);
-			//	ModifyCrew(p2,-2);
-			#ifdef DEBUG
-			print("players hit each other");
-			#endif
-				if (p1->xspeed==0&&p1->yspeed==0)
-				{
-					p1->xspeed=(-p2->xspeed)>>1;
-					p1->yspeed=(-p2->yspeed)>>1;
-				}
-				if (p2->xspeed==0&&p2->yspeed==0)
-				{
-					p2->xspeed=(-p1->xspeed)>>1;
-					p2->yspeed=(-p1->yspeed)>>1;
-				}
-
-				Bounce(p1);
-				Bounce(p2);
-
-				if (p1->blaze==1)
-					ModifyCrew(p2,-3);
-
-				if (p1->blaze==2)
-					ModifyCrew(p1,-3);
-/*
-				s32 x=p1->xspeed;
-				s32 y=p1->yspeed;
-
-				p1->xspeed=(p1->xspeed*-p2->mass+2)+(p2->xspeed*p1->mass)>>(p2->mass+p1->mass);
-				p1->yspeed=(p1->yspeed*-p2->mass+2)+(p2->yspeed*p1->mass)>>(p2->mass+p1->mass);
-
-				p2->xspeed=(p2->xspeed*-p1->mass+2)+(x*p2->mass)>>(p1->mass+p1->mass);
-				p2->yspeed=(p2->yspeed*-p1->mass+2)+(y*p2->mass)>>(p1->mass+p1->mass);
-
-/*
-
-				if (p1->xspeed==0&&p1->yspeed==0&&(p2->xspeed!=0||p2->yspeed!=0))
-				{
-					//p1 stationary /p2 not
-					s32 x=p2->xspeed;
-					s32 y=p2->xspeed;
-
-					p1->xspeed=x/p2->mass;
-					p1->yspeed=y/p2->mass;
-
-					p2->xspeed=x/(p1->mass*2);
-					p2->yspeed=y/(p1->mass*2);
-				}
-				else if (p2->xspeed==0&&p2->yspeed==0&&(p1->xspeed!=0||p1->yspeed!=0))
-				{
-					//p2 stationary /p1 not
-					s32 x=p1->xspeed;
-					s32 y=p1->xspeed;
-
-					p2->xspeed=x/p1->mass;
-					p2->yspeed=y/p1->mass;
-
-					p1->xspeed=x/(p2->mass*2);
-					p1->yspeed=y/(p2->mass*2);
-				}
-				else if ((p2->xspeed!=0||p2->yspeed!=0)&&(p1->xspeed!=0||p1->yspeed!=0)) */
-				{
-
-					/*
-					print("distance between ships");
-					print(distanceBetweenPoints(p1->xpos,p1->ypos,p2->xpos,p2->ypos));
-					print("\n player 1 xpos");
-										print(p1->xpos);
-										print("\n player 1 ypos");
-										print(p1->ypos);
-										print("\n player 2 xpos");
-										print(p2->xpos);
-										print("\n player 2 ypos");
-					print(p2->ypos);
-
-					print("\n player 1 xpseed");
-					print(p1->xspeed);
-					print("\n player 1 ypseed");
-					print(p1->yspeed);
-					print("\n player 2 xpseed");
-					print(p2->xspeed);
-					print("\n player 2 ypseed");
-					print(p2->yspeed);
-
-
-					//both ships moving
-
-					s32 ImpactAngle1=FindAngle(p1->xpos,p1->ypos,p2->xpos,p2->ypos);
-					s32 ImpactAngle2=ModifyAngle(ImpactAngle1,180);
-					s32 TravelAngle1=distanceBetweenPoints(0,0,p1->xspeed,p1->yspeed);
-					s32 TravelAngle2=distanceBetweenPoints(0,0,p2->xspeed,p2->yspeed);
-					print("Imapact angle 1");
-					print(ImpactAngle1);
-
-					print("Imapact angle 2");
-					print(ImpactAngle2);
-
-					//s32 Directness = ModifyAngle(ImpactAngle1,
-					//	-1*FindAngle(p1->xpos+p1->xspeed,p1->ypos+p1->yspeed,p2->xpos+p2->xspeed,p2->ypos+p2->yspeed));
-					s32 Directness = ModifyAngle(TravelAngle1,-TravelAngle2);
-
-					print("a2");
-					print(FindAngle(p1->xpos+p1->xspeed,p1->ypos+p1->yspeed,p2->xpos+p2->xspeed,p2->ypos+p2->yspeed));
-					print("\ndirectness (ipa1 - a2)");
-										print(Directness);
-
-					double scalar = SIN [Directness] * double((p1->mass * p2->mass));
-
-					s32 speed =  (s32)(scalar / double((p1->mass * (p1->mass + p2->mass))))>>8;
-
-
-
-					p1->xspeed-= (s32)((speed) * (s32)SIN[ImpactAngle1])>>8;
-					p1->yspeed+= (s32)((speed) * (s32)COS[ImpactAngle1])>>8;
-
-					if (p1->xspeed+p1->yspeed==0)
-					{
-						p1->xspeed-= (s32)((4) * (s32)SIN[ImpactAngle1])>>8;
-						p1->yspeed+= (s32)((4) * (s32)COS[ImpactAngle1])>>8;
-					}
-
-
-
-					speed =  (s32)(scalar / double((p2->mass * (p2->mass + p1->mass))))>>8;
-
-					p2->xspeed-= (s32)((speed) * (s32)SIN[ImpactAngle2])>>8;
-					p2->yspeed+= (s32)((speed) * (s32)COS[ImpactAngle2])>>8;
-
-					if (p2->xspeed+p2->yspeed==0)
-					{
-						p2->xspeed-= (s32)((4) * (s32)SIN[ImpactAngle2])>>8;
-						p2->yspeed+= (s32)((4) * (s32)COS[ImpactAngle2])>>8;
-					}
-*/
-/*
-
-
-
-
-					s32 x=p1->xspeed;
-					s32 y=p1->xspeed;
-
-					p1->xspeed=((p1->xspeed*p1->mass)-(p2->xspeed*(p2->mass+1)))/p1->mass;
-					p1->yspeed=((p1->yspeed*p1->mass)-(p2->yspeed*(p2->mass+1)))/p1->mass;
-
-					p2->xspeed=((p2->xspeed*p2->mass)-(y*(p1->mass+1)))/p2->mass;
-					p2->yspeed=((p2->xspeed*p2->mass)-(x*(p1->mass+1)))/p2->mass;
-					*/
-					/*
-					print("after");
-									print("\n player 1 xpseed");
-														print(p1->xspeed);
-														print("\n player 1 ypseed");
-														print(p1->yspeed);
-														print("\n player 2 xpseed");
-														print(p2->xspeed);
-														print("\n player 2 ypseed");
-					print(p2->yspeed);
-					*/
-				}
-				/*
-					if (p1->xspeed==0&&p2->xspeed!=0)
-					{
-									//p1 stationary /p2 not
-									s32 x=p2->xspeed;
-									p1->xspeed=x/p2->mass;
-				}
-									s32 y=p2->xspeed;
-
-
-									p1->yspeed=y/p2->mass;
-
-									p2->xspeed=x/(p1->mass*2);
-									p2->yspeed=x/(p1->mass*2);
-								}
-								else if (p2->xspeed==0&&p2->yspeed==0&&(p1->xspeed!=0||p1->yspeed!=0))
-								{
-									//p2 stationary /p1 not
-									s32 x=p1->xspeed;
-									s32 y=p1->xspeed;
-
-									p2->xspeed=x/p1->mass;
-									p2->yspeed=y/p1->mass;
-
-									p1->xspeed=x/(p2->mass*2);
-									p1->xspeed=x/(p2->mass*2);
-								}
-								else if ((p2->xspeed!=0||p2->yspeed!=0)&&(p1->xspeed!=0||p1->yspeed!=0))
-								{
-									//both ships moving
-									s32 x=p1->xspeed;
-									s32 y=p1->xspeed;
-
-									p1->xspeed=(p1->xspeed*p1->mass)-(p2->xspeed*(p2->mass+1));
-									p1->yspeed=(p1->yspeed*p1->mass)-(p2->yspeed*(p2->mass+1));
-
-									p2->xspeed=(p2->xspeed*p2->mass)-(y*(p1->mass+1));
-									p2->yspeed=(p2->xspeed*p2->mass)-(x*(p1->mass+1));
-				}
-				*/
-
+			
+			//bullets
+			for (int s=0;s<12;s++)
+			{
+				MoveBullet(&p1->weapon[s]);
+				MoveBullet(&p2->weapon[s]);
 			}
-			setScreen(p1,p2,bg0,bg1);
-
 
   			//asteroids
   			ProcessAsteroids(p1,p2);
   			//planet
   			DrawPlanet();
-  			CalcPlanet(p1);
-  			CalcPlanet(p2);
+  		//	CalcPlanet(p1);
+  		//	CalcPlanet(p2);			
 
+			MoveSprite(&sprites[0], p1->object.xscreen, p1->object.yscreen);
 
-
-			MoveBullets(p1);
-
-			MoveBullets(p2);
-
-			MoveSprite(&sprites[0], p1->xscreen, p1->yscreen);
-
-			MoveSprite(&sprites[13], p2->xscreen, p2->yscreen);
+			MoveSprite(&sprites[13], p2->object.xscreen, p2->object.yscreen);
 
 
 
 
-			turn++;
-
-			if (turn==5)
-			{
-				turn=0;
-
-			}
-
-			DetectBullets(p1);
-			DetectBullets(p2);
+		
+		//	DetectBullets(p1);
+		//	DetectBullets(p2);
 
 			DrawTrails();
 
 
-
-			//UpdateStatus();  now we only update when changed
-/*
 			if (p1->crew>0)
 				Regen(p1);
 			if (p2->crew>0)
 				Regen(p2);
-*/			if (p1->crew>0)
-				Regen(p1);
-			if (p2->crew>0)
-				Regen(p2);
 
-			RotateSprite(0, p1->angle, zoom, zoom);
-			RotateSprite(13, p2->angle, zoom,zoom);
+			RotateSprite(0, p1->object.angle, zoom, zoom);
+			RotateSprite(13, p2->object.angle, zoom,zoom);
 
 			if (p1->postfunc!=0)
 				p1->postfunc(p1);
 			if (p2->postfunc!=0)
 				p2->postfunc(p2);
 
-
-
-			WaitForVsync();					//waits for the screen to stop drawing
+			
 			UpdateBackground(bg0);
 			UpdateBackground(bg1);
+			WaitForVsync();					//waits for the screen to stop drawing
 			CopyOAM();			//Copies sprite array into OAM.
 
 			if (demo)
@@ -1569,6 +1661,16 @@ sprites[58].attribute2 = PauseSpriteStart+48 | PRIORITY(0);
 					(!(*KEYS & KEY_L)) || (!(*KEYS & KEY_R)))
 				return;
 			}
+			
+			for (int j=0;j<32;j++)//dont bother moving planet
+			{
+				GameObjs[j]->lastxpos=GameObjs[j]->xpos;
+				GameObjs[j]->lastypos=GameObjs[j]->ypos;
+				
+				GameObjs[j]->xpos=GameObjs[j]->xpos+=GameObjs[j]->xspeed;
+				GameObjs[j]->ypos=GameObjs[j]->ypos-=GameObjs[j]->yspeed;
+			}
+			planet.life=2000;//bad but stops it dying
 
 
 
@@ -1577,8 +1679,10 @@ sprites[58].attribute2 = PauseSpriteStart+48 | PRIORITY(0);
 
 	//should clear screen
 	InitializeSprites();
+	WaitForVsync();
 	CopyOAM();
 }
+
 
 
 

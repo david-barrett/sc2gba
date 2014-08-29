@@ -54,6 +54,7 @@ CPPSOURCES = sc.cpp \
 	menu.cpp \
 	demo.cpp
 
+
 CSOURCES = androsynth_sfx.c \
 	arilou_sfx.c \
 	blackurq_sfx.c \

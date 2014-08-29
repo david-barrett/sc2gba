@@ -46,6 +46,8 @@ void SetIlwrathPilot(pPlayer p);
 void PostIlwrath(pPlayer p);
 void RestoreGFXIlwrath(pPlayer p);
 
+void MoveExplosion(pWeapon);
+
 void LoadIlwrath(s16 SpriteStart)
 {
 	s16 OAMStart=16*SpriteStart;
@@ -130,7 +132,7 @@ void SetIlwrath(pPlayer pl)
 		pl->special_wait=SPECIAL_WAIT;
 		pl->batt_regen=ENERGY_REGENERATION;
 
-	pl->mass=SHIP_MASS;
+	pl->object.mass_points=SHIP_MASS;
 	s16 o = (pl->plr-1)*13;
 
 	pl->ffiresprite=1+o;
@@ -185,38 +187,41 @@ int FireIlwrath(pPlayer pl)
 			pl->cloak=0;
 			pl->spriteoffset=0;
 			sprites[(pl->plr==1)?0:13].attribute2 = pl->SpriteStart+pl->spriteoffset | PRIORITY(1);
-			pl->angle=FindAngle(pl->xpos,pl->ypos,opp->xpos,opp->ypos);
+			pl->object.angle=FindAngle(pl->object.xpos,pl->object.ypos,opp->object.xpos,opp->object.ypos);
 
 		}
 
 
 	pl->weapon[b].type=ILWRATHFIRE;
-	pl->weapon[b].life=5;//range
+	pl->weapon[b].object.life=5;//range
 	pl->weapon[b].damage=-1;
 	pl->weapon[b].target=pl->opp;
 	pl->weapon[b].parent=pl;
 	pl->weapon[b].damageparent=0;
+	pl->weapon[b].movefunc=&MoveExplosion;
+	pl->weapon[b].hitfunc=0;
+	pl->weapon[b].object.ignorecollision=0;
 
-	pl->weapon[b].size=8;
-	pl->weapon[b].angle = pl->angle;
+	pl->weapon[b].object.size=8;
+	pl->weapon[b].object.angle = pl->object.angle;
 
 	s32 speed=25;
-	pl->weapon[b].xspeed = ((speed * (s32)SIN[pl->angle])>>9);///SPEED_REDUCT;
-	pl->weapon[b].yspeed = ((speed * (s32)COS[pl->angle])>>9);///SPEED_REDUCT;
+	pl->weapon[b].object.xspeed = ((speed * (s32)SIN[pl->object.angle])>>9);///SPEED_REDUCT;
+	pl->weapon[b].object.yspeed = ((speed * (s32)COS[pl->object.angle])>>9);///SPEED_REDUCT;
 
-	//pl->weapon[b].xpos = pl->xpos+((52 * (s32)SIN[pl->angle+(i==0?-30:+30)])>>8)/3;
-	//pl->weapon[b].ypos = pl->ypos-((52 * (s32)COS[pl->angle+(i==0?-30:+30)])>>8)/3;
+	//pl->weapon[b].object.xpos = pl->object.xpos+((52 * (s32)SIN[pl->object.angle+(i==0?-30:+30)])>>8)/3;
+	//pl->weapon[b].object.ypos = pl->object.ypos-((52 * (s32)COS[pl->object.angle+(i==0?-30:+30)])>>8)/3;
 
-	pl->weapon[b].xpos = pl->xpos+((52 * (s32)SIN[pl->angle])>>8)/3;
-	pl->weapon[b].ypos = pl->ypos-((52 * (s32)COS[pl->angle])>>8)/3;
+	pl->weapon[b].object.xpos = pl->object.xpos+((52 * (s32)SIN[pl->object.angle])>>8)/3;
+	pl->weapon[b].object.ypos = pl->object.ypos-((52 * (s32)COS[pl->object.angle])>>8)/3;
 
 
-	pl->weapon[b].size=8;
-	sprites[pl->weapon[b].sprite].attribute0 = COLOR_256 | SQUARE | ROTATION_FLAG | SIZE_DOUBLE | MODE_TRANSPARENT | pl->weapon[b].yscreen;	//setup sprite info, 256 colour, shape and y-coord
-    sprites[pl->weapon[b].sprite].attribute1 = SIZE_8 | ROTDATA(pl->weapon[b].sprite) | pl->weapon[b].xscreen;
+	pl->weapon[b].object.size=8;
+	sprites[pl->weapon[b].sprite].attribute0 = COLOR_256 | SQUARE | ROTATION_FLAG |SIZE_DOUBLE | MODE_TRANSPARENT | pl->weapon[b].object.yscreen;	//setup sprite info, 256 colour, shape and y-coord
+    sprites[pl->weapon[b].sprite].attribute1 =SIZE_8 | ROTDATA(pl->weapon[b].sprite) | pl->weapon[b].object.xscreen;
     sprites[pl->weapon[b].sprite].attribute2 = FireSprite1 | PRIORITY(1);
-    drawOnScreen(&pl->weapon[b].xscreen,&pl->weapon[b].yscreen,
-		pl->weapon[b].xpos,pl->weapon[b].ypos,screenx,screeny,pl->weapon[b].size);
+    drawOnScreen(&pl->weapon[b].object.xscreen,&pl->weapon[b].object.yscreen,
+		pl->weapon[b].object.xpos,pl->weapon[b].object.ypos,screenx,screeny,pl->weapon[b].object.size);
 
     ret++;
     play_sfx(&ilwrath_flame,pl->plr-1);
@@ -272,23 +277,23 @@ void SetIlwrathPilot(pPlayer pl)
 	int off=(pl->plr==1)?0:6;
 
 	sprites[43+off].attribute0 = COLOR_256 | TALL  | 160;
-	sprites[43+off].attribute1 = SIZE_32 | 240;
+	sprites[43+off].attribute1 =SIZE_32 | 240;
 	sprites[43+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+64 | PRIORITY(2);
 
 	sprites[44+off].attribute0 = COLOR_256 | TALL  | 160;
-	sprites[44+off].attribute1 = SIZE_32 | 240;
+	sprites[44+off].attribute1 =SIZE_32 | 240;
 	sprites[44+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+64+16 | PRIORITY(2);
 
 	sprites[45+off].attribute0 = COLOR_256 | SQUARE  | 160;
-	sprites[45+off].attribute1 = SIZE_16 | 240;
+	sprites[45+off].attribute1 =SIZE_16 | 240;
 	sprites[45+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+64+16+16 | PRIORITY(2);
 
 	sprites[46+off].attribute0 = COLOR_256 | SQUARE  | 160;
-	sprites[46+off].attribute1 = SIZE_8 | 240;
+	sprites[46+off].attribute1 =SIZE_8 | 240;
 	sprites[46+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+64+32+8 | PRIORITY(2);
 
 	sprites[47+off].attribute0 = COLOR_256 | TALL  | 160;
-	sprites[47+off].attribute1 = SIZE_32 | 240;
+	sprites[47+off].attribute1 =SIZE_32 | 240;
 	sprites[47+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+64+40+2 | PRIORITY(2);
 }
 

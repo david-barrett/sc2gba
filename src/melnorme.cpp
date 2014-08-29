@@ -37,7 +37,7 @@ void SetMelnormePilot(pPlayer p);
 void RestoreGFXMelnorme(pPlayer p);
 void PostMelnorme(pPlayer p);
 
-void MoveConfuse(pWeapon w);
+void HitConfuse(pWeapon w,void *);
 
 extern s32 zoom;
 extern s8 v3do;
@@ -143,30 +143,33 @@ int FireMelnorme(pPlayer pl)
 	
 
 	pl->weapon[b].type=SIMPLE;
-	pl->weapon[b].life=PUMPUP_LIFE;
+	pl->weapon[b].object.life=PUMPUP_LIFE;
 	pl->weapon[b].damage=-1*PUMPUP_DAMAGE; 
 	pl->weapon[b].target=pl->opp;
 	pl->weapon[b].parent=pl;
 	pl->weapon[b].damageparent=0;
+	pl->weapon[b].movefunc=0;
+	pl->weapon[b].hitfunc=0;
+	pl->weapon[b].object.ignorecollision=0;
 
-	pl->weapon[b].size=8;
-	pl->weapon[b].angle = 0;
-	pl->weapon[b].actualangle = 0;
+	pl->weapon[b].object.size=8;
+	pl->weapon[b].object.angle = 0;
+	pl->weapon[b].object.actualangle = 0;
 
-	pl->weapon[b].xspeed=0;
-	pl->weapon[b].yspeed=0;
+	pl->weapon[b].object.xspeed=0;
+	pl->weapon[b].object.yspeed=0;
 
 	pl->weapon[b].turn_wait=0;
 
 
-	pl->weapon[b].xpos = pl->xpos+((s32)(pl->offset * SIN[pl->angle])>>8);
-	pl->weapon[b].ypos = pl->ypos-((s32)(pl->offset * COS[pl->angle])>>8);
+	pl->weapon[b].object.xpos = pl->object.xpos+((s32)(pl->offset * SIN[pl->object.angle])>>8);
+	pl->weapon[b].object.ypos = pl->object.ypos-((s32)(pl->offset * COS[pl->object.angle])>>8);
 
-	drawOnScreen(&pl->weapon[b].xscreen,&pl->weapon[b].yscreen,
-		pl->weapon[b].xpos,pl->weapon[b].ypos,screenx,screeny,pl->weapon[b].size);
+	drawOnScreen(&pl->weapon[b].object.xscreen,&pl->weapon[b].object.yscreen,
+		pl->weapon[b].object.xpos,pl->weapon[b].object.ypos,screenx,screeny,pl->weapon[b].object.size);
 
-	sprites[pl->weapon[b].sprite].attribute0 = COLOR_256 | SQUARE | ROTATION_FLAG | SIZE_DOUBLE | MODE_TRANSPARENT | pl->weapon[b].yscreen;	//setup sprite info, 256 colour, shape and y-coord
-	sprites[pl->weapon[b].sprite].attribute1 = SIZE_8 | ROTDATA(pl->weapon[b].sprite) | pl->weapon[b].xscreen;
+	sprites[pl->weapon[b].sprite].attribute0 = COLOR_256 | SQUARE | ROTATION_FLAG |SIZE_DOUBLE | MODE_TRANSPARENT | pl->weapon[b].object.yscreen;	//setup sprite info, 256 colour, shape and y-coord
+	sprites[pl->weapon[b].sprite].attribute1 =SIZE_8 | ROTDATA(pl->weapon[b].sprite) | pl->weapon[b].object.xscreen;
 	sprites[pl->weapon[b].sprite].attribute2 = pl->SpriteStart+104 | PRIORITY(1);
 
 	play_sfx(&melnorme_charge,pl->plr-1);
@@ -223,7 +226,7 @@ void SetMelnorme(pPlayer pl)
 	pl->ditty=&melnorme_ditty;
 
 	pl->ship_flags = FIRES_FORE ;
-	pl->mass=SHIP_MASS;
+	pl->object.mass_points=SHIP_MASS;
 
 	pl->pilot_sprite=(ps)/16;
 	pl->pilots[0].x=25;
@@ -248,33 +251,35 @@ int SpecialMelnorme(pPlayer pl)
 	s16 b=1;
 	{
 		pl->weapon[b].type=CONFUSE;
-		pl->weapon[b].life=CMISSILE_LIFE;
-		pl->weapon[b].movefunc=&MoveConfuse;;
+		pl->weapon[b].object.life=CMISSILE_LIFE;
+		pl->weapon[b].hitfunc=&HitConfuse;;
 		pl->weapon[b].damage=0;
 		pl->weapon[b].target=pl->opp;
 		pl->weapon[b].parent=pl;
 		pl->weapon[b].damageparent=0;
+		pl->weapon[b].movefunc=0;		
+		pl->weapon[b].object.ignorecollision=0;
 
-		pl->weapon[b].size=16;
-		pl->weapon[b].angle = 0;
+		pl->weapon[b].object.size=16;
+		pl->weapon[b].object.angle = 0;
 
-		pl->weapon[b].xspeed=((s32)(CMISSILE_SPEED * SIN[pl->angle])>>8);
-		pl->weapon[b].yspeed=((s32)(CMISSILE_SPEED * COS[pl->angle])>>8);
+		pl->weapon[b].object.xspeed=((s32)(CMISSILE_SPEED * SIN[pl->object.angle])>>8);
+		pl->weapon[b].object.yspeed=((s32)(CMISSILE_SPEED * COS[pl->object.angle])>>8);
 
 
-		pl->weapon[b].xpos = pl->xpos-((s32)(pl->offset * SIN[pl->angle])>>8);
-		pl->weapon[b].ypos = pl->ypos+((s32)(pl->offset * COS[pl->angle])>>8);
+		pl->weapon[b].object.xpos = pl->object.xpos+((s32)(pl->offset * SIN[pl->object.angle])>>8);
+		pl->weapon[b].object.ypos = pl->object.ypos-((s32)(pl->offset * COS[pl->object.angle])>>8);
 
 		#ifdef MISSILE_START
-		pl->weapon[b].xpos-=pl->weapon[b].xspeed;
-		pl->weapon[b].ypos+=pl->weapon[b].yspeed;
+		pl->weapon[b].object.xpos-=pl->weapon[b].object.xspeed;
+		pl->weapon[b].object.ypos+=pl->weapon[b].object.yspeed;
 		#endif
 
-		drawOnScreen(&pl->weapon[b].xscreen,&pl->weapon[b].yscreen,
-			pl->weapon[b].xpos,pl->weapon[b].ypos,screenx,screeny,pl->weapon[b].size);
+		drawOnScreen(&pl->weapon[b].object.xscreen,&pl->weapon[b].object.yscreen,
+			pl->weapon[b].object.xpos,pl->weapon[b].object.ypos,screenx,screeny,pl->weapon[b].object.size);
 
-		sprites[pl->weapon[b].sprite].attribute0 = COLOR_256 | SQUARE | ROTATION_FLAG | SIZE_DOUBLE | MODE_TRANSPARENT | pl->weapon[b].yscreen;	//setup sprite info, 256 colour, shape and y-coord
-		sprites[pl->weapon[b].sprite].attribute1 = SIZE_16 | ROTDATA(pl->weapon[b].sprite) | pl->weapon[b].xscreen;
+		sprites[pl->weapon[b].sprite].attribute0 = COLOR_256 | SQUARE | ROTATION_FLAG |SIZE_DOUBLE | MODE_TRANSPARENT | pl->weapon[b].object.yscreen;	//setup sprite info, 256 colour, shape and y-coord
+		sprites[pl->weapon[b].sprite].attribute1 =SIZE_16 | ROTDATA(pl->weapon[b].sprite) | pl->weapon[b].object.xscreen;
 		sprites[pl->weapon[b].sprite].attribute2 = pl->SpriteStart+96 | PRIORITY(1);
 			
 
@@ -288,24 +293,19 @@ int SpecialMelnorme(pPlayer pl)
 
 }
 
-void MoveConfuse(pWeapon w)
+void HitConfuse(pWeapon w,void* y)
 {
 	pPlayer target=(pPlayer)w->target;
 	pPlayer p = (pPlayer)w->parent;
 	if (DetectWeaponToShip(target,w)==1)
 	{
 		target->scrambled=CMISSILE_TIME;
-		sprites[p->weapon[0].sprite].attribute0 = COLOR_256 | SQUARE | ROTATION_FLAG | SIZE_DOUBLE | MODE_TRANSPARENT | 160;	//setup sprite info, 256 colour, shape and y-coord
-		sprites[p->weapon[0].sprite].attribute1 = SIZE_32 | ROTDATA(p->weapon[0].sprite) | 240;
+		sprites[p->weapon[0].sprite].attribute0 = COLOR_256 | SQUARE | ROTATION_FLAG |SIZE_DOUBLE | MODE_TRANSPARENT | 160;	//setup sprite info, 256 colour, shape and y-coord
+		sprites[p->weapon[0].sprite].attribute1 =SIZE_32 | ROTDATA(p->weapon[0].sprite) | 240;
    		sprites[p->weapon[0].sprite].attribute2 = p->SpriteStart+64 | PRIORITY(0);
-		w->life=0;
+		w->object.life=0;
 
-	}
-	else
-	{
-		w->xpos+=w->xspeed;
-		w->ypos-=w->yspeed;	
-	}
+	}	
 }
 
 int aiMelnorme(pPlayer ai, pObject ObjectsOfConcern, COUNT ConcernCounter)
@@ -383,23 +383,23 @@ void SetMelnormePilot(pPlayer pl)
 	int off=(pl->plr==1)?0:6;
 
 	sprites[43+off].attribute0 = COLOR_256 | TALL  | 160;
-	sprites[43+off].attribute1 = SIZE_32 | 240;
+	sprites[43+off].attribute1 =SIZE_32 | 240;
 	sprites[43+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+64 | PRIORITY(2);
 
 	sprites[44+off].attribute0 = COLOR_256 | TALL  | 160;
-	sprites[44+off].attribute1 = SIZE_32 | 240;
+	sprites[44+off].attribute1 =SIZE_32 | 240;
 	sprites[44+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+80 | PRIORITY(2);
 
 	sprites[45+off].attribute0 = COLOR_256 | WIDE  | 160;
-	sprites[45+off].attribute1 = SIZE_32 | 240;
+	sprites[45+off].attribute1 =SIZE_32 | 240;
 	sprites[45+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+96 | PRIORITY(2);
 
 	sprites[46+off].attribute0 = COLOR_256 |TALL  | 160;
-	sprites[46+off].attribute1 = SIZE_64 | 240;
+	sprites[46+off].attribute1 =SIZE_64 | 240;
 	sprites[46+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+112 | PRIORITY(2);
 
 	sprites[47+off].attribute0 = COLOR_256 | WIDE  | 160;
-	sprites[47+off].attribute1 = SIZE_32 | 240;
+	sprites[47+off].attribute1 =SIZE_32 | 240;
 	sprites[47+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+176 | PRIORITY(2);
 }
 
@@ -408,12 +408,12 @@ void RestoreGFXMelnorme(pPlayer p)
 
 	for(int i=0;i<12;i++)
 	{
-		if (p->weapon[i].life>0)
+		if (p->weapon[i].object.life>0)
 		{
 			if(p->weapon[i].type==SIMPLE)
 			{
-			sprites[p->weapon[i].sprite].attribute0 = COLOR_256 | SQUARE | ROTATION_FLAG | SIZE_DOUBLE | MODE_TRANSPARENT | 160;	//setup sprite info, 256 colour, shape and y-coord
-			sprites[p->weapon[i].sprite].attribute1 = SIZE_16 | ROTDATA(p->weapon[i].sprite) | 240;
+			sprites[p->weapon[i].sprite].attribute0 = COLOR_256 | SQUARE | ROTATION_FLAG |SIZE_DOUBLE | MODE_TRANSPARENT | 160;	//setup sprite info, 256 colour, shape and y-coord
+			sprites[p->weapon[i].sprite].attribute1 =SIZE_16 | ROTDATA(p->weapon[i].sprite) | 240;
    			sprites[p->weapon[i].sprite].attribute2 = p->SpriteStart+64 | PRIORITY(1);
 			}
 		}
@@ -422,7 +422,7 @@ void RestoreGFXMelnorme(pPlayer p)
 
 void PostMelnorme(pPlayer p)
 {
-	s16 a=p->angle-180;
+	s16 a=p->object.angle-180;
 	if (a<0)
 		a+=360;
 	RotateSprite(p->plr==1?0:13, a, zoom, zoom);
@@ -433,18 +433,18 @@ void PostMelnorme(pPlayer p)
 	{
 		if (v3do)
 		{
-			opp->actualangle++;
-			if(opp->actualangle==16)
-				opp->actualangle=0;
-			opp->angle=(opp->actualangle*45)>>1;
+			opp->object.actualangle++;
+			if(opp->object.actualangle==16)
+				opp->object.actualangle=0;
+			opp->object.angle=(opp->object.actualangle*45)>>1;
 		}
 		opp->scrambled--;
 
 		if (opp->scrambled==0)
-			p->weapon[0].life=0;
+			p->weapon[0].object.life=0;
 
-		MoveSprite(&sprites[p->weapon[0].sprite],opp->xscreen,opp->yscreen);
-		RotateSprite(p->weapon[0].sprite,opp->angle,zoom,zoom);
+		MoveSprite(&sprites[p->weapon[0].sprite],opp->object.xscreen,opp->object.yscreen);
+		RotateSprite(p->weapon[0].sprite,opp->object.angle,zoom,zoom);
 
 	}
 
@@ -455,13 +455,13 @@ void PostMelnorme(pPlayer p)
 		{
 			//fire
 			p->charging=0;
-			p->weapon[p->currentweapon].xspeed=((s32)(PUMPUP_SPEED * SIN[p->angle])>>8);
-			p->weapon[p->currentweapon].yspeed=((s32)(PUMPUP_SPEED * COS[p->angle])>>8);
+			p->weapon[p->currentweapon].object.xspeed=((s32)(PUMPUP_SPEED * SIN[p->object.angle])>>8);
+			p->weapon[p->currentweapon].object.yspeed=((s32)(PUMPUP_SPEED * COS[p->object.angle])>>8);
 			play_sfx(&melnorme_fire,p->plr-1);
 		}
 		else
 		{	
-			p->weapon[p->currentweapon].life=PUMPUP_LIFE;
+			p->weapon[p->currentweapon].object.life=PUMPUP_LIFE;
 			
 			s16 sprite=0;
 			s8 size=1;
@@ -470,7 +470,7 @@ void PostMelnorme(pPlayer p)
 			if (p->charging<45)
 			{
 				o=2;
-				size=0;
+			 size=0;
 				p->weapon[p->currentweapon].turn_wait=!p->weapon[p->currentweapon].turn_wait;
 				if (p->weapon[p->currentweapon].turn_wait)
 					sprite=p->SpriteStart+106;
@@ -483,7 +483,7 @@ void PostMelnorme(pPlayer p)
 			}
 			else if (p->charging<90)
 			{
-				p->weapon[p->currentweapon].size=16;
+				p->weapon[p->currentweapon].object.size=16;
 				p->weapon[p->currentweapon].damage=-2*PUMPUP_DAMAGE; 				
 				p->weapon[p->currentweapon].turn_wait=!p->weapon[p->currentweapon].turn_wait;
 				if (p->weapon[p->currentweapon].turn_wait)
@@ -511,19 +511,19 @@ void PostMelnorme(pPlayer p)
 
 			}
 
-			p->weapon[p->currentweapon].xpos = p->xpos+((s32)((p->offset+o) * SIN[p->angle])>>8);
-			p->weapon[p->currentweapon].ypos = p->ypos-((s32)((p->offset+o) * COS[p->angle])>>8);
+			p->weapon[p->currentweapon].object.xpos = p->object.xpos+((s32)((p->offset+o) * SIN[p->object.angle])>>8);
+			p->weapon[p->currentweapon].object.ypos = p->object.ypos-((s32)((p->offset+o) * COS[p->object.angle])>>8);
 
 
 
-			drawOnScreen(&p->weapon[p->currentweapon].xscreen,&p->weapon[p->currentweapon].yscreen,
-					p->weapon[p->currentweapon].xpos,p->weapon[p->currentweapon].ypos,screenx,screeny,p->weapon[p->currentweapon].size);
+			drawOnScreen(&p->weapon[p->currentweapon].object.xscreen,&p->weapon[p->currentweapon].object.yscreen,
+					p->weapon[p->currentweapon].object.xpos,p->weapon[p->currentweapon].object.ypos,screenx,screeny,p->weapon[p->currentweapon].object.size);
 
-			sprites[p->weapon[p->currentweapon].sprite].attribute0 = COLOR_256 | SQUARE | ROTATION_FLAG | SIZE_DOUBLE | MODE_TRANSPARENT | p->weapon[p->currentweapon].yscreen;	//setup sprite info, 256 colour, shape and y-coord
+			sprites[p->weapon[p->currentweapon].sprite].attribute0 = COLOR_256 | SQUARE | ROTATION_FLAG |SIZE_DOUBLE | MODE_TRANSPARENT | p->weapon[p->currentweapon].object.yscreen;	//setup sprite info, 256 colour, shape and y-coord
 			if (size)
-				sprites[p->weapon[p->currentweapon].sprite].attribute1 = SIZE_16 | ROTDATA(p->weapon[p->currentweapon].sprite) | p->weapon[p->currentweapon].xscreen;
+				sprites[p->weapon[p->currentweapon].sprite].attribute1 =SIZE_16 | ROTDATA(p->weapon[p->currentweapon].sprite) | p->weapon[p->currentweapon].object.xscreen;
 			else
-				sprites[p->weapon[p->currentweapon].sprite].attribute1 = SIZE_8 | ROTDATA(p->weapon[p->currentweapon].sprite) | p->weapon[p->currentweapon].xscreen;
+				sprites[p->weapon[p->currentweapon].sprite].attribute1 =SIZE_8 | ROTDATA(p->weapon[p->currentweapon].sprite) | p->weapon[p->currentweapon].object.xscreen;
 			sprites[p->weapon[p->currentweapon].sprite].attribute2 = sprite | PRIORITY(0);	
 					
 		}//still holding

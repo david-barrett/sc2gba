@@ -11,10 +11,10 @@
 #define INT_TIMER1       0x0010
 
 u32 iNextSampleA=0;
-//u32 SampleSizeA=0;
+//u32 Sampl.object.sizeA=0;
 //s8 *soundA;
 u32 iNextSampleB=0;
-//u32 SampleSizeB=0;
+//u32 Sampl.object.sizeB=0;
 //s8 *soundB;
 const PCMSOUND *pcmsoundA;
 const PCMSOUND *pcmsoundB;
@@ -43,7 +43,7 @@ void InterruptProcess(void)
 
 		iNextSampleB++;
 
-		if (iNextSampleB>(SampleSizeB/4))
+		if (iNextSampleB>(Sampl.object.sizeB/4))
 		{
 			REG_TM1CNT=0;
 		//	REG_DMA1CNT = 0;

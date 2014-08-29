@@ -92,11 +92,11 @@ void LoadUmgah(s16 SpriteStart)
 int SpecialUmgah(pPlayer pl)
 {
 
-	pl->xpos-=((JUMP_DIST  * (s32)SIN[pl->angle])>>8);
-	pl->ypos+=((JUMP_DIST * (s32)COS[pl->angle])>>8);
+	pl->object.xpos-=((JUMP_DIST  * (s32)SIN[pl->object.angle])>>8);
+	pl->object.ypos+=((JUMP_DIST * (s32)COS[pl->object.angle])>>8);
 	play_sfx(&umgah_backzip,pl->plr-1);
-	pl->xspeed=0;
-	pl->yspeed=0;
+	pl->object.xspeed=0;
+	pl->object.yspeed=0;
 	return 1;
 }
 
@@ -123,7 +123,7 @@ void SetUmgah(pPlayer pl)
 		pl->special_wait=SPECIAL_WAIT;
 		pl->batt_regen=ENERGY_REGENERATION;
 
-	pl->mass=SHIP_MASS;
+	pl->object.mass_points=SHIP_MASS;
 		pl->offset=7;
 
 	s16 o = (pl->plr-1)*13;
@@ -175,39 +175,42 @@ int FireUmgah(pPlayer pl)
 	for (b=0;b<2;b++)
 	{
 	pl->weapon[b].type=LASER;
-	pl->weapon[b].life=1;//range
+	pl->weapon[b].object.life=1;//range
 	pl->weapon[b].damage=-1;
 	pl->weapon[b].target=pl->opp;
 	pl->weapon[b].parent=pl;
-	pl->weapon[b].damageparent=0;
+	pl->weapon[b].damageparent=0;	
+	pl->weapon[b].movefunc=0;
+	pl->weapon[b].hitfunc=0;
+	pl->weapon[b].object.ignorecollision=0;
 
-	pl->weapon[b].size=(b==0)?16:32;
-	pl->weapon[b].angle = pl->angle;
+	pl->weapon[b].object.size=(b==0)?16:32;
+	pl->weapon[b].object.angle = pl->object.angle;
 
-	pl->weapon[b].xspeed = 0;
-	pl->weapon[b].yspeed = 0;
+	pl->weapon[b].object.xspeed = 0;
+	pl->weapon[b].object.yspeed = 0;
 
-	//pl->weapon[b].xpos = pl->xpos+((52 * (s32)SIN[pl->angle+(i==0?-30:+30)])>>8)/3;
-	//pl->weapon[b].ypos = pl->ypos-((52 * (s32)COS[pl->angle+(i==0?-30:+30)])>>8)/3;
+	//pl->weapon[b].object.xpos = pl->object.xpos+((52 * (s32)SIN[pl->object.angle+(i==0?-30:+30)])>>8)/3;
+	//pl->weapon[b].object.ypos = pl->object.ypos-((52 * (s32)COS[pl->object.angle+(i==0?-30:+30)])>>8)/3;
 
 	s16 o = (b==0)?10:34;
 
-	pl->weapon[b].xpos = pl->xpos+((o * (s32)SIN[pl->angle])>>8);
-	pl->weapon[b].ypos = pl->ypos-((o * (s32)COS[pl->angle])>>8);
+	pl->weapon[b].object.xpos = pl->object.xpos+((o * (s32)SIN[pl->object.angle])>>8);
+	pl->weapon[b].object.ypos = pl->object.ypos-((o * (s32)COS[pl->object.angle])>>8);
 
-	drawOnScreen(&pl->weapon[b].xscreen,&pl->weapon[b].yscreen,
-		pl->weapon[b].xpos,pl->weapon[b].ypos,screenx,screeny,pl->weapon[b].size);
+	drawOnScreen(&pl->weapon[b].object.xscreen,&pl->weapon[b].object.yscreen,
+		pl->weapon[b].object.xpos,pl->weapon[b].object.ypos,screenx,screeny,pl->weapon[b].object.size);
 
 	if (b==0)
 	{
-	sprites[pl->weapon[b].sprite].attribute0 = COLOR_256 | SQUARE | ROTATION_FLAG | SIZE_DOUBLE | MODE_TRANSPARENT | pl->weapon[b].yscreen;	//setup sprite info, 256 colour, shape and y-coord
-    sprites[pl->weapon[b].sprite].attribute1 = SIZE_16 | ROTDATA(pl->weapon[b].sprite) | pl->weapon[b].xscreen;
+	sprites[pl->weapon[b].sprite].attribute0 = COLOR_256 | SQUARE | ROTATION_FLAG |SIZE_DOUBLE | MODE_TRANSPARENT | pl->weapon[b].object.yscreen;	//setup sprite info, 256 colour, shape and y-coord
+    sprites[pl->weapon[b].sprite].attribute1 =SIZE_16 | ROTDATA(pl->weapon[b].sprite) | pl->weapon[b].object.xscreen;
     sprites[pl->weapon[b].sprite].attribute2 = pl->SpriteStart+96 | PRIORITY(3);
 	}
 	else
 	{
-		sprites[pl->weapon[b].sprite].attribute0 = COLOR_256 | SQUARE | ROTATION_FLAG | SIZE_DOUBLE | MODE_TRANSPARENT | pl->weapon[b].yscreen;	//setup sprite info, 256 colour, shape and y-coord
-	    sprites[pl->weapon[b].sprite].attribute1 = SIZE_32 | ROTDATA(pl->weapon[b].sprite) | pl->weapon[b].xscreen;
+		sprites[pl->weapon[b].sprite].attribute0 = COLOR_256 | SQUARE | ROTATION_FLAG |SIZE_DOUBLE | MODE_TRANSPARENT | pl->weapon[b].object.yscreen;	//setup sprite info, 256 colour, shape and y-coord
+	    sprites[pl->weapon[b].sprite].attribute1 =SIZE_32 | ROTDATA(pl->weapon[b].sprite) | pl->weapon[b].object.xscreen;
 	    sprites[pl->weapon[b].sprite].attribute2 = pl->SpriteStart+64 | PRIORITY(3);
 	}
 
@@ -231,7 +234,7 @@ int aiUmgah(pPlayer ai, pObject ObjectsOfConcern, COUNT ConcernCounter)
 			if (lpEvalDesc->which_turn > 3
 					)//|| (StarShipPtr->old_status_flags & SPECIAL))
 				lpEvalDesc->parent = 0;
-			else if //((lpEvalDesc->ObjectPtr->state_flags & FINITE_LIFE) &&
+			else if //((lpEvalDesc->tr->state_flags & FINITE.object.life) &&
 					(lpEvalDesc->type != CREW)//)
 				lpEvalDesc->MoveState = AVOID;
 			else
@@ -262,13 +265,13 @@ int aiUmgah(pPlayer ai, pObject ObjectsOfConcern, COUNT ConcernCounter)
 
 			EnoughJuice = (s8)((JUMP_DIST * ai->batt) > this_turn);
 			/*
-			delta_x = lpEvalDesc->ObjectPtr->next.location.x -
+			delta_x = lpEvalDesc->tr->next.location.x -
 					ShipPtr->next.location.x;
-			delta_y = lpEvalDesc->ObjectPtr->next.location.y -
+			delta_y = lpEvalDesc->tr->next.location.y -
 					ShipPtr->next.location.y;
 					*/
-			s16 angle=FindAngle(ai->xpos,ai->ypos,EnemyStarShipPtr->xpos,EnemyStarShipPtr->ypos);
-			EnemyBehind = (!(TurnAngle(angle,ai->angle,180)));
+			s16 angle=FindAngle(ai->object.xpos,ai->object.ypos,EnemyStarShipPtr->object.xpos,EnemyStarShipPtr->object.ypos);
+			EnemyBehind = (!(TurnAngle(angle,ai->object.angle,180)));
 
 /*
 			if (EnoughJuice
@@ -340,23 +343,23 @@ void SetUmgahPilot(pPlayer pl)
 	int off=(pl->plr==1)?0:6;
 
 	sprites[43+off].attribute0 = COLOR_256 | TALL  | 160;
-	sprites[43+off].attribute1 = SIZE_32 | 240;
+	sprites[43+off].attribute1 =SIZE_32 | 240;
 	sprites[43+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+64 | PRIORITY(2);
 
 	sprites[44+off].attribute0 = COLOR_256 | SQUARE  | 160;
-	sprites[44+off].attribute1 = SIZE_32 | 240;
+	sprites[44+off].attribute1 =SIZE_32 | 240;
 	sprites[44+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+80 | PRIORITY(2);
 
 	sprites[45+off].attribute0 = COLOR_256 | SQUARE  | 160;
-	sprites[45+off].attribute1 = SIZE_32 | 240;
+	sprites[45+off].attribute1 =SIZE_32 | 240;
 	sprites[45+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+112 | PRIORITY(2);
 
 	sprites[46+off].attribute0 = COLOR_256 | TALL | 160;
-	sprites[46+off].attribute1 = SIZE_32 | 240;
+	sprites[46+off].attribute1 =SIZE_32 | 240;
 	sprites[46+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+144 | PRIORITY(2);
 
 	sprites[47+off].attribute0 = COLOR_256 | TALL  | 160;
-	sprites[47+off].attribute1 = SIZE_32 | 240;
+	sprites[47+off].attribute1 =SIZE_32 | 240;
 	sprites[47+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+160 | PRIORITY(2);
 }
 
@@ -374,12 +377,12 @@ void RestoreGFXUmgah(pPlayer p)
 	/*
 	for(int i=0;i<12;i++)
 	{
-		if (p->weapon[i].life>0)
+		if (p->weapon[i].object.life>0)
 		{
 			if(p->weapon[i].type==SIMPLE)
 			{
-			sprites[p->weapon[i].sprite].attribute0 = COLOR_256 | SQUARE | ROTATION_FLAG | SIZE_DOUBLE | MODE_TRANSPARENT | 160;	//setup sprite info, 256 colour, shape and y-coord
-			sprites[p->weapon[i].sprite].attribute1 = SIZE_8 | ROTDATA(p->weapon[i].sprite) | 240;
+			sprites[p->weapon[i].sprite].attribute0 = COLOR_256 | SQUARE | ROTATION_FLAG |SIZE_DOUBLE | MODE_TRANSPARENT | 160;	//setup sprite info, 256 colour, shape and y-coord
+			sprites[p->weapon[i].sprite].attribute1 =SIZE_8 | ROTDATA(p->weapon[i].sprite) | 240;
    			sprites[p->weapon[i].sprite].attribute2 = p->SpriteStart+96 | PRIORITY(1);
 			}
 		}

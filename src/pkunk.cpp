@@ -20,7 +20,7 @@
 #define MAX_ENERGY 12
 #define ENERGY_REGENERATION 0
 #define WEAPON_ENERGY_COST 1
-#define SPECIAL_ENERGY_COST 2
+#define SPECIAL_ENERGY_COST 0//2
 #define ENERGY_WAIT 0
 #define MAX_THRUST SHIP_SPEED(64)
 #define THRUST_INCREMENT SHIP_SPEED(16)
@@ -74,7 +74,7 @@ void SetFury(pPlayer pl)
 		pl->special_wait=SPECIAL_WAIT;
 		pl->batt_regen=ENERGY_REGENERATION;
 
-	pl->mass=SHIP_MASS;
+	pl->object.mass_points=SHIP_MASS;
 		pl->offset=13;
 
 	s16 o = (pl->plr-1)*13;
@@ -150,37 +150,33 @@ int FireFuryA(pPlayer pl,s32 angle)
 	if (b>=0)//&&n>=0)
 	{
 	pl->weapon[b].type=SIMPLE;
-	pl->weapon[b].life=5;//range
+	pl->weapon[b].object.life=MISSILE_LIFE;//range
 	pl->weapon[b].damage=-1;
-	pl->weapon[b].angle=0;
+	pl->weapon[b].object.angle=0;
 	pl->weapon[b].target=pl->opp;
 	pl->weapon[b].parent=pl;
 	pl->weapon[b].damageparent=0;
-	pl->weapon[b].size=8;
-	//this determines the middle of the ship which aint so good
-
-	pl->weapon[b].xpos = pl->xpos;//+(s32)(15 * SIN[angle])>>8;
-	pl->weapon[b].ypos = pl->ypos;//-(s32)(15 * COS[angle])>>8 ;
-
-	//drawOnScreen(&pl->weapon[b].xscreen,&pl->weapon[b].yscreen,
-	//	pl->weapon[b].xpos,pl->weapon[b].ypos,screenx,screeny,pl->weapon[b].size);
-
-	s32 speed=24;
-	pl->weapon[b].xspeed = (s32)(speed * SIN[angle])>>7;
-	pl->weapon[b].yspeed = (s32)(speed * COS[angle])>>7;
-
-	//pl->weapon[b].xpos+=pl->weapon[b].xspeed;
-	//pl->weapon[b].ypos-=pl->weapon[b].yspeed;
-
-	//pl->weapon[b].xpos = pl->xpos+((52 * (s32)SIN[pl->angle])>>8)/3;
-	//pl->weapon[b].ypos = pl->ypos-((52 * (s32)COS[pl->angle])>>8)/3;
+	pl->weapon[b].object.size=8;
+	pl->weapon[b].movefunc=0;
+	pl->weapon[b].hitfunc=0;
+	pl->weapon[b].object.ignorecollision=0;
 
 
-	drawOnScreen(&pl->weapon[b].xscreen,&pl->weapon[b].yscreen,
-		pl->weapon[b].xpos,pl->weapon[b].ypos,screenx,screeny,8);
+	pl->weapon[b].object.xpos = pl->object.xpos+((s32)(25 * SIN[angle])>>8);
+	pl->weapon[b].object.ypos = pl->object.ypos-((s32)(25 * COS[angle])>>8 );
 
-	sprites[pl->weapon[b].sprite].attribute0 = COLOR_256 | SQUARE | ROTATION_FLAG | SIZE_DOUBLE | MODE_TRANSPARENT | pl->weapon[b].yscreen;	//setup sprite info, 256 colour, shape and y-coord
-    sprites[pl->weapon[b].sprite].attribute1 = SIZE_8 | ROTDATA(pl->weapon[b].sprite) | pl->weapon[b].xscreen;
+
+	s32 speed=MISSILE_SPEED;
+	pl->weapon[b].object.xspeed = ((s32)(speed * SIN[angle])>>8);
+	pl->weapon[b].object.yspeed = ((s32)(speed * COS[angle])>>8);
+
+
+
+	drawOnScreen(&pl->weapon[b].object.xscreen,&pl->weapon[b].object.yscreen,
+		pl->weapon[b].object.xpos,pl->weapon[b].object.ypos,screenx,screeny,8);
+
+	sprites[pl->weapon[b].sprite].attribute0 = COLOR_256 | SQUARE | ROTATION_FLAG |SIZE_DOUBLE | MODE_TRANSPARENT | pl->weapon[b].object.yscreen;	//setup sprite info, 256 colour, shape and y-coord
+    sprites[pl->weapon[b].sprite].attribute1 =SIZE_8 | ROTDATA(pl->weapon[b].sprite) | pl->weapon[b].object.xscreen;
     sprites[pl->weapon[b].sprite].attribute2 = pl->SpriteStart+64 | PRIORITY(1);
     return 1;
 	}
@@ -192,13 +188,13 @@ int FireFury(pPlayer pl)
 	int r1=0;
 	int r2=0;
 	int r3=0;
-	r1=FireFuryA( pl,pl->angle);
+	r1=FireFuryA( pl,pl->object.angle);
 
-	s32 angle=pl->angle-90;
+	s32 angle=pl->object.angle-90;
 	if (angle<0)
 		angle+=360;
 	r2=FireFuryA( pl,angle);
-	angle=pl->angle+90;
+	angle=pl->object.angle+90;
 	if (angle>360)
 		angle-=360;
 	r3=FireFuryA( pl,angle);
@@ -232,8 +228,8 @@ int DeathFury(pPlayer pl)
 		UpdateCrew(pl);
 		UpdateBatt(pl);
 		pl->warp=0;
-		pl->xspeed=0;
-		pl->yspeed=0;
+		pl->object.xspeed=0;
+		pl->object.yspeed=0;
 		pl->reinc=3;
 		play_sfx(&pkunk_ress,pl->plr-1);
 		return 1;
@@ -256,23 +252,23 @@ void SetPkunkPilot(pPlayer pl)
 	int off=(pl->plr==1)?0:6;
 
 	sprites[43+off].attribute0 = COLOR_256 | TALL  | 160;
-		sprites[43+off].attribute1 = SIZE_32 | 240;
+		sprites[43+off].attribute1 =SIZE_32 | 240;
 		sprites[43+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+64 | PRIORITY(2);
 
 		sprites[44+off].attribute0 = COLOR_256 | SQUARE  | 160;
-		sprites[44+off].attribute1 = SIZE_8 | 240;
+		sprites[44+off].attribute1 =SIZE_8 | 240;
 		sprites[44+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+80 | PRIORITY(2);
 
 		sprites[45+off].attribute0 = COLOR_256 | SQUARE  | 160;
-		sprites[45+off].attribute1 = SIZE_16 | 240;
+		sprites[45+off].attribute1 =SIZE_16 | 240;
 		sprites[45+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+84 | PRIORITY(2);
 
 		sprites[46+off].attribute0 = COLOR_256 | TALL  | 160;
-		sprites[46+off].attribute1 = SIZE_64 | 240;
+		sprites[46+off].attribute1 =SIZE_64 | 240;
 		sprites[46+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+92 | PRIORITY(2);
 
 		sprites[47+off].attribute0 = COLOR_256 | SQUARE  | 160;
-		sprites[47+off].attribute1 = SIZE_32 | 240;
+		sprites[47+off].attribute1 =SIZE_32 | 240;
 		sprites[47+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+156 | PRIORITY(2);
 }
 
@@ -280,12 +276,12 @@ void RestoreGFXFury(pPlayer p)
 {
 	for(int i=0;i<12;i++)
 	{
-		if (p->weapon[i].life>0)
+		if (p->weapon[i].object.life>0)
 		{
 			if(p->weapon[i].type==SIMPLE)
 			{
-			sprites[p->weapon[i].sprite].attribute0 = COLOR_256 | SQUARE | ROTATION_FLAG | SIZE_DOUBLE | MODE_TRANSPARENT | 160;	//setup sprite info, 256 colour, shape and y-coord
-			sprites[p->weapon[i].sprite].attribute1 = SIZE_8 | ROTDATA(p->weapon[i].sprite) | 240;
+			sprites[p->weapon[i].sprite].attribute0 = COLOR_256 | SQUARE | ROTATION_FLAG |SIZE_DOUBLE | MODE_TRANSPARENT | 160;	//setup sprite info, 256 colour, shape and y-coord
+			sprites[p->weapon[i].sprite].attribute1 =SIZE_8 | ROTDATA(p->weapon[i].sprite) | 240;
    			sprites[p->weapon[i].sprite].attribute2 = p->SpriteStart+64 | PRIORITY(1);
 			}
 		}

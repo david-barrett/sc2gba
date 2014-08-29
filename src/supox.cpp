@@ -94,22 +94,22 @@ int SpecialSupox(pPlayer pl)
 	if (pl->ship_input_state & THRUST)
 	{
 		//backwards
-		angle=ModifyAngle(pl->angle,180);
+	angle=ModifyAngle(pl->object.angle,180);
 	}
 	else if (pl->ship_input_state & LEFT)
 	{
 		//left
-		angle=ModifyAngle(pl->angle,270);
+	angle=ModifyAngle(pl->object.angle,270);
 	}
 	else if (pl->ship_input_state & RIGHT)
 	{
 		//right
-		angle=ModifyAngle(pl->angle,90);
+	angle=ModifyAngle(pl->object.angle,90);
 	}
 	else 
 		return 0;
-	pl->xpos+=((s32)(ZIP_SPEED*SIN[angle])>>8);
-	pl->ypos-=((s32)(ZIP_SPEED*COS[angle])>>8);
+	pl->object.xpos+=((s32)(ZIP_SPEED*SIN[angle])>>8);
+	pl->object.ypos-=((s32)(ZIP_SPEED*COS[angle])>>8);
 		
 
 	pl->ship_input_state &= ~THRUST;
@@ -144,7 +144,7 @@ void SetSupox(pPlayer pl)
 		pl->special_wait=SPECIAL_WAIT;
 		pl->batt_regen=ENERGY_REGENERATION;
 
-	pl->mass=SHIP_MASS;
+	pl->object.mass_points=SHIP_MASS;
 		pl->offset=14;
 
 	s16 o = (pl->plr-1)*13;
@@ -190,32 +190,35 @@ int FireSupox(pPlayer pl)
 	{
 
 	pl->weapon[b].type=SIMPLE;
-	pl->weapon[b].life=10;
+	pl->weapon[b].object.life=10;
 	pl->weapon[b].damage=-1*MISSILE_DAMAGE;
 	pl->weapon[b].target=pl->opp;
 	pl->weapon[b].parent=pl;
 	pl->weapon[b].damageparent=0;
+	pl->weapon[b].movefunc=0;
+	pl->weapon[b].hitfunc=0;
+	pl->weapon[b].object.ignorecollision=0;
 
-	pl->weapon[b].size=8;
-	pl->weapon[b].angle = pl->angle;
+	pl->weapon[b].object.size=8;
+	pl->weapon[b].object.angle = pl->object.angle;
 
 	s32 speed=20;//20;
-	pl->weapon[b].xspeed = ((speed * (s32)SIN[pl->angle])>>8);///SPEED_REDUCT;
-	pl->weapon[b].yspeed = ((speed * (s32)COS[pl->angle])>>8);///SPEED_REDUCT;
+	pl->weapon[b].object.xspeed = ((speed * (s32)SIN[pl->object.angle])>>8);///SPEED_REDUCT;
+	pl->weapon[b].object.yspeed = ((speed * (s32)COS[pl->object.angle])>>8);///SPEED_REDUCT;
 
-	pl->weapon[b].xpos = pl->xpos+((40 * (s32)SIN[pl->angle])>>8)/3;
-	pl->weapon[b].ypos = pl->ypos-((40 * (s32)COS[pl->angle])>>8)/3;
+	pl->weapon[b].object.xpos = pl->object.xpos+((40 * (s32)SIN[pl->object.angle])>>8)/3;
+	pl->weapon[b].object.ypos = pl->object.ypos-((40 * (s32)COS[pl->object.angle])>>8)/3;
 
 	#ifdef MISSILE_START
-	pl->weapon[b].xpos-=pl->weapon[b].xspeed;
-	pl->weapon[b].ypos+=pl->weapon[b].yspeed;
+	pl->weapon[b].object.xpos-=pl->weapon[b].object.xspeed;
+	pl->weapon[b].object.ypos+=pl->weapon[b].object.yspeed;
 	#endif
 
-	drawOnScreen(&pl->weapon[b].xscreen,&pl->weapon[b].yscreen,
-		pl->weapon[b].xpos,pl->weapon[b].ypos,screenx,screeny,pl->weapon[b].size);
+	drawOnScreen(&pl->weapon[b].object.xscreen,&pl->weapon[b].object.yscreen,
+		pl->weapon[b].object.xpos,pl->weapon[b].object.ypos,screenx,screeny,pl->weapon[b].object.size);
 
-	sprites[pl->weapon[b].sprite].attribute0 = COLOR_256 | SQUARE | ROTATION_FLAG | SIZE_DOUBLE | MODE_TRANSPARENT | pl->weapon[b].yscreen;	//setup sprite info, 256 colour, shape and y-coord
-  	sprites[pl->weapon[b].sprite].attribute1 = SIZE_8 | ROTDATA(pl->weapon[b].sprite) | pl->weapon[b].xscreen;
+	sprites[pl->weapon[b].sprite].attribute0 = COLOR_256 | SQUARE | ROTATION_FLAG |SIZE_DOUBLE | MODE_TRANSPARENT | pl->weapon[b].object.yscreen;	//setup sprite info, 256 colour, shape and y-coord
+  	sprites[pl->weapon[b].sprite].attribute1 =SIZE_8 | ROTDATA(pl->weapon[b].sprite) | pl->weapon[b].object.xscreen;
     sprites[pl->weapon[b].sprite].attribute2 = pl->SpriteStart+64 | PRIORITY(1);
 
 	play_sfx(&supox_bullet,pl->plr-1);
@@ -234,15 +237,15 @@ int aiSupox(pPlayer ai, pObject ObjectsOfConcern, COUNT ConcernCounter)
 	else
 	{
 		s8 LinedUp;
-		s16 direction_angle;		
+		s16 directionangle;		
 
 		
 
-		LinedUp = (TurnAngle(ai->angle,FindAngle(0,0,ai->xspeed,ai->yspeed),180)==0);
+		LinedUp = (TurnAngle(ai->object.angle,FindAngle(0,0,ai->object.xspeed,ai->object.yspeed),180)==0);
 
 		if (!LinedUp
 				|| lpEvalDesc->which_turn > 20
-				|| TurnAngle(ai->angle,lpEvalDesc->angle,180)==0)
+				|| TurnAngle(ai->object.angle,lpEvalDesc->angle,180)==0)
 			ai->ship_input_state &= ~SPECIAL;
 		else if (LinedUp && lpEvalDesc->which_turn <= 12)
 			ai->ship_input_state |= SPECIAL;
@@ -280,23 +283,23 @@ void SetSupoxPilot(pPlayer pl)
 	int off=(pl->plr==1)?0:6;
 
 	sprites[43+off].attribute0 = COLOR_256 | TALL  | 160;
-	sprites[43+off].attribute1 = SIZE_32 | 240;
+	sprites[43+off].attribute1 =SIZE_32 | 240;
 	sprites[43+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+64 | PRIORITY(2);
 
 	sprites[44+off].attribute0 = COLOR_256 | TALL  | 160;
-	sprites[44+off].attribute1 = SIZE_32 | 240;
+	sprites[44+off].attribute1 =SIZE_32 | 240;
 	sprites[44+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+80 | PRIORITY(2);
 
 	sprites[45+off].attribute0 = COLOR_256 | WIDE | 160;
-	sprites[45+off].attribute1 = SIZE_32 | 240;
+	sprites[45+off].attribute1 =SIZE_32 | 240;
 	sprites[45+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+96 | PRIORITY(1);
 
 	sprites[46+off].attribute0 = COLOR_256 | WIDE  | 160;
-	sprites[46+off].attribute1 = SIZE_32 | 240;
+	sprites[46+off].attribute1 =SIZE_32 | 240;
 	sprites[46+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+112 | PRIORITY(2);
 
 	sprites[47+off].attribute0 = COLOR_256 | SQUARE  | 160;
-	sprites[47+off].attribute1 = SIZE_32| 240;
+	sprites[47+off].attribute1 =SIZE_32| 240;
 	sprites[47+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+128 | PRIORITY(2);
 }
 
@@ -306,10 +309,10 @@ void RestoreGFXSupox(pPlayer p)
 {
 	for(int i=0;i<12;i++)
 	{
-		if (p->weapon[i].life>0)
+		if (p->weapon[i].object.life>0)
 		{
-			sprites[p->weapon[i].sprite].attribute0 = COLOR_256 | SQUARE | ROTATION_FLAG | SIZE_DOUBLE | MODE_TRANSPARENT | 160;	//setup sprite info, 256 colour, shape and y-coord
-			sprites[p->weapon[i].sprite].attribute1 = SIZE_8 | ROTDATA(p->weapon[i].sprite) | 240;
+			sprites[p->weapon[i].sprite].attribute0 = COLOR_256 | SQUARE | ROTATION_FLAG |SIZE_DOUBLE | MODE_TRANSPARENT | 160;	//setup sprite info, 256 colour, shape and y-coord
+			sprites[p->weapon[i].sprite].attribute1 =SIZE_8 | ROTDATA(p->weapon[i].sprite) | 240;
    			sprites[p->weapon[i].sprite].attribute2 = p->SpriteStart+64 | PRIORITY(1);
 
 		}

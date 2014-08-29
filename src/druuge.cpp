@@ -29,7 +29,7 @@ int SpecialDruuge(pPlayer pl);
 int aiDruuge(pPlayer ShipPtr, pObject ObjectsOfConcern, COUNT ConcernCounter);
 void SetDruugePilot(pPlayer p);
 void RestoreGFXDruuge(pPlayer p);
-void MoveDogi(pWeapon ur);
+void HitRecoil(pWeapon ur,void*);
 void PostDruuge(pPlayer p);
 
 extern s32 zoom;
@@ -108,39 +108,42 @@ int FireDruuge(pPlayer pl)
 	{
 
 	pl->weapon[b].type=RECOIL;
-	pl->weapon[b].life=MISSILE_LIFE;
+	pl->weapon[b].object.life=MISSILE_LIFE;
 	pl->weapon[b].damage=-1*MISSILE_DAMAGE; //guess
 	pl->weapon[b].target=pl->opp;
 	pl->weapon[b].parent=pl;
 	pl->weapon[b].damageparent=0;
+	pl->weapon[b].movefunc=0;
+	pl->weapon[b].hitfunc=&HitRecoil;
+	pl->weapon[b].object.ignorecollision=0;
 
-	pl->weapon[b].size=8;
-	pl->weapon[b].angle = pl->angle;
-	pl->weapon[b].actualangle = pl->actualangle;
+	pl->weapon[b].object.size=8;
+	pl->weapon[b].object.angle = pl->object.angle;
+	pl->weapon[b].object.actualangle = pl->object.actualangle;
 
-	pl->weapon[b].xspeed=((s32)(MISSILE_SPEED * SIN[pl->angle])>>8);
-	pl->weapon[b].yspeed=((s32)(MISSILE_SPEED * COS[pl->angle])>>8);;
+	pl->weapon[b].object.xspeed=((s32)(MISSILE_SPEED * SIN[pl->object.angle])>>8);
+	pl->weapon[b].object.yspeed=((s32)(MISSILE_SPEED * COS[pl->object.angle])>>8);;
 
 
-	pl->weapon[b].xpos = pl->xpos+((s32)(pl->offset * SIN[pl->angle])>>8);
-	pl->weapon[b].ypos = pl->ypos-((s32)(pl->offset * COS[pl->angle])>>8);
+	pl->weapon[b].object.xpos = pl->object.xpos+((s32)(pl->offset * SIN[pl->object.angle])>>8);
+	pl->weapon[b].object.ypos = pl->object.ypos-((s32)(pl->offset * COS[pl->object.angle])>>8);
 
 	#ifdef MISSILE_START
-	pl->weapon[b].xpos-=pl->weapon[b].xspeed;
-	pl->weapon[b].ypos+=pl->weapon[b].yspeed;
+	pl->weapon[b].object.xpos-=pl->weapon[b].object.xspeed;
+	pl->weapon[b].object.ypos+=pl->weapon[b].object.yspeed;
 	#endif
 
-	drawOnScreen(&pl->weapon[b].xscreen,&pl->weapon[b].yscreen,
-		pl->weapon[b].xpos,pl->weapon[b].ypos,screenx,screeny,pl->weapon[b].size);
+	drawOnScreen(&pl->weapon[b].object.xscreen,&pl->weapon[b].object.yscreen,
+		pl->weapon[b].object.xpos,pl->weapon[b].object.ypos,screenx,screeny,pl->weapon[b].object.size);
 
-	sprites[pl->weapon[b].sprite].attribute0 = COLOR_256 | SQUARE | ROTATION_FLAG | SIZE_DOUBLE | MODE_TRANSPARENT | pl->weapon[b].yscreen;	//setup sprite info, 256 colour, shape and y-coord
-	sprites[pl->weapon[b].sprite].attribute1 = SIZE_8 | ROTDATA(pl->weapon[b].sprite) | pl->weapon[b].xscreen;
+	sprites[pl->weapon[b].sprite].attribute0 = COLOR_256 | SQUARE | ROTATION_FLAG |SIZE_DOUBLE | MODE_TRANSPARENT | pl->weapon[b].object.yscreen;	//setup sprite info, 256 colour, shape and y-coord
+	sprites[pl->weapon[b].sprite].attribute1 =SIZE_8 | ROTDATA(pl->weapon[b].sprite) | pl->weapon[b].object.xscreen;
 	sprites[pl->weapon[b].sprite].attribute2 = pl->SpriteStart+64 | PRIORITY(1);
 
 	play_sfx(&druuge_cannon,pl->plr-1);
 
-	pl->xspeed-=((s32)(RECOIL_VELOCITY * SIN[pl->angle])>>8);
-	pl->yspeed-=((s32)(RECOIL_VELOCITY * COS[pl->angle])>>8);;
+	pl->object.xspeed-=((s32)(RECOIL_VELOCITY * SIN[pl->object.angle])>>8);
+	pl->object.yspeed-=((s32)(RECOIL_VELOCITY * COS[pl->object.angle])>>8);;
 	ret=1;
 	}
 
@@ -194,7 +197,7 @@ void SetDruuge(pPlayer pl)
 	pl->ditty=&druuge_ditty;
 
 	pl->ship_flags = FIRES_FORE ;
-	pl->mass=SHIP_MASS;
+	pl->object.mass_points=SHIP_MASS;
 
 	pl->pilot_sprite=(1024+32)/16;
 	pl->pilots[0].x=30;
@@ -280,23 +283,23 @@ void SetDruugePilot(pPlayer pl)
 	int off=(pl->plr==1)?0:6;
 
 	sprites[43+off].attribute0 = COLOR_256 | WIDE  | 160;
-	sprites[43+off].attribute1 = SIZE_8 | 240;
+	sprites[43+off].attribute1 =SIZE_8 | 240;
 	sprites[43+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+64 | PRIORITY(2);
 
 	sprites[44+off].attribute0 = COLOR_256 | WIDE  | 160;
-	sprites[44+off].attribute1 = SIZE_8 | 240;
+	sprites[44+off].attribute1 =SIZE_8 | 240;
 	sprites[44+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+68 | PRIORITY(2);
 
 	sprites[45+off].attribute0 = COLOR_256 | WIDE  | 160;
-	sprites[45+off].attribute1 = SIZE_32 | 240;
+	sprites[45+off].attribute1 =SIZE_32 | 240;
 	sprites[45+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+72 | PRIORITY(2);
 
 	sprites[46+off].attribute0 = COLOR_256 |SQUARE  | 160;
-	sprites[46+off].attribute1 = SIZE_16 | 240;
+	sprites[46+off].attribute1 =SIZE_16 | 240;
 	sprites[46+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+88 | PRIORITY(2);
 
 	sprites[47+off].attribute0 = COLOR_256 | TALL  | 160;
-	sprites[47+off].attribute1 = SIZE_32 | 240;
+	sprites[47+off].attribute1 =SIZE_32 | 240;
 	sprites[47+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+96 | PRIORITY(2);
 }
 
@@ -305,12 +308,12 @@ void RestoreGFXDruuge(pPlayer p)
 
 	for(int i=0;i<12;i++)
 	{
-		if (p->weapon[i].life>0)
+		if (p->weapon[i].object.life>0)
 		{
 			if(p->weapon[i].type==SIMPLE)
 			{
-			sprites[p->weapon[i].sprite].attribute0 = COLOR_256 | SQUARE | ROTATION_FLAG | SIZE_DOUBLE | MODE_TRANSPARENT | 160;	//setup sprite info, 256 colour, shape and y-coord
-			sprites[p->weapon[i].sprite].attribute1 = SIZE_16 | ROTDATA(p->weapon[i].sprite) | 240;
+			sprites[p->weapon[i].sprite].attribute0 = COLOR_256 | SQUARE | ROTATION_FLAG |SIZE_DOUBLE | MODE_TRANSPARENT | 160;	//setup sprite info, 256 colour, shape and y-coord
+			sprites[p->weapon[i].sprite].attribute1 =SIZE_16 | ROTDATA(p->weapon[i].sprite) | 240;
    			sprites[p->weapon[i].sprite].attribute2 = p->SpriteStart+64 | PRIORITY(1);
 			}
 		}
@@ -319,7 +322,7 @@ void RestoreGFXDruuge(pPlayer p)
 
 void PostDruuge(pPlayer p)
 {
-	s16 a=p->angle-45;
+	s16 a=p->object.angle-45;
 	if (a<0)
 		a+=360;
 	RotateSprite(p->plr==1?0:13, a, zoom, zoom);
@@ -331,10 +334,20 @@ void PostDruuge(pPlayer p)
 			if (p->weapon[i].type==TRAIL)
 			{
 				RotateSprite(p->weapon[i].sprite, a, zoom, zoom);
-				p->weapon[i].angle= a;
+				p->weapon[i].object.angle= a;
 			}
 		}
 	}
 */
+}
+
+void HitRecoil(pWeapon ur,void* s)
+{
+	pPlayer ship=(pPlayer)s;
+	ModifyCrew(ship,ur->damage);
+	
+	ship->object.xspeed+=ur->object.xspeed;
+	ship->object.yspeed+=ur->object.yspeed;
+	CreateExplosion(ur);
 }
 

@@ -16,14 +16,14 @@ void SetNew(pPlayer pl)
 	pl->weapon_turn=0;
 	pl->special_turn=0;
 
-	//pl->xspeed=0;
-	//pl->yspeed=0;
+	//pl->object.xspeed=0;
+	//pl->object.yspeed=0;
 
 	pl->thrustspeed=0;
 
 	for (int i=0;i<12;i++)
 	{
-		pl->weapon[i].life=-1;
+		pl->weapon[i].object.life=-1;
 		MoveOffscreen(&sprites[pl->weapon[i].sprite]);
 	}
 
@@ -51,12 +51,14 @@ void SetNew(pPlayer pl)
 
 	GenerateStart(pl);
 	pl->warp=6;
-	//pl->xspeed = ((20) * (s32)SIN[pl->angle])>>8;
-	//pl->yspeed = ((20) * (s32)COS[pl->angle])>>8;
+	//pl->object.xspeed = ((20) * (s32)SIN[pl->object.angle])>>8;
+	//pl->object.yspeed = ((20) * (s32)COS[pl->object.angle])>>8;
 
 
-	pl->EndGame=20;
-
+	pl->EndGame=20;	
+	
+	pl->object.type=PLAYER;
+	pl->object.ignorecollision=0;
 }
 
 

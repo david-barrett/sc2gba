@@ -103,15 +103,15 @@ void ChooseShips(pPlayer pl, pPlrList list)
 
 
 	   	sprites[20+i+s].attribute0 = COLOR_256 | SQUARE | y+10;
-		sprites[20+i+s].attribute1 = SIZE_32 | (i*34)+x;
+		sprites[20+i+s].attribute1 =SIZE_32 | (i*34)+x;
 		sprites[20+i+s].attribute2 = SpriteAllShips+896 | PRIORITY(1);
 		sprites[27+i+s].attribute0 = COLOR_256 | SQUARE | y+44;
-		sprites[27+i+s].attribute1 = SIZE_32 | (i*34)+x;
+		sprites[27+i+s].attribute1 =SIZE_32 | (i*34)+x;
 		sprites[27+i+s].attribute2 = SpriteAllShips+896 | PRIORITY(1);
 
 
 		sprites[34+i+s].attribute0 = COLOR_256 | SQUARE | y+10;
-	   	sprites[34+i+s].attribute1 = SIZE_32 | (i*34)+x;
+	   	sprites[34+i+s].attribute1 =SIZE_32 | (i*34)+x;
 		if (list[i].active!=EMPTY)
 		{
 			totalscore+=score(list[i].ship);
@@ -121,7 +121,7 @@ void ChooseShips(pPlayer pl, pPlrList list)
 			sprites[34+i+s].attribute2 = SpriteAllShips+896 | PRIORITY(3);
 
 	   	sprites[41+i+s].attribute0 = COLOR_256 | SQUARE | y+44;
-	   	sprites[41+i+s].attribute1 = SIZE_32 | (i*34)+x;
+	   	sprites[41+i+s].attribute1 =SIZE_32 | (i*34)+x;
 		if (list[i+7].active!=EMPTY)
 		{
 			totalscore+=score(list[i+7].ship);
@@ -136,17 +136,17 @@ void ChooseShips(pPlayer pl, pPlrList list)
 
 	//battle
 	sprites[48+s].attribute0 = COLOR_256 | SQUARE | y+78;
-	sprites[48+s].attribute1 = SIZE_32 | (3*34)+x;
+	sprites[48+s].attribute1 =SIZE_32 | (3*34)+x;
 	sprites[48+s].attribute2 = SpriteAllShips+832 | PRIORITY(2);
 
 	//box
 	sprites[49+s].attribute0 = COLOR_256 | SQUARE | ay;
-	sprites[49+s].attribute1 = SIZE_32 | ax;
+	sprites[49+s].attribute1 =SIZE_32 | ax;
 	sprites[49+s].attribute2 = SpriteAllShips+800 | PRIORITY(0);
 
 	//battle outline
 	sprites[50+s].attribute0 = COLOR_256 | SQUARE | y+78;
-	sprites[50+s].attribute1 = SIZE_32 | (3*34)+x;
+	sprites[50+s].attribute1 =SIZE_32 | (3*34)+x;
 	sprites[50+s].attribute2 = SpriteAllShips+896 | PRIORITY(1);
 
 	DrawLargeNumber(totalscore,s+51,x+208,y+ 78,3);
@@ -349,17 +349,17 @@ int SelectNextShip(s32 x,s32 y,s32 s,s32 d)
 
 	//cross
 	 sprites[0].attribute0 = COLOR_256 | SQUARE | 160;
-	 sprites[0].attribute1 = SIZE_32 | 240;
+	 sprites[0].attribute1 =SIZE_32 | 240;
 	 sprites[0].attribute2 = SpriteAllShips+864 | PRIORITY(0);
 
 	 //square
 	 sprites[1].attribute0 = COLOR_256 | SQUARE | y;
-	 sprites[1].attribute1 = SIZE_32 | x;
+	 sprites[1].attribute1 =SIZE_32 | x;
 	 sprites[1].attribute2 = SpriteAllShips+800 | PRIORITY(0);
 
 	 //selected
 	 sprites[2].attribute0 = COLOR_256 | SQUARE | y;
-	 sprites[2].attribute1 = SIZE_32 | x;
+	 sprites[2].attribute1 =SIZE_32 | x;
 	 sprites[2].attribute2 = SpriteAllShips+(selected*32)| PRIORITY(1);
 
 	 //left
@@ -367,7 +367,7 @@ int SelectNextShip(s32 x,s32 y,s32 s,s32 d)
 	 if (i<GUARDIAN)
 		 i+=STINGER;
 	 sprites[3].attribute0 = COLOR_256 | SQUARE| ROTATION_FLAG | y;
-	 sprites[3].attribute1 = SIZE_32 |  ROTDATA(3) | x-28;
+	 sprites[3].attribute1 =SIZE_32 |  ROTDATA(3) | x-28;
 	 sprites[3].attribute2 = SpriteAllShips+(i*32)| PRIORITY(1);
 	 RotateSprite(3, 0, 384, 384);
 
@@ -375,7 +375,7 @@ int SelectNextShip(s32 x,s32 y,s32 s,s32 d)
 	 if (i<GUARDIAN)
 		 i=STINGER;
 	 sprites[4].attribute0 = COLOR_256 | SQUARE| ROTATION_FLAG | y;
-	 sprites[4].attribute1 = SIZE_32 |  ROTDATA(4) | x-47;
+	 sprites[4].attribute1 =SIZE_32 |  ROTDATA(4) | x-47;
 	 sprites[4].attribute2 = SpriteAllShips+(i*32)| PRIORITY(1);
 	 RotateSprite(4, 0, 512, 512);
 
@@ -383,7 +383,7 @@ int SelectNextShip(s32 x,s32 y,s32 s,s32 d)
 	 if (i<GUARDIAN)
 		 i=STINGER;
 	 sprites[5].attribute0 = COLOR_256 | SQUARE| ROTATION_FLAG | y;
-	 sprites[5].attribute1 = SIZE_32 |  ROTDATA(5) | x-62;
+	 sprites[5].attribute1 =SIZE_32 |  ROTDATA(5) | x-62;
 	 sprites[5].attribute2 = SpriteAllShips+(i*32)| PRIORITY(1);
 	 RotateSprite(5, 0, 768, 768);
 
@@ -391,7 +391,7 @@ int SelectNextShip(s32 x,s32 y,s32 s,s32 d)
 	 if (i<GUARDIAN)
 		 i=STINGER;
 	 sprites[6].attribute0 = COLOR_256 | SQUARE| ROTATION_FLAG | y;
-	 sprites[6].attribute1 = SIZE_32 |  ROTDATA(6) | x-72;
+	 sprites[6].attribute1 =SIZE_32 |  ROTDATA(6) | x-72;
 	 sprites[6].attribute2 = SpriteAllShips+(i*32)| PRIORITY(1);
 	 RotateSprite(6, 0, 1024, 1024);
 
@@ -399,7 +399,7 @@ int SelectNextShip(s32 x,s32 y,s32 s,s32 d)
 	 if (i<GUARDIAN)
 		 i=STINGER;
 	 sprites[7].attribute0 = COLOR_256 | SQUARE| ROTATION_FLAG | y;
-	 sprites[7].attribute1 = SIZE_32 |  ROTDATA(7) | x-80;
+	 sprites[7].attribute1 =SIZE_32 |  ROTDATA(7) | x-80;
 	 sprites[7].attribute2 = SpriteAllShips+(i*32)| PRIORITY(1);
 	 RotateSprite(7, 0, 1536, 1536);
 
@@ -411,7 +411,7 @@ int SelectNextShip(s32 x,s32 y,s32 s,s32 d)
 	 if (i<STINGER)
 		 i+=GUARDIAN;
 	 sprites[8].attribute0 = COLOR_256 | SQUARE| ROTATION_FLAG | y;
-	 sprites[8].attribute1 = SIZE_32 |  ROTDATA(8) | x+27;
+	 sprites[8].attribute1 =SIZE_32 |  ROTDATA(8) | x+27;
 	 sprites[8].attribute2 = SpriteAllShips+(i*32)| PRIORITY(1);
 	 RotateSprite(8, 0, 384, 384);
 
@@ -419,7 +419,7 @@ int SelectNextShip(s32 x,s32 y,s32 s,s32 d)
 	 if (i<STINGER)
 		 i+=GUARDIAN;
 	 sprites[9].attribute0 = COLOR_256 | SQUARE| ROTATION_FLAG | y;
-	 sprites[9].attribute1 = SIZE_32 |  ROTDATA(9) | x+47;
+	 sprites[9].attribute1 =SIZE_32 |  ROTDATA(9) | x+47;
 	 sprites[9].attribute2 = SpriteAllShips+(i*32)| PRIORITY(1);
 	 RotateSprite(9, 0, 512, 512);
 
@@ -427,7 +427,7 @@ int SelectNextShip(s32 x,s32 y,s32 s,s32 d)
 	 if (i<STINGER)
 		 i+=GUARDIAN;
 	 sprites[10].attribute0 = COLOR_256 | SQUARE| ROTATION_FLAG | y;
-	 sprites[10].attribute1 = SIZE_32 |  ROTDATA(10) | x+61;//19
+	 sprites[10].attribute1 =SIZE_32 |  ROTDATA(10) | x+61;//19
 	 sprites[10].attribute2 = SpriteAllShips+(i*32)| PRIORITY(1);
 	 RotateSprite(10, 0, 768, 768);
 
@@ -435,7 +435,7 @@ int SelectNextShip(s32 x,s32 y,s32 s,s32 d)
 	 if (i<STINGER)
 		 i+=GUARDIAN;
 	 sprites[11].attribute0 = COLOR_256 | SQUARE| ROTATION_FLAG | y;
-	 sprites[11].attribute1 = SIZE_32 |  ROTDATA(11) | x+72;//15
+	 sprites[11].attribute1 =SIZE_32 |  ROTDATA(11) | x+72;//15
 	 sprites[11].attribute2 = SpriteAllShips+(i*32)| PRIORITY(1);
 	 RotateSprite(11, 0, 1024, 1024);
 
@@ -443,7 +443,7 @@ int SelectNextShip(s32 x,s32 y,s32 s,s32 d)
 	 if (i<STINGER)
 		 i+=GUARDIAN;
 	 sprites[12].attribute0 = COLOR_256 | SQUARE| ROTATION_FLAG | y;
-	 sprites[12].attribute1 = SIZE_32 |  ROTDATA(12) | x+79;//10
+	 sprites[12].attribute1 =SIZE_32 |  ROTDATA(12) | x+79;//10
 	 sprites[12].attribute2 = SpriteAllShips+(i*32)| PRIORITY(1);
 	 RotateSprite(12, 0, 1536, 1536);
 
@@ -1288,30 +1288,30 @@ int DrawRemainingShips(pPlayer pl,pPlrList list,int sx,int sy)
 	for (i=0;i<5;i++)
 	{
 		sprites[98+i].attribute0 = COLOR_256 | SQUARE | sy;
-	   	sprites[98+i].attribute1 = SIZE_32 | (i*34)+sx;
+	   	sprites[98+i].attribute1 =SIZE_32 | (i*34)+sx;
 	   	sprites[103+i].attribute0 = COLOR_256 | SQUARE | 34+sy;
-	   	sprites[103+i].attribute1 = SIZE_32 | (i*34)+sx;
+	   	sprites[103+i].attribute1 =SIZE_32 | (i*34)+sx;
 	   	sprites[108+i].attribute0 = COLOR_256 | SQUARE | 68+sy;
-	   	sprites[108+i].attribute1 = SIZE_32 | (i*34)+sx;
+	   	sprites[108+i].attribute1 =SIZE_32 | (i*34)+sx;
 
 	   	sprites[42+i].attribute0 = COLOR_256 | SQUARE | sy;
-		sprites[42+i].attribute1 = SIZE_32 | (i*34)+sx;
+		sprites[42+i].attribute1 =SIZE_32 | (i*34)+sx;
 		sprites[42+i].attribute2 = SpriteAllShips+864 | PRIORITY(1);
 		sprites[47+i].attribute0 = COLOR_256 | SQUARE | 34+sy;
-		sprites[47+i].attribute1 = SIZE_32 | (i*34)+sx;
+		sprites[47+i].attribute1 =SIZE_32 | (i*34)+sx;
 		sprites[47+i].attribute2 = SpriteAllShips+864 | PRIORITY(1);
 		sprites[52+i].attribute0 = COLOR_256 | SQUARE | 68+sy;
-	   	sprites[52+i].attribute1 = SIZE_32 | (i*34)+sx;
+	   	sprites[52+i].attribute1 =SIZE_32 | (i*34)+sx;
 	   	sprites[52+i].attribute2 = SpriteAllShips+864 | PRIORITY(1);
 
 	   	sprites[113+i].attribute0 = COLOR_256 | SQUARE | sy;
-		sprites[113+i].attribute1 = SIZE_32 | (i*34)+sx;
+		sprites[113+i].attribute1 =SIZE_32 | (i*34)+sx;
 		sprites[113+i].attribute2 = SpriteAllShips+896 | PRIORITY(1);
 		sprites[118+i].attribute0 = COLOR_256 | SQUARE | 34+sy;
-		sprites[118+i].attribute1 = SIZE_32 | (i*34)+sx;
+		sprites[118+i].attribute1 =SIZE_32 | (i*34)+sx;
 		sprites[118+i].attribute2 = SpriteAllShips+896 | PRIORITY(1);
 		sprites[123+i].attribute0 = COLOR_256 | SQUARE | 68+sy;
-		sprites[123+i].attribute1 = SIZE_32 | (i*34)+sx;
+		sprites[123+i].attribute1 =SIZE_32 | (i*34)+sx;
 	   	sprites[123+i].attribute2 = SpriteAllShips+896 | PRIORITY(1);
 
 
@@ -1378,24 +1378,24 @@ s16 DrawEndShips(pPlrList list, s8 s,s8 x,s8 y)
 
 		//empty boxes
 	   	sprites[i+s].attribute0 = COLOR_256 | SQUARE | y;
-		sprites[i+s].attribute1 = SIZE_32 | (i*34)+x;
+		sprites[i+s].attribute1 =SIZE_32 | (i*34)+x;
 		sprites[i+s].attribute2 = SpriteAllShips+896 | PRIORITY(1);
 		sprites[7+i+s].attribute0 = COLOR_256 | SQUARE | y+34;
-		sprites[7+i+s].attribute1 = SIZE_32 | (i*34)+x;
+		sprites[7+i+s].attribute1 =SIZE_32 | (i*34)+x;
 		sprites[7+i+s].attribute2 = SpriteAllShips+896 | PRIORITY(1);
 
 		//crosses
 		sprites[28+i+s].attribute0 = COLOR_256 | SQUARE | 160;
-		sprites[28+i+s].attribute1 = SIZE_32 | 240;
+		sprites[28+i+s].attribute1 =SIZE_32 | 240;
 		sprites[28+i+s].attribute2 = SpriteAllShips+864 | PRIORITY(0);
 		sprites[35+i+s].attribute0 = COLOR_256 | SQUARE | 160;
-		sprites[35+i+s].attribute1 = SIZE_32 | 240;
+		sprites[35+i+s].attribute1 =SIZE_32 | 240;
 		sprites[35+i+s].attribute2 = SpriteAllShips+864 | PRIORITY(0);
 
 
 
 		sprites[14+i+s].attribute0 = COLOR_256 | SQUARE | y;
-	   	sprites[14+i+s].attribute1 = SIZE_32 | (i*34)+x;
+	   	sprites[14+i+s].attribute1 =SIZE_32 | (i*34)+x;
 		if (list[i].active!=EMPTY)
 		{
 			if (list[i].active==ACTIVE)
@@ -1409,7 +1409,7 @@ s16 DrawEndShips(pPlrList list, s8 s,s8 x,s8 y)
 			sprites[14+i+s].attribute2 = SpriteAllShips+896 | PRIORITY(3);
 
 	   	sprites[21+i+s].attribute0 = COLOR_256 | SQUARE | y+34;
-	   	sprites[21+i+s].attribute1 = SIZE_32 | (i*34)+x;
+	   	sprites[21+i+s].attribute1 =SIZE_32 | (i*34)+x;
 		if (list[i+7].active!=EMPTY)
 		{
 			if (list[i+7].active==ACTIVE)
@@ -1528,7 +1528,7 @@ int ChooseNextShip(pPlayer pl, pPlrList list)
 
 	sprites[57].attribute2 = SpriteAllShips+800 | PRIORITY(0);
 	sprites[57].attribute0 = COLOR_256 | SQUARE | MODE_TRANSPARENT |y;
-    sprites[57].attribute1 = SIZE_32 | x;
+    sprites[57].attribute1 =SIZE_32 | x;
 
     WaitForVsync();
 	CopyOAM();

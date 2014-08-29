@@ -88,7 +88,7 @@ void SetupStatus(pPlayer p1,pPlayer p2)
 	for (int i=start;i<start+56;i++)
 	{
 		sprites[i].attribute0 = COLOR_256 | SQUARE |50;
-	    sprites[i].attribute1 = SIZE_8 | 240;
+	    sprites[i].attribute1 =SIZE_8 | 240;
 		sprites[i].attribute2 = 64 | PRIORITY(2);
 	}
 

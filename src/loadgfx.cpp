@@ -37,7 +37,7 @@ extern u16* OAM;
 //extern OAMEntry sprites[128];
 extern pRotData rotData;
 
-extern s8 planet;
+extern s8 planetc;
 
 //extern Player p1,p2;
 
@@ -63,30 +63,30 @@ void LoadPlanet(s16 OAMStart)
 
 
 
-	if (planet>8)
-			planet=0;
-	if (planet==0)
+	if (planetc>8)
+			planetc=0;
+	if (planetc==0)
 		for(loop = OAMStart; loop < OAMStart+2048; loop++)               //load sprite image data
 			OAMData[loop] = planetData[loop-OAMStart];
-	else if (planet==1)
+	else if (planetc==1)
 		for(loop = OAMStart; loop < OAMStart+2048; loop++)               //load sprite image data
 			OAMData[loop] = planet2Data[loop-OAMStart];
-	else 	if (planet==2)
+	else 	if (planetc==2)
 		for(loop = OAMStart; loop < OAMStart+2048; loop++)               //load sprite image data
 			OAMData[loop] = planet3Data[loop-OAMStart];
-	else if (planet==3)
+	else if (planetc==3)
 		for(loop = OAMStart; loop < OAMStart+2048; loop++)               //load sprite image data
 			OAMData[loop] = planet4Data[loop-OAMStart];
-	else if (planet==4)
+	else if (planetc==4)
 		for(loop = OAMStart; loop < OAMStart+2048; loop++)               //load sprite image data
 			OAMData[loop] = planet5Data[loop-OAMStart];
-	else if (planet==5)
+	else if (planetc==5)
 		for(loop = OAMStart; loop < OAMStart+2048; loop++)               //load sprite image data
 			OAMData[loop] = planet6Data[loop-OAMStart];
-	else if (planet==6)
+	else if (planetc==6)
 		for(loop = OAMStart; loop < OAMStart+2048; loop++)               //load sprite image data
 			OAMData[loop] = planet7Data[loop-OAMStart];
-	else if (planet==7)
+	else if (planetc==7)
 		for(loop = OAMStart; loop < OAMStart+2048; loop++)               //load sprite image data
 			OAMData[loop] = planet8Data[loop-OAMStart];
 

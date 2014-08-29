@@ -23,7 +23,8 @@ extern double scale;
 extern int turn;
 extern unsigned long state;
 extern pAsteroid asteroids;
-extern s32 planetx,planety;
+//extern s32 planet.xpos,planet.ypos;
+extern Object planet;
 
 int FireHuman(pPlayer pl);
 int SpecialHuman(pPlayer pl);
@@ -107,37 +108,39 @@ int FireHuman(pPlayer pl)
 	{
 		pl->weapon[b].type=MISSILE;
 		pl->weapon[b].movefunc=&MoveHumanMissile;
-		pl->weapon[b].life=1;
+		pl->weapon[b].object.life=1;
 		pl->weapon[b].status=MISSILE_LIFE;
 		pl->weapon[b].damage=MISSILE_DAMAGE*-1;
 		pl->weapon[b].target=pl->opp;
 		pl->weapon[b].parent=pl;
 		pl->weapon[b].damageparent=0;
+		pl->weapon[b].hitfunc=0;
+		pl->weapon[b].object.ignorecollision=0;
 
-		pl->weapon[b].size=32;
-		pl->weapon[b].actualangle = pl->actualangle;
-		pl->weapon[b].angle=(pl->weapon[b].actualangle*45)>>1;
+		pl->weapon[b].object.size=32;
+		pl->weapon[b].object.actualangle = pl->object.actualangle;
+		pl->weapon[b].object.angle=(pl->weapon[b].object.actualangle*45)>>1;
 
-		pl->weapon[b].xspeed = (MISSILE_SPEED * (s32)SIN[pl->angle])>>8;
-		pl->weapon[b].yspeed = (MISSILE_SPEED * (s32)COS[pl->angle])>>8;
+		pl->weapon[b].object.xspeed = (MISSILE_SPEED * (s32)SIN[pl->object.angle])>>8;
+		pl->weapon[b].object.yspeed = (MISSILE_SPEED * (s32)COS[pl->object.angle])>>8;
 
 
 		pl->weapon[b].turn_wait=0;
 
 
-		pl->weapon[b].xpos = pl->xpos+((s32)(pl->offset*2 * SIN[pl->weapon[b].angle])>>8);
-		pl->weapon[b].ypos = pl->ypos-((s32)(pl->offset*2 * COS[pl->weapon[b].angle])>>8);
+		pl->weapon[b].object.xpos = pl->object.xpos+((s32)(pl->offset*2 * SIN[pl->weapon[b].object.angle])>>8);
+		pl->weapon[b].object.ypos = pl->object.ypos-((s32)(pl->offset*2 * COS[pl->weapon[b].object.angle])>>8);
 
 		#ifdef MISSILE_START
-		pl->weapon[b].xpos-=pl->weapon[b].xspeed;
-		pl->weapon[b].ypos+=pl->weapon[b].yspeed;
+		pl->weapon[b].object.xpos-=pl->weapon[b].object.xspeed;
+		pl->weapon[b].object.ypos+=pl->weapon[b].object.yspeed;
 		#endif
 
-		drawOnScreen(&pl->weapon[b].xscreen,&pl->weapon[b].yscreen,
-			pl->weapon[b].xpos,pl->weapon[b].ypos,screenx,screeny,pl->weapon[b].size);
+		drawOnScreen(&pl->weapon[b].object.xscreen,&pl->weapon[b].object.yscreen,
+			pl->weapon[b].object.xpos,pl->weapon[b].object.ypos,screenx,screeny,pl->weapon[b].object.size);
 
-	 	sprites[pl->weapon[b].sprite].attribute0 = COLOR_256 | SQUARE | ROTATION_FLAG | SIZE_DOUBLE | MODE_TRANSPARENT | pl->weapon[b].yscreen;	//setup sprite info, 256 colour, shape and y-coord
-		sprites[pl->weapon[b].sprite].attribute1 = SIZE_32 | ROTDATA(pl->weapon[b].sprite) | pl->weapon[b].xscreen;
+	 	sprites[pl->weapon[b].sprite].attribute0 = COLOR_256 | SQUARE | ROTATION_FLAG |SIZE_DOUBLE | MODE_TRANSPARENT | pl->weapon[b].object.yscreen;	//setup sprite info, 256 colour, shape and y-coord
+		sprites[pl->weapon[b].sprite].attribute1 =SIZE_32 | ROTDATA(pl->weapon[b].sprite) | pl->weapon[b].object.xscreen;
 		sprites[pl->weapon[b].sprite].attribute2 = pl->SpriteStart+64 | PRIORITY(1);
 		ret=1;
 		play_sfx(&human_missile,pl->plr-1);
@@ -171,7 +174,7 @@ void SetHuman(pPlayer pl)
 	pl->special_wait=SPECIAL_WAIT;
 	pl->batt_regen=ENERGY_REGENERATION;
 
-	pl->mass=SHIP_MASS;
+	pl->object.mass_points=SHIP_MASS;
 
 
 	pl->offset=14;
@@ -222,31 +225,33 @@ void CreatePD(pPlayer pl,s16 x,s16 y,s16 a)
 	{
 		pl->weapon[b].type=LASER;
 		pl->weapon[b].movefunc=0;
-		pl->weapon[b].life=1;
+		pl->weapon[b].object.life=1;
 		pl->weapon[b].damage=0;
+		pl->weapon[b].hitfunc=0;
+		pl->weapon[b].object.ignorecollision=0;
 
 		pl->weapon[b].target=pl->opp;
 		pl->weapon[b].parent=pl;
 		pl->weapon[b].damageparent=0;
 
-		pl->weapon[b].size=16;
-		pl->weapon[b].angle = a;
+		pl->weapon[b].object.size=16;
+		pl->weapon[b].object.angle = a;
 
-		pl->weapon[b].xspeed = 0;
-		pl->weapon[b].yspeed = 0;
+		pl->weapon[b].object.xspeed = 0;
+		pl->weapon[b].object.yspeed = 0;
 
 
 		pl->weapon[b].turn_wait=0;
 
 
-		pl->weapon[b].xpos = x;
-		pl->weapon[b].ypos = y;
+		pl->weapon[b].object.xpos = x;
+		pl->weapon[b].object.ypos = y;
 
-		drawOnScreen(&pl->weapon[b].xscreen,&pl->weapon[b].yscreen,
-				pl->weapon[b].xpos,pl->weapon[b].ypos,screenx,screeny,pl->weapon[b].size);
+		drawOnScreen(&pl->weapon[b].object.xscreen,&pl->weapon[b].object.yscreen,
+				pl->weapon[b].object.xpos,pl->weapon[b].object.ypos,screenx,screeny,pl->weapon[b].object.size);
 
-		sprites[pl->weapon[b].sprite].attribute0 = COLOR_256 | SQUARE | ROTATION_FLAG | SIZE_DOUBLE | MODE_TRANSPARENT | pl->weapon[b].yscreen;	//setup sprite info, 256 colour, shape and y-coord
-		sprites[pl->weapon[b].sprite].attribute1 = SIZE_16 | ROTDATA(pl->weapon[b].sprite) | pl->weapon[b].xscreen;
+		sprites[pl->weapon[b].sprite].attribute0 = COLOR_256 | SQUARE | ROTATION_FLAG |SIZE_DOUBLE | MODE_TRANSPARENT | pl->weapon[b].object.yscreen;	//setup sprite info, 256 colour, shape and y-coord
+		sprites[pl->weapon[b].sprite].attribute1 =SIZE_16 | ROTDATA(pl->weapon[b].sprite) | pl->weapon[b].object.xscreen;
 		sprites[pl->weapon[b].sprite].attribute2 = pl->SpriteStart+96 | PRIORITY(1);
 
 
@@ -265,13 +270,13 @@ int SpecialHuman(pPlayer pl)
 
 	s16 x1,y1,x2,y2;
 
-	x1=pl->xpos;//+pl->xspeed;
-	y1=pl->ypos;//-pl->yspeed;
+	x1=pl->object.xpos;//+pl->object.xspeed;
+	y1=pl->object.ypos;//-pl->object.yspeed;
 
 
 	//oppent
-	x2=opp->xpos;//+opp->xspeed;
-	y2=opp->ypos;//-opp->yspeed;
+	x2=opp->object.xpos;//+opp->object.xspeed;
+	y2=opp->object.ypos;//-opp->object.yspeed;
 	if (distanceBetweenPoints(x1,y1,x2,y2)<16+opp->offset)
 	{
 		CreatePD(pl,(x1+x2)>>1,(y1+y2)>>1,FindAngle(x1,y1,x2,y2));
@@ -281,14 +286,14 @@ int SpecialHuman(pPlayer pl)
 	//weapons
 	for (int i=0;i<12;i++)
 	{
-		if (opp->weapon[i].life>0)
+		if (opp->weapon[i].object.life>0)
 		{
-		x2=opp->weapon[i].xpos+opp->weapon[i].xspeed;
-		y2=opp->weapon[i].ypos-opp->weapon[i].yspeed;
-		if (distanceBetweenPoints(x1,y1,x2,y2)<16+(opp->weapon[i].size>>1))
+		x2=opp->weapon[i].object.xpos+opp->weapon[i].object.xspeed;
+		y2=opp->weapon[i].object.ypos-opp->weapon[i].object.yspeed;
+		if (distanceBetweenPoints(x1,y1,x2,y2)<16+(opp->weapon[i].object.size>>1))
 		{
 			CreatePD(pl,(x1+x2)>>1,(y1+y2)>>1,FindAngle(x1,y1,x2,y2));
-			opp->weapon[i].life--;
+			opp->weapon[i].object.life--;
 		}
 		}
 	}
@@ -296,22 +301,22 @@ int SpecialHuman(pPlayer pl)
 	//asteroids
 	for (int i=0;i<5;i++)
 	{
-		if (asteroids[i].life>0)
+		if (asteroids[i].object.life>0)
 		{
-		x2=asteroids[i].xpos+asteroids[i].xspeed;
-		y2=asteroids[i].ypos-asteroids[i].yspeed;
+		x2=asteroids[i].object.xpos+asteroids[i].object.xspeed;
+		y2=asteroids[i].object.ypos-asteroids[i].object.yspeed;
 		if (distanceBetweenPoints(x1,y1,x2,y2)<24)
 		{
 			CreatePD(pl,(x1+x2)>>1,(y1+y2)>>1,FindAngle(x1,y1,x2,y2));
-			asteroids[i].life--;
+			asteroids[i].object.life--;
 		}
 		}
 	}
 
 
 	//planet
-	x2=planetx;
-	y2=planety;
+	x2=planet.xpos;
+	y2=planet.ypos;
 	if (distanceBetweenPoints(x1,y1,x2,y2)<48)
 	{
 		CreatePD(pl,(x1+x2)>>1,(y1+y2)>>1,FindAngle(x1,y1,x2,y2));
@@ -363,23 +368,23 @@ void SetHumanPilot(pPlayer pl)
 	int off=(pl->plr==1)?0:6;
 
 	sprites[43+off].attribute0 = COLOR_256 | SQUARE  | 160;
-	sprites[43+off].attribute1 = SIZE_16 | 240;
+	sprites[43+off].attribute1 =SIZE_16 | 240;
 	sprites[43+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+64 | PRIORITY(2);
 
 	sprites[44+off].attribute0 = COLOR_256 | SQUARE  | 160;
-	sprites[44+off].attribute1 = SIZE_16 | 240;
+	sprites[44+off].attribute1 =SIZE_16 | 240;
 	sprites[44+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+72 | PRIORITY(2);
 
 	sprites[45+off].attribute0 = COLOR_256 | SQUARE | 160;
-	sprites[45+off].attribute1 = SIZE_8 | 240;
+	sprites[45+off].attribute1 =SIZE_8 | 240;
 	sprites[45+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+80 | PRIORITY(2);
 
 	sprites[46+off].attribute0 = COLOR_256 |WIDE  | 160;
-	sprites[46+off].attribute1 = SIZE_32 | 240;
+	sprites[46+off].attribute1 =SIZE_32 | 240;
 	sprites[46+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+82 | PRIORITY(2);
 
 	sprites[47+off].attribute0 = COLOR_256 | WIDE  | 160;
-	sprites[47+off].attribute1 = SIZE_32 | 240;
+	sprites[47+off].attribute1 =SIZE_32 | 240;
 	sprites[47+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+98 | PRIORITY(2);
 }
 
@@ -390,7 +395,7 @@ void  MoveHumanMissile(pWeapon ur)
 		if (DetectWeaponToShip(target,ur)==1)
 				{
 					ModifyCrew(target,ur->damage);
-		//			ur->life==0;
+		//			ur->object.life==0;
 					CreateExplosion(ur);
 			}
 
@@ -404,45 +409,43 @@ void  MoveHumanMissile(pWeapon ur)
 
 			if(ur->status==0)
 			{
-				ur->life=0;
+				ur->object.life=0;
 				return;
 			}
 
 
-				angle = FindAngle(ur->xpos,ur->ypos,target->xpos,target->ypos);
+			angle = FindAngle(ur->object.xpos,ur->object.ypos,target->object.xpos,target->object.ypos);
 
-				int ret=TurnAngle(angle,ur->angle,15);
+				int ret=TurnAngle(angle,ur->object.angle,15);
 				if (ret==0)
 				{
 
 
-					s32 x = ((MISSILE_SPEED) * (s32)SIN[ur->angle])>>8;
-					s32 y = ((MISSILE_SPEED) * (s32)COS[ur->angle])>>8;
+					s32 x = ((MISSILE_SPEED) * (s32)SIN[ur->object.angle])>>8;
+					s32 y = ((MISSILE_SPEED) * (s32)COS[ur->object.angle])>>8;
 
 
-					ur->xspeed = x;//(ur->xspeed + x)/2;
-					ur->yspeed = y;//(ur->yspeed + y)/2;
+					ur->object.xspeed = x;//(ur->object.xspeed + x)/2;
+					ur->object.yspeed = y;//(ur->object.yspeed + y)/2;
 				}
 				else if (ret<0)
 				{
-					ur->actualangle--;
-					if (ur->actualangle==-1)
-						ur->actualangle=15;
+					ur->object.actualangle--;
+					if (ur->object.actualangle==-1)
+						ur->object.actualangle=15;
 				}
 				else if (ret>0)
 				{
-					ur->actualangle++;
-					if (ur->actualangle==16)
-						ur->actualangle=0;
+					ur->object.actualangle++;
+					if (ur->object.actualangle==16)
+						ur->object.actualangle=0;
 				}
-				ur->angle=(ur->actualangle*45)>>1;
+				ur->object.angle=(ur->object.actualangle*45)>>1;
 
 
 			ur->turn_wait = TRACK_WAIT;
 		}
-		ur->xpos+=ur->xspeed;
-	ur->ypos-=ur->yspeed;
-
+	
 
 }
 
@@ -452,12 +455,12 @@ void RestoreGFXHuman(pPlayer p)
 	//im sure laser will be fine...
 	for(int i=0;i<12;i++)
 	{
-		if (p->weapon[i].life>0)
+		if (p->weapon[i].object.life>0)
 		{
 			if(p->weapon[i].type==MISSILE)
 			{
-			sprites[p->weapon[i].sprite].attribute0 = COLOR_256 | SQUARE | ROTATION_FLAG | SIZE_DOUBLE | MODE_TRANSPARENT | 160;	//setup sprite info, 256 colour, shape and y-coord
-			sprites[p->weapon[i].sprite].attribute1 = SIZE_16 | ROTDATA(p->weapon[i].sprite) | 240;
+			sprites[p->weapon[i].sprite].attribute0 = COLOR_256 | SQUARE | ROTATION_FLAG |SIZE_DOUBLE | MODE_TRANSPARENT | 160;	//setup sprite info, 256 colour, shape and y-coord
+			sprites[p->weapon[i].sprite].attribute1 =SIZE_16 | ROTDATA(p->weapon[i].sprite) | 240;
    			sprites[p->weapon[i].sprite].attribute2 = p->SpriteStart+64 | PRIORITY(1);
 			}
 
