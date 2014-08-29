@@ -315,8 +315,8 @@ void drawStatus(pPlayer p1,pPlayer p2)
 			sprites[start+30].attribute2 = statusBattS(p1->maxbatt,0) | PRIORITY(3);
 			sprites[start+31].attribute2 = statusBattS(p1->maxbatt,8) | PRIORITY(3);
 			sprites[start+32].attribute2 = statusBattS(p1->maxbatt,16) | PRIORITY(3);
-			sprites[start+33].attribute2 = statusBattS(p1->maxbatt,32) | PRIORITY(3);
-			sprites[start+34].attribute2 = statusBattS(p1->maxbatt,24) | PRIORITY(3);
+			sprites[start+33].attribute2 = statusBattS(p1->maxbatt,24) | PRIORITY(3);
+			sprites[start+34].attribute2 = statusBattS(p1->maxbatt,32) | PRIORITY(3);
 			sprites[start+35].attribute2 = statusBattS(p1->maxbatt,40) | PRIORITY(3);
 
 			sprites[start+36].attribute2 = statusCrewS(p2->maxcrew,40) | PRIORITY(3);

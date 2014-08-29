@@ -42,6 +42,7 @@ void SetNew(pPlayer pl)
 	pl->angleoffset=0;
 
 	pl->limpets=0;
+	pl->blaze=0;
 
 	pl->ManeuverabilityIndex=0;
 
@@ -79,10 +80,10 @@ void SetShip(pPlayer pl)
 		case INTRUDER:
 			SetVux(pl);
 			break;
-	/*
+
 		case GUARDIAN:
 			SetAndrosynth(pl);
-			break;
+			break;/*
 		case SKIFF :
 			SetArilou(pl);
 			break;
@@ -101,13 +102,13 @@ void SetShip(pPlayer pl)
 			break;
 		case CRUISER:
 			SetHuman(pl);
-			break;
+			break;*/
 		case DRONE:
 			SetUmgah(pl);
 			break;
 		case ELUDER:
 			SetSpathi(pl);
-			break;
+			break;	  /*
 		case JUGGER:
 			SetUtwig(pl);
 			break;

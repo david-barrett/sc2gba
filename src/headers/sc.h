@@ -14,7 +14,7 @@
 #include "sfx.h"
 #include "TektronicWave.h"
 
-#define DEBUG 1
+//#define DEBUG 1
 
 
 //#include "gfx/gfx.h"
@@ -162,6 +162,10 @@ s16 status;//ie fighter mission; podship weapon size;trader weapon etc
 void* parent;
 void* target;
 
+s8 turn_wait;
+
+void (*movefunc)(Weapon*);
+
 }Weapon, *pWeapon;
 
 typedef struct Trail
@@ -300,6 +304,7 @@ s8 ship_input_state;
 s8 ship_flags;
 
 
+
 s16 range;
 
 s8 limpets;
@@ -310,6 +315,8 @@ short reinc;//pkunk
 short shield;//yehat/utwig
 short cloak;//ilwarth
 short scrambled;//trader weapon hit
+short blaze;
+
 
 //pPlayer opp;
 
@@ -383,7 +390,9 @@ enum type
 	ILWRATHFIRE,
 	CREW,
 	LASER,
-	LIMPET
+	LIMPET,
+	BUTT,
+	BUBBLE
 
 };
 
@@ -391,7 +400,7 @@ enum type
 //1022 seems to be the last
 //game
 const s16 P1_SpriteStart =0;
-const s16 P2_SpriteStart =338;
+const s16 P2_SpriteStart =338;//338;
 const s16 PauseSpriteStart=676;//size 64
 const s16 SpriteAsteroidStart=740;  //size 64
 const s16 FireSprite1 = 804;//size 28
@@ -469,7 +478,7 @@ void DrawPlanet();
 void CalcPlanet(pPlayer pl);
 
 //melee.cpp
-void CreateExplosion(pWeapon w,s16 life);
+void CreateExplosion(pWeapon w,s16 life=5);
 int ran(int min, int max);
 int ModifyAngle(s16 a,int o);
 s32 distanceBetweenPoints(s32 xpos1,s32 ypos1,s32 xpos2,s32 ypos2);
@@ -489,6 +498,9 @@ int DetectWeaponToShip(pPlayer p,pWeapon w);
 
 //sfx.cpp
 void InterruptProcess(void);
+
+//demo.cpp
+void Demo(pPlayer p1,pPlayer p2,pBg bg0,pBg bg1);
 
 //menu.cpp
 void menu(pPlayer p1, pPlayer p2);
@@ -542,6 +554,7 @@ void SetSupox(pPlayer pl);
 void SetHuman(pPlayer pl);
 void SetUmgah(pPlayer pl);
 void SetSpathi(pPlayer pl);
+void MoveButt(pWeapon);
 void SetUtwig(pPlayer pl);
 void SetDruudge(pPlayer pl);
 void SetOrz(pPlayer pl);

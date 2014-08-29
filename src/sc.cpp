@@ -268,7 +268,7 @@ for (int i=0;i<12;i++)
 		{
 
 		//play_sfx(&pkunk_stupid,0);
-		demo=1;
+		demo=7;
 		s16 count=0;
 		play_sfx(&urquan_ditty,1);
 		do //demo loop
@@ -288,68 +288,12 @@ for (int i=0;i<12;i++)
 
 			if (count==200)
 			{
-				s8 tmppilots=pilot;
-				pilot=1;
-				InitializeSprites();
-				WaitForVsync();
-				CopyOAM();
-				if (aiskill==DISABLED)
-				{
-					p1->ai=GOOD;
-					p2->ai=GOOD;
-				}
-				else
-				{
-					p1->ai=aiskill;
-					p2->ai=aiskill;
-				}
-
-				if (demo==1)
-				{
-					p1->ship=INTRUDER;
-				 	p2->ship=PENETRATOR;
-				}
-				else if (demo==2)
-				{
-					p1->ship=DREADNAUGHT;
-				 	p2->ship=TERMINATOR;
-				}
-				else if (demo==3)
-				{
-					p1->ship=FURY;
-				 	p2->ship=AVENGER;
-				}
-				else if (demo==4)
-				{
-					p1->ship=INTRUDER;
-				 	p2->ship=TERMINATOR;
-				}
-				else if (demo==5)
-				{
-					p1->ship=DREADNAUGHT;
-					p2->ship=FURY;
-				}
-				else if (demo==6)
-				{
-					p1->ship=PENETRATOR;
-					p2->ship=AVENGER;
-				}
-				demo++;
-				if (demo==7)
-					demo=1;
-
-				SetNew(p1);
-				SetNew(p2);
-				SetShip(p1);
-				SetShip(p2);
-				planet++;
-				Melee(p1,p2,bg0,bg1);
-				pilot=tmppilots;
+				Demo(p1,p2,bg0,bg1);
+				count=0;
 				DrawTitle();
 				play_sfx(&urquan_ditty,1);
 				for (int i=0;i<100;i++)
 					WaitForVsync();
-				count=0;
 			}
 		}
 		while (demo>0);

@@ -30,13 +30,20 @@ CPPSOURCES = sc.cpp \
 	ilwrath.cpp \
 	vux.cpp \
 	syreen.cpp \
+	umgah.cpp \
+	spathi.cpp \
+	androsynth.cpp \
 	sfx.cpp \
 	cyborg.cpp \
-	menu.cpp
+	menu.cpp \
+	demo.cpp
 
-CSOURCES = ilwrath_sfx.c \
+CSOURCES = androsynth_sfx.c \
+	ilwrath_sfx.c \
 	pkunk_sfx.c \
+	spathi_sfx.c \
 	syreen_sfx.c \
+	umgah_sfx.c \
 	urquan_sfx.c \
 	vux_sfx.c \
 	yehat_sfx.c 

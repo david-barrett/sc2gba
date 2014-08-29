@@ -32,7 +32,9 @@ int Available(s16 selected)
 {
 	if (selected==FURY||selected==DREADNAUGHT||
 		selected==AVENGER||selected==TERMINATOR||
-		selected==PENETRATOR||selected==INTRUDER)
+		selected==PENETRATOR||selected==INTRUDER||
+		selected==DRONE||selected==ELUDER
+		||selected==GUARDIAN)
 		return 1;
 
 	return 0;
@@ -1290,7 +1292,7 @@ int DrawRemainingShips(pPlayer pl,pPlrList list,int sx,int sy)
 	int i;
 	int found=0;
 	InitializeSprites();
-	int score=0;
+	int tscore=0;
 
 	for (i=0;i<5;i++)
 	{
@@ -1334,7 +1336,7 @@ int DrawRemainingShips(pPlayer pl,pPlrList list,int sx,int sy)
 			if (list[i].active==ACTIVE)
 			{
 				found=1;
-				score+=list[i].ship;
+				tscore+=score(list[i].ship);
 				MoveSprite(&sprites[42+i],240,160);
 			}
 		}
@@ -1374,7 +1376,7 @@ int DrawRemainingShips(pPlayer pl,pPlrList list,int sx,int sy)
 	    DrawLetter('w',38,text+90,15);
     	DrawLetter('o',39,text+100,15);
 	}
-	return score; // maybe return value of remaining ships!!
+	return tscore; // maybe return value of remaining ships!!
 }
 
 int DrawWinner(pPlayer pl, pPlrList list)

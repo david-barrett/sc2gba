@@ -535,26 +535,12 @@ void ProcessPlayer(pPlayer pl)
 
 int Special(pPlayer pl)
 {
+
 	int ret=0;
 	if (pl->special_turn==0&&pl->batt>=pl->specbatt)
 	{
 		ret=pl->specfunc(pl);
-		/*
-		switch(pl->ship)
-		{
-		case DREADNAUGHT:
-			ret=SpecialDreadnaught(pl);
-			break;
-		case FURY:
-			ret=SpecialFury(pl);
-			break;
-		case TERMINATOR:
-				ret=SpecialYehat(pl);
-				break;
-		default:
-			break;
-		}
-		*/
+
 		if (ret>0)
 		{
 			ModifyBatt(pl,-1*pl->specbatt);
@@ -570,23 +556,7 @@ void Fire(pPlayer pl)
 	if (pl->weapon_turn==0&&pl->batt>=pl->firebatt)
 	{
 		ret=pl->firefunc(pl);
-		/*
-		switch(pl->ship)
-		{
-		case DREADNAUGHT:
-		//	ret=FireDreadnaught(pl);
 
-			break;
-		case FURY:
-			ret=FireFury(pl);
-			break;
-		case TERMINATOR:
-			ret=FireYehat(pl);
-			break;
-		default:
-			break;
-		}
-		*/
 		if (ret>0)
 		{
 			ModifyBatt(pl,-1*pl->firebatt);

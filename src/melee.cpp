@@ -434,6 +434,14 @@ void MoveBullets(pPlayer pl)
 			{
 				MoveCrew(&pl->weapon[i]);
 			}
+			else if(pl->weapon[i].type==BUTT)
+			{
+				MoveButt(&pl->weapon[i]);
+			}
+			else
+			{
+				(pl->weapon[i].movefunc)(&pl->weapon[i]);
+			}
 			drawOnScreen(&(pl->weapon[i].xscreen),&(pl->weapon[i].yscreen),
 				pl->weapon[i].xpos,pl->weapon[i].ypos,screenx,screeny,pl->weapon[i].size);
 			MoveSprite(&sprites[pl->weapon[i].sprite], pl->weapon[i].xscreen, pl->weapon[i].yscreen);
@@ -539,7 +547,14 @@ void DetectBullets(pPlayer pl)
 		//		if (Intercept (&o1 , &o2,1,0))
 				{
 					ModifyCrew(target,pl->weapon[i].damage);
-					CreateExplosion(&pl->weapon[i],5);
+					if (pl->weapon[i].type!=LASER)
+						CreateExplosion(&pl->weapon[i],5);/*
+					else
+					{
+						s8 d=nextWeapon(pl);
+						if (d>0)
+							CreateExplosion(&pl->weapon[d],5);
+					}*/
 					stop=0;
 				}
 
@@ -557,7 +572,15 @@ void DetectBullets(pPlayer pl)
 				//	if (Intercept (&o1 , &o2,1,0))
 					{
 						ModifyCrew((pPlayer)pl->weapon[i].parent,pl->weapon[i].damage);
-						CreateExplosion(&pl->weapon[i],5);
+						if (pl->weapon[i].type!=LASER)
+							CreateExplosion(&pl->weapon[i],5);
+							/*
+						else
+						{
+							s8 d=nextWeapon(pl);
+							if (d>0)
+								CreateExplosion(&pl->weapon[d],5);
+						}*/
 						stop=0;
 					}
 				}
@@ -622,7 +645,7 @@ void DetectBullets(pPlayer pl)
 						}
 					}
 				}
-				if (stop==0&&pl->weapon[i].type!=EXP)
+				if (stop==0&&pl->weapon[i].type!=EXP&&pl->weapon[i].type!=LASER)
 				{
 					pl->weapon[i].life=0;
 					sprites[pl->weapon[i].sprite].attribute0 = 160;  //y to > 159
@@ -722,7 +745,7 @@ void shifteverythingx(pPlayer p1,pPlayer p2,int shift)
 void shifteverythingy(pPlayer p1,pPlayer p2,int shift)
 {
 	//shift everything except the planet
-print("shift everythiny y s");
+
 	p1->ypos+=shift;
 	p2->ypos+=shift;
 	screeny+=shift;
@@ -757,7 +780,7 @@ print("shift everythiny y s");
 	//planet
 	planety+=shift;
 
-	print("shift everythiny y e");
+
 }
 
 
@@ -811,8 +834,19 @@ void setScreen(pPlayer p1,pPlayer p2,Bg* bg0,Bg* bg1)
 		scale = 0.5;
 
 	}
+	/*
+	else if (scaled&&d<320)
+	{
+		zoom=256+(s16)(double(d-160)*32);
+		scale=0.9-(double(d-160)*0.04);
+	}
+	*/
 	//scaled zoom 320-160
-
+	else if (scaled&&d<170)
+	{
+			zoom=256+32;//512
+			scale = 0.86;
+	}
 	else if (scaled&&d<180)
 	{
 			zoom=256+64;//512
@@ -899,7 +933,7 @@ void setScreen(pPlayer p1,pPlayer p2,Bg* bg0,Bg* bg1)
 
 	}
 
-	//END PC zoom could replace all this will scaled zoom
+	//END 3DO zoom could replace all this will scaled zoom
 	else //if (d>=320)
 	{
 		zoom=768;
@@ -1361,6 +1395,12 @@ sprites[58].attribute2 = PauseSpriteStart+48 | PRIORITY(0);
 
 				Bounce(p1);
 				Bounce(p2);
+
+				if (p1->blaze==1)
+					ModifyCrew(p2,-3);
+
+				if (p1->blaze==2)
+					ModifyCrew(p1,-3);
 /*
 				s32 x=p1->xspeed;
 				s32 y=p1->yspeed;
