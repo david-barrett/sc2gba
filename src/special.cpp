@@ -11,6 +11,9 @@ extern pOAMEntry sprites;
 extern double scale;
 extern int turn;
 
+
+extern unsigned long state;
+
 int SpecialDreadnaught(pPlayer pl);
 int SpecialFury(pPlayer pl);
 
@@ -166,6 +169,21 @@ int SpecialFury(pPlayer pl)
 		ModifyCrew(pl,4);
 	}
 	return 1;
+}
+
+int DeathFury(pPlayer pl)
+{
+	int r=ran(0,10);
+	if (r<6)
+	{
+		//SetFury(pl);
+		SetShip(pl);
+		SetNew(pl);
+		UpdateCrew(pl);
+		UpdateBatt(pl);
+		return 1;
+	}
+	return 0;
 }
 
 

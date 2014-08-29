@@ -8,7 +8,8 @@
 #ifndef SC2_H
 #define SC2_H
 #include "bg.h"
-//#include "keypad.h"     //button registers
+#include "keypad.h"     //button registers
+#include "shipgfx.h"
 //define the screen width and height values to be used
 #define SCREEN_WIDTH	240
 #define SCREEN_HEIGHT   160
@@ -47,6 +48,7 @@
 #define RADIAN(n) 		(((float)n)/(float)180*PI)
 
 
+
 //sprite structure definitions
 typedef struct tagOAMEntry
 {
@@ -68,6 +70,13 @@ typedef struct tagRotData
 	u16 filler4[3];
 	u16 pd;
 }RotData, *pRotData;
+
+typedef struct PlrList
+{
+	s16 ship;
+	s16 active;
+}PlrList, *pPlrList;
+
 
 typedef struct Weapon
 {
@@ -114,8 +123,8 @@ enum skill
 {
 	PLAYER1=1,
 	PLAYER2=2,
-	HARD=3,
-	MEDIUM=4,
+	AWESOME=3,
+	GOOD=4,
 	STANDARD=5,
 	DISABLED=6
 };
@@ -188,31 +197,35 @@ s16 range;
 
 
 //crew/fuel/fuel regen/accel/turn rate/max vel/weapon range/weapon damage - max 9
-const s16 AVATAR =0; //chmmr avatar 9/9/9/3/5/7/4/9 - lazer + tractor beam
-const s16 AVENGER =1; //ilwarth avenger 5/3/5/8/7/4/3/4 flame + cloak
-const s16 BLADE =2; //supox blade 3/4/5/8/8/8/5/1 gun + reverse
+const s16 GUARDIAN =0;//androsyth guardian 4/5/3/6-9,4-9,3-9,5,4 bubble + blazer form
+const s16 SKIFF =1 ;//ariloulalleelay skiff 1/4/5/9/9/8/2/1 auto target lazer + hyperspace
+const s16 MARAUDER =2;//KOHR-AH MARAUDER 9/9/8/4/4/5/9/4 mines (var range) + fire defense
 const s16 BROODHOME =3; //chenjesu broodhome 8/6/6/3/3/5/9/7 cyrstal range var + recover?
-const s16 CRUISER =4; //earthling cruiser 5/5/3/2/9/4/9/4 homing missing+lazer defense
-const s16 DREADNAUGHT =5; //ur-quan dreadnaught 9/9/8/4/4/5/9/9 fusion cannon + homing fighters
-const s16 DRONE =6; // umgah drone 2/6/6/5/5/1/2/5 anti matter + reverse
-const s16 ELUDER =7; // spathi eluder 6/2/1/8/8/9/5/2 gun + homing missile rear
-const s16 FURY =8; // pkunk fury - 1/3/2/8/9/9/3/3 - 3 way gun + curse (resurection)
-const s16 GUARDIAN =9;//androsyth guardian 4/5/3/6-9,4-9,3-9,5,4 bubble + blazer form
-const s16 INTRUDER =10; //VUX INTRUDER 6/9/6/2/1/1/4/8 lazer + limpit cocoons
-const s16 JUGGER =11; //UTWIG JUGGER 4/2-4/0-4/4/8/8/5/6 + lazer + shield (inc energy)
-const s16 MARAUDER =12;//KOHR-AH MARAUDER 9/9/8/4/4/5/9/4 mines (var range) + fire defense
-const s16 MAULER =13; // druuge mauler 4/6/1/1/4/1/9/6 high reoil cannon + furnice (kill crew for en)
-const s16 NEMESIS =14; // orz nemesis 4/4/5/4/8/6/7/3 cannon (rotate) + marines
-const s16 PENETRATOR =15; //syreen penetrator 3-9/3/4/8/6/6/5/2 + gun + call emeny crew
-const s16 PODSHIP =16; //mycon podship 4/8/7/4/2/5/8/1-9 -homing plasmoid + crew growth
-const s16 PROBE =17;//slylandro probe 3/4/0-2/9/9/9/4/4 - lightnig + asteroid consumption
-const s16 SCOUT =18; // shofixti scout 1/2/4/8/7/7/5/1 - gun + self destruct
-const s16 SKIFF =19 ;//ariloulalleelay skiff 1/4/5/9/9/8/2/1 auto target lazer + hyperspace
-const s16 STINGER =20;//zoq-fot-pik stinger 2/2/6/7/8/8/3/2 spary + tongue attack
-const s16 TERMINATOR =21; //yehat terminator 4/4/7/5/7/6/5/7 gun + shield
-const s16 TORCH =22; //tharddash torch 1/5/5/5/8/5/6/1  missile (home?) + flame trail
-const s16 TRADER =23; //melnorme trader 4/9/6/4/4/6/9/2-9 weapon var range + power + disable?
-const s16 TRANSFORMER =24;//mmrnmhrm transformer 4/2/8/6/7/1/1/6 + 4/2/5/9/1/9/9/2 lazer/missile + transform
+const s16 AVATAR =4; //chmmr avatar 9/9/9/3/5/7/4/9 - lazer + tractor beam
+const s16 AVENGER =7; //ilwarth avenger 5/3/5/8/7/4/3/4 flame + cloak
+const s16 BLADE =16; //supox blade 3/4/5/8/8/8/5/1 gun + reverse
+
+const s16 CRUISER =6; //earthling cruiser 5/5/3/2/9/4/9/4 homing missing+lazer defense
+const s16 DREADNAUGHT =20; //ur-quan dreadnaught 9/9/8/4/4/5/9/9 fusion cannon + homing fighters
+const s16 DRONE =19; // umgah drone 2/6/6/5/5/1/2/5 anti matter + reverse
+const s16 ELUDER =15; // spathi eluder 6/2/1/8/8/9/5/2 gun + homing missile rear
+const s16 FURY =12; // pkunk fury - 1/3/2/8/9/9/3/3 - 3 way gun + curse (resurection)
+
+const s16 INTRUDER =22; //VUX INTRUDER 6/9/6/2/1/1/4/8 lazer + limpit cocoons
+const s16 JUGGER =21; //UTWIG JUGGER 4/2-4/0-4/4/8/8/5/6 + lazer + shield (inc energy)
+
+const s16 MAULER =5; // druuge mauler 4/6/1/1/4/1/9/6 high reoil cannon + furnice (kill crew for en)
+const s16 NEMESIS =11; // orz nemesis 4/4/5/4/8/6/7/3 cannon (rotate) + marines
+const s16 PENETRATOR =17; //syreen penetrator 3-9/3/4/8/6/6/5/2 + gun + call emeny crew
+const s16 PODSHIP =10; //mycon podship 4/8/7/4/2/5/8/1-9 -homing plasmoid + crew growth
+const s16 PROBE =13;//slylandro probe 3/4/0-2/9/9/9/4/4 - lightnig + asteroid consumption
+const s16 SCOUT =14; // shofixti scout 1/2/4/8/7/7/5/1 - gun + self destruct
+
+const s16 STINGER =24;//zoq-fot-pik stinger 2/2/6/7/8/8/3/2 spary + tongue attack
+const s16 TERMINATOR =23; //yehat terminator 4/4/7/5/7/6/5/7 gun + shield
+const s16 TORCH =18; //tharddash torch 1/5/5/5/8/5/6/1  missile (home?) + flame trail
+const s16 TRADER =8; //melnorme trader 4/9/6/4/4/6/9/2-9 weapon var range + power + disable?
+const s16 TRANSFORMER =9;//mmrnmhrm transformer 4/2/8/6/7/1/1/6 + 4/2/5/9/1/9/9/2 lazer/missile + transform
 
 const s16 SIMPLE=0;
 const s16 UR_FIGHTERS=1;
@@ -240,13 +253,23 @@ const s16 PlanetSprite=500;
 const s16 OAMStatusStart = 5120;//rand no
 const s16 SpriteStatusStart = 320;
 
+const s16 OAMTitleStart = 10240;//rand no
+const s16 SpriteTitleStart = 640;
+
+const s16 OAMAllships = 0;
+const s16 SpriteAllShips = 0;
+
+
+
 void Thrust(pPlayer plr);
 void LoadShip(pPlayer);
 void LoadPal();
 void SetupBackground(pBg,pBg);
 void MoveSprite(OAMEntry* sp, int x, int y);
-void UpdateStatus();
-void SetupStatus();
+//void UpdateStatus();
+void SetupStatus(pPlayer,pPlayer);
+void UpdateCrew(pPlayer);
+void UpdateBatt(pPlayer);
 void Fire(pPlayer pl);
 int Special(pPlayer pl);
 void drawOnScreen(s16* x,s16* y,s32 xpos,s32 ypos, s16 screenx, s16 yscreen,s16 size,s16 pl=0);
@@ -274,6 +297,18 @@ void ModifyBatt(pPlayer,int);
 
 s32 distanceBetweenPoints(s32 xpos1,s32 ypos1,s32 xpos2,s32 ypos2);
 int TurnAngle(s16 yourangle, s16 desiredangle,s8 );
+void print(char *s);
+void print(s32 s);
+void LoadDreadnaught(s16 OAMStart, s16 SpriteStart);
+
+
+int ran(int min, int max);
+
+int DeathFury(pPlayer pl);
+
+const s32 planetx=2100;
+const s32 planety=2100;
+void GenerateStart(pPlayer p);
 #endif
 
 /*128 sprites first 32 rotate

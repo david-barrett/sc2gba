@@ -1,15 +1,3 @@
-// ************************************
-// ***        bmp2spr.exe  v1.0     ***
-// ***                              ***
-// *** By DMP SOFTWARE [27/06/2002] ***
-// ***                              ***
-// ***     www.dmpsoftware.co.uk    ***
-// ************************************
-
-#define PKUNK_WIDTH  (32)
-#define PKUNK_HEIGHT (32)
-
-
 const u16 pkunkData[] =
 {
    0xEBEB, 0xEBEB, 0xEBEB, 0xEBEB, 0xEBEB, 0xE6E6, 0xEBE6, 0xE6E6, 0xE6EB, 0xEBE6,
@@ -66,10 +54,9 @@ const u16 pkunkData[] =
    0xEBE6, 0xE6E6,
 };
 
-#define PKUNK_SIZE (512)
 
 
-u16 pkunkPalette[] =
+const u16 pkunkPalette[] =
 {
    0x0000, 0x03E0, 0x293F, 0x6402, 0x0935, 0x05FB, 0x021F, 0x025D, 0x02FF, 0x0091,
    0x0073, 0x1A40, 0x4E32, 0x013A, 0x063C, 0x005F, 0x437C, 0x01FB, 0x01BA, 0x0002,

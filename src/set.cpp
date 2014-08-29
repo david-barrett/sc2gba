@@ -26,6 +26,8 @@ void SetNew(pPlayer pl)
 
 	pl->aiturn=0;
 	pl->aispecial=0;
+
+	GenerateStart(pl);
 }
 
 void SetDreadnaught(pPlayer pl)

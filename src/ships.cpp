@@ -1,9 +1,9 @@
 #include "gba.h"	//GBA register definitions
 #include "dispcnt.h"    //REG_DISPCNT register #defines
 #include "sc.h"
-#include "gfx/urquan.h"  //urqan
+//#include "gfx/urquan.h"  //urqan
 #include "gfx/urquan_out.h"  //urqan
-#include "gfx/pkunk.h" //punk punk(sic)
+//#include "gfx/pkunk.h" //punk punk(sic)
 #include "gfx/pkunk_out.h" //punk punk(sic)
 
 //bullets
@@ -131,6 +131,43 @@ void LoadPal()
 void LoadShip(pPlayer pl)
 {
 	ReallyLoadShip(pl->ship,pl->OAMStart,pl->SpriteStart);
+}
+
+void LoadAllShips(s16 OAMStart)
+{
+	s16 loop;
+	for(loop = OAMStart; loop < OAMStart+512; loop++)               //load sprite image data
+  	{
+       		OAMData[loop] = androsynData[loop-OAMStart];
+       		OAMData[loop+512] = arilouData[loop-OAMStart];
+       		OAMData[loop+1024] = blackurqData[loop-OAMStart];
+       		OAMData[loop+1536] = chenjesuData[loop-OAMStart];
+       		OAMData[loop+2048] = chmmrData[loop-OAMStart];
+       		OAMData[loop+2560] = druudgeData[loop-OAMStart];
+       		OAMData[loop+3072] = humanData[loop-OAMStart];
+			OAMData[loop+3584] = ilwrathData[loop-OAMStart];
+			OAMData[loop+4096] = melnormeData[loop-OAMStart];
+			OAMData[loop+4608] = mmrnmhrmData[loop-OAMStart];
+			OAMData[loop+5120] = myconData[loop-OAMStart];
+       		OAMData[loop+5632] = orzData[loop-OAMStart];
+       		OAMData[loop+6144] = pkunkData[loop-OAMStart];
+			OAMData[loop+6656] = probeData[loop-OAMStart];
+			OAMData[loop+7168] = shofixtiData[loop-OAMStart];
+			OAMData[loop+7680] = spathiData[loop-OAMStart];
+			OAMData[loop+8192] = supoxData[loop-OAMStart];
+       		OAMData[loop+8704] = syreenData[loop-OAMStart];
+       		OAMData[loop+9216] = thraddData[loop-OAMStart];
+			OAMData[loop+9728] = umgahData[loop-OAMStart];
+			OAMData[loop+10240] = urquanData[loop-OAMStart];
+			OAMData[loop+10752] = utwigData[loop-OAMStart];
+			OAMData[loop+11264] = vuxData[loop-OAMStart];
+			OAMData[loop+11776] = yehatData[loop-OAMStart];
+			OAMData[loop+12288] = zoqfotData[loop-OAMStart];
+			OAMData[loop+12800] = outlineData[loop-OAMStart];
+			OAMData[loop+13312] = questionData[loop-OAMStart];
+			OAMData[loop+13824] = crossData[loop-OAMStart];
+
+	}
 }
 
 

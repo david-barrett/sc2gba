@@ -42,14 +42,14 @@ void Fire(pPlayer pl)
 
 int nextWeapon(pPlayer pl)
 {
-	for (int i=0;i<15;i++)
+	for (int i=0;i<12;i++)
 	{
 		if (pl->weapon[i].life==-1)
 			return i;
 	}
 	return -1;
 }
-
+/*
 int nextFireSprite(pPlayer pl)
 {
 	for (int i=pl->ffiresprite;i<=pl->lfiresprite;i++)
@@ -59,7 +59,7 @@ int nextFireSprite(pPlayer pl)
 	}
 	return -1;
 }
-
+*/
 
 int FireDreadnaught(pPlayer pl)
 {
@@ -136,7 +136,7 @@ int FireFuryA(pPlayer pl,s32 angle)
 
 	sprites[pl->weapon[b].sprite].attribute0 = COLOR_256 | SQUARE | ROTATION_FLAG | SIZE_DOUBLE | MODE_TRANSPARENT | pl->weapon[b].yscreen;	//setup sprite info, 256 colour, shape and y-coord
     sprites[pl->weapon[b].sprite].attribute1 = SIZE_8 | ROTDATA(pl->weapon[b].sprite) | pl->weapon[b].xscreen;
-    sprites[pl->weapon[b].sprite].attribute2 = pl->SpriteStart+64 | PRIORITY(0);
+    sprites[pl->weapon[b].sprite].attribute2 = pl->SpriteStart+64 | PRIORITY(1);
     return 1;
 	}
 	return 0;

@@ -36,12 +36,31 @@
 #include "gfx/endl4.h"
 
 extern pOAMEntry sprites;
-extern pPlayer p1;
-extern pPlayer p2;
+//extern pPlayer p1;
+//extern pPlayer p2;
 const int start=71;
-void drawStatus();
+void drawStatus(pPlayer p1,pPlayer p2);
+const s16 crew1=SpriteStatusStart;
+const s16 crew2=SpriteStatusStart+4;
+const s16 crew3=SpriteStatusStart+8;
+const s16 crew4=SpriteStatusStart+12;
+const s16 crew5=SpriteStatusStart+16;
+const s16 crew6=SpriteStatusStart+20;
+const s16 crew7=SpriteStatusStart+24;
+const s16 crew8=SpriteStatusStart+28;
 
-void SetupStatus()
+const s16 blank = SpriteStatusStart+68;
+
+const s16 batt1=SpriteStatusStart+32;
+const s16 batt2=SpriteStatusStart+36;
+const s16 batt3=SpriteStatusStart+40;
+const s16 batt4=SpriteStatusStart+48;//jumps weird!
+const s16 batt5=SpriteStatusStart+52;
+const s16 batt6=SpriteStatusStart+56;
+const s16 batt7=SpriteStatusStart+60;
+const s16 batt8=SpriteStatusStart+64;
+
+void SetupStatus(pPlayer p1,pPlayer p2)
 {
 	u16 loop;
 
@@ -93,23 +112,18 @@ void SetupStatus()
 
 
        	}
-       	drawStatus();
+       	drawStatus(p1,p2);
+       	UpdateCrew(p1);
+		UpdateBatt(p1);
+		UpdateCrew(p2);
+		UpdateBatt(p2);
 }
 
 
 
 s16 statusCrew(s16 data,s16 minus)
 {
-	s16 crew1=SpriteStatusStart;
-	s16 crew2=SpriteStatusStart+4;
-	s16 crew3=SpriteStatusStart+8;
-	s16 crew4=SpriteStatusStart+12;
-	s16 crew5=SpriteStatusStart+16;
-	s16 crew6=SpriteStatusStart+20;
-	s16 crew7=SpriteStatusStart+24;
-	s16 crew8=SpriteStatusStart+28;
 
-	s16 blank = SpriteStatusStart+68;
 
 	s16 d = data - minus;
 	if (d<0)
@@ -219,15 +233,7 @@ s16 statusBattS(s16 data,s16 minus)
 
 s16 statusBatt(s16 data,s16 minus)
 {
-	s16 blank = SpriteStatusStart+68;
-	s16 batt1=SpriteStatusStart+32;
-	s16 batt2=SpriteStatusStart+36;
-	s16 batt3=SpriteStatusStart+40;
-	s16 batt4=SpriteStatusStart+48;//jumps weird!
-	s16 batt5=SpriteStatusStart+52;
-	s16 batt6=SpriteStatusStart+56;
-	s16 batt7=SpriteStatusStart+60;
-	s16 batt8=SpriteStatusStart+64;
+
 
 	s16 d = data - minus;
 	if (d<0)
@@ -263,7 +269,7 @@ s16 statusBatt(s16 data,s16 minus)
 	}
 }
 
-void drawStatus()
+void drawStatus(pPlayer p1,pPlayer p2)
 {
 	//max crew/batt =42
 
@@ -326,8 +332,39 @@ void drawStatus()
 		   		MoveSprite(&sprites[start+45], 208, 152);
 		   		MoveSprite(&sprites[start+46], 216, 152);
 				MoveSprite(&sprites[start+47], 224, 152);
-}
 
+			//p1 crew
+					MoveSprite(&sprites[start], 8, 152);
+					MoveSprite(&sprites[start+1], 16, 152);
+					MoveSprite(&sprites[start+2], 24, 152);
+					MoveSprite(&sprites[start+3], 32, 152);
+					MoveSprite(&sprites[start+4], 40, 152);
+					MoveSprite(&sprites[start+5], 48, 152);
+					//p1 batt
+					MoveSprite(&sprites[start+6], 56, 152);
+					MoveSprite(&sprites[start+7], 64, 152);
+					MoveSprite(&sprites[start+8], 72, 152);
+					MoveSprite(&sprites[start+9], 80, 152);
+					MoveSprite(&sprites[start+10], 88, 152);
+					MoveSprite(&sprites[start+11], 96, 152);
+
+					//p2 crew
+					MoveSprite(&sprites[start+12], 136, 152);
+					MoveSprite(&sprites[start+13], 144, 152);
+					MoveSprite(&sprites[start+14], 152, 152);
+					MoveSprite(&sprites[start+15], 160, 152);
+					MoveSprite(&sprites[start+16], 168, 152);
+					MoveSprite(&sprites[start+17], 176, 152);
+					//p2 batt
+					MoveSprite(&sprites[start+18], 184, 152);
+					MoveSprite(&sprites[start+19], 192, 152);
+					MoveSprite(&sprites[start+20], 200, 152);
+					MoveSprite(&sprites[start+21], 208, 152);
+					MoveSprite(&sprites[start+22], 216, 152);
+		MoveSprite(&sprites[start+23], 224, 152);
+
+}
+/*
 void UpdateStatus()
 {
 		//max crew/batt =42
@@ -361,7 +398,7 @@ void UpdateStatus()
 		sprites[start+23].attribute2 = statusBatt(p2->batt,40) | PRIORITY(2);
 
 
-
+/* dont need to do this again?
 	    //p1 crew
 		MoveSprite(&sprites[start], 8, 152);
 		MoveSprite(&sprites[start+1], 16, 152);
@@ -395,6 +432,31 @@ void UpdateStatus()
 
 
 }
+*/
+
+void UpdateCrew(pPlayer pl)
+{
+	int o=pl->plr==1?0:12;
+	sprites[start+o].attribute2 = statusCrew(pl->crew,40) | PRIORITY(2);
+	sprites[start+1+o].attribute2 = statusCrew(pl->crew,32) | PRIORITY(2);
+	sprites[start+2+o].attribute2 = statusCrew(pl->crew,24) | PRIORITY(2);
+	sprites[start+3+o].attribute2 = statusCrew(pl->crew,16) | PRIORITY(2);
+	sprites[start+4+o].attribute2 = statusCrew(pl->crew,8) | PRIORITY(2);
+	sprites[start+5+o].attribute2 = statusCrew(pl->crew,0) | PRIORITY(2);
+}
+
+void UpdateBatt(pPlayer pl)
+{
+	int o=pl->plr==1?0:12;
+	sprites[start+6+o].attribute2 = statusBatt(pl->batt,0) | PRIORITY(2);
+	sprites[start+7+o].attribute2 = statusBatt(pl->batt,8) | PRIORITY(2);
+	sprites[start+8+o].attribute2 = statusBatt(pl->batt,16) | PRIORITY(2);
+	sprites[start+9+o].attribute2 = statusBatt(pl->batt,24) | PRIORITY(2);
+	sprites[start+10+o].attribute2 = statusBatt(pl->batt,32) | PRIORITY(2);
+	sprites[start+11+o].attribute2 = statusBatt(pl->batt,40) | PRIORITY(2);
+}
+
+
 
 void ModifyCrew(pPlayer p, int i)
 {
@@ -402,7 +464,7 @@ void ModifyCrew(pPlayer p, int i)
 	if (p->crew>p->maxcrew)
 		p->crew=p->maxcrew;
 
-	UpdateStatus();
+	UpdateCrew(p);
 }
 
 void ModifyBatt(pPlayer p, int i)
@@ -413,6 +475,6 @@ void ModifyBatt(pPlayer p, int i)
 	if (p->batt<0)
 		p->batt=0;
 
-	UpdateStatus();
+	UpdateBatt(p);
 }
 
