@@ -1,0 +1,130 @@
+bg.cpp:	u16 temp;
+bg.cpp:	bg->tileData = (u16*)CharBaseBlock(bg->charBaseBlock);
+bg.cpp:	bg->mapData = (u16*)ScreenBaseBlock(bg->screenBaseBlock);
+bg.cpp:	s16 loop;
+bg.cpp:	u16* temp;
+bg.cpp:	bg0.charBaseBlock = 0;                  //tile data position (right at the start of the available memory on 16Kb boundary)
+bg.cpp:	bg1.charBaseBlock = 0;                  //tile data position (right at the start of the available memory on 16Kb boundary)
+bg.cpp:	temp = (u16*)starfield0;
+bg.cpp:	for(loop = 0; loop < 128*128/2; loop++) //128x128 tiles /2 because 16 bit copy
+bg.cpp:	temp = (u16*)starfield1;
+bg.cpp:	for(loop = 0; loop < 64*64/2; loop++) //64x64 tiles /2 because 16 bit copy
+choose.cpp://extern u16* OAMData;
+choose.cpp:extern u16* OAM;
+choose.cpp:void LoadAllShips(s16 OAMStart)
+choose.cpp:	s16 loop;
+fire.cpp:	s16 n = nextFireSprite(pl);
+fire.cpp:	s16 b = nextWeapon(pl);
+fire.cpp:	pl->weapon[b].size=16;
+fire.cpp:    sprites[n].attribute1 = SIZE_16 | ROTDATA(n) | pl->weapon[b].xscreen;
+fire.cpp:	s16 n = nextFireSprite(pl);
+fire.cpp:	s16 b = nextWeapon(pl);
+game.cpp:extern u16* OAM;
+game.cpp:	u16 loop;
+game.cpp:	u16* temp;
+game.cpp:	temp = (u16*)sprites;
+game.cpp:	u16 loop;
+game.cpp:		sprites[loop].attribute0 = 160;  //y to > 159
+game.cpp:	while((volatile u16)REG_VCOUNT != 160){}
+game.cpp:void CreateExplosion(pWeapon w,s16 life)
+game.cpp:	//square (p.xpos-16,w.ypos-16), (w.xpos+16,w.ypos+16)
+game.cpp:	s16 offset=p->offset/2;
+game.cpp:s16 FindAngle(s32 x,s32 y, s32 ox, s32 oy)
+game.cpp:	s16 angle,final;
+game.cpp:	angle = (s16) (atan(r) * 180 / PI); //maybe find a way to calc this?
+game.cpp:	s16 angle = FindAngle(ur->xpos,ur->ypos,target->xpos,target->ypos);
+game.cpp:	/*s16 turna = ur->angle - angle;
+game.cpp:	s16 a1 = 360+angle;
+game.cpp:	s16 a2 = 360+ur->angle;
+game.cpp:					sprites[p1.weapon[i].sprite].attribute0 = 160;  //y to > 159
+game.cpp:					sprites[p2.weapon[i].sprite].attribute0 = 160;  //y to > 159
+game.cpp:	if (d<160)
+game.cpp:	p1.xscreen=(s16)((p1.xpos-screenx)*scale)+centrex;//scaling ??
+game.cpp:	p1.yscreen=(s16)((p1.ypos-screeny)*scale)+centrey;
+game.cpp:	p2.xscreen=(s16)((p2.xpos-screenx)*scale)+centrex;
+game.cpp:	p2.yscreen=(s16)((p2.ypos-screeny)*scale)+centrey;
+game.cpp:void drawOnScreen(s16* x,s16* y,s32 xpos,s32 ypos, s16 screenx, s16 yscreen,s16 size)
+game.cpp:	*x = (s16)(((xpos-screenx)*scale)+centrex-(size*scale));
+game.cpp:	*y = (s16)(((ypos-screeny)*scale)+centrey-(size*scale));
+game.cpp:		*x = (s16)(((xpos-screenx)*scale)+centrex-(size));
+game.cpp:	*y = (s16)(((ypos-screeny)*scale)+centrey-(size));
+game.cpp:	s16 angle = FindAngle(ai->xpos,ai->ypos,opp->xpos,opp->ypos);
+game.cpp:        sprites[13].attribute1 = SIZE_32 | ROTDATA(16) | p2.xscreen;           //size 16x16 and x-coord
+imagedisp.cpp:		for(y = 0; y < 160; y++)                  //screen height
+sc.cpp:u16* OAM = (u16*)0x7000000;
+sc.cpp:p2.SpriteStart =160;
+set.cpp:	s16 o = (pl->plr-1)*13;
+set.cpp:	pl->accel_inc=16;
+set.cpp:	pl->special_wait=16;
+set.cpp:	s16 o = (pl->plr-1)*13;
+ships.cpp://extern u16* OAMData;
+ships.cpp:extern u16* OAM;
+ships.cpp:void LoadExp(s16 OAMStart, s16 SpriteStart)
+ships.cpp:	s16 loop;
+ships.cpp:void LoadDreadnaught(s16 OAMStart, s16 SpriteStart)
+ships.cpp:	s16 loop;
+ships.cpp:void LoadFury(s16 OAMStart, s16 SpriteStart)
+ships.cpp:	s16 loop;
+ships.cpp:void LoadShip(s16 ship,s16 OAMStart, s16 SpriteStart)
+ships.cpp:	s16 loop;
+special.cpp:	s16 n = nextSpecSprite(pl);
+special.cpp:		s16 b = nextSpec(pl);
+status.cpp:	u16 loop;
+status.cpp:			OAMData[loop+OAMStatusStart+1216] = endl1Data[loop];
+status.cpp:			OAMData[loop+OAMStatusStart+1600] = endr3Data[loop];
+status.cpp:			OAMData[loop+OAMStatusStart+1664] = endr4Data[loop];
+status.cpp:s16 statusCrew(s16 data,s16 minus)
+status.cpp:	s16 crew1=SpriteStatusStart;
+status.cpp:	s16 crew2=SpriteStatusStart+4;
+status.cpp:	s16 crew3=SpriteStatusStart+8;
+status.cpp:	s16 crew4=SpriteStatusStart+12;
+status.cpp:	s16 crew5=SpriteStatusStart+16;
+status.cpp:	s16 crew6=SpriteStatusStart+20;
+status.cpp:	s16 crew7=SpriteStatusStart+24;
+status.cpp:	s16 crew8=SpriteStatusStart+28;
+status.cpp:	s16 blank = SpriteStatusStart+68;
+status.cpp:	s16 d = data - minus;
+status.cpp:s16 statusCrewS(s16 data,s16 minus)
+status.cpp:	s16 endl1=SpriteStatusStart+76;
+status.cpp:	s16 endl2=SpriteStatusStart+80;
+status.cpp:	s16 endl3=SpriteStatusStart+84;
+status.cpp:	s16 endl4=SpriteStatusStart+88;
+status.cpp:	s16 blank = SpriteStatusStart+68;
+status.cpp:	s16 line = SpriteStatusStart+72;
+status.cpp:	s16 d = data - minus;
+status.cpp:s16 statusBattS(s16 data,s16 minus)
+status.cpp:	s16 endr1=SpriteStatusStart+92;
+status.cpp:		s16 endr2=SpriteStatusStart+96;
+status.cpp:		s16 endr3=SpriteStatusStart+100;
+status.cpp:		s16 endr4=SpriteStatusStart+104;
+status.cpp:		s16 blank = SpriteStatusStart+68;
+status.cpp:		s16 line = SpriteStatusStart+72;
+status.cpp:		s16 d = data - minus;
+status.cpp:s16 statusBatt(s16 data,s16 minus)
+status.cpp:	s16 blank = SpriteStatusStart+68;
+status.cpp:	s16 batt1=SpriteStatusStart+32;
+status.cpp:	s16 batt2=SpriteStatusStart+36;
+status.cpp:	s16 batt3=SpriteStatusStart+40;
+status.cpp:	s16 batt4=SpriteStatusStart+48;//jumps weird!
+status.cpp:	s16 batt5=SpriteStatusStart+52;
+status.cpp:	s16 batt6=SpriteStatusStart+56;
+status.cpp:	s16 batt7=SpriteStatusStart+60;
+status.cpp:	s16 batt8=SpriteStatusStart+64;
+status.cpp:	s16 d = data - minus;
+status.cpp:			sprites[start+27].attribute2 = statusCrewS(p1.maxcrew,16) | PRIORITY(3);
+status.cpp:			sprites[start+32].attribute2 = statusBattS(p1.maxbatt,16) | PRIORITY(3);
+status.cpp:			sprites[start+39].attribute2 = statusCrewS(p2.maxcrew,16) | PRIORITY(3);
+status.cpp:			sprites[start+44].attribute2 = statusBattS(p2.maxbatt,16) | PRIORITY(3);
+status.cpp:		   		MoveSprite(&sprites[start+25], 16, 152);
+status.cpp:		   		MoveSprite(&sprites[start+39], 160, 152);
+status.cpp:		   		MoveSprite(&sprites[start+40], 168, 152);
+status.cpp:		   		MoveSprite(&sprites[start+46], 216, 152);
+status.cpp:		sprites[start+3].attribute2 = statusCrew(p1.crew,16) | PRIORITY(2);
+status.cpp:		sprites[start+8].attribute2 = statusBatt(p1.batt,16) | PRIORITY(2);
+status.cpp:		sprites[start+15].attribute2 = statusCrew(p2.crew,16) | PRIORITY(2);
+status.cpp:		sprites[start+16].attribute2 = statusCrew(p2.crew,8) | PRIORITY(2);
+status.cpp:		sprites[start+20].attribute2 = statusBatt(p2.batt,16) | PRIORITY(2);
+status.cpp:		MoveSprite(&sprites[start+1], 16, 152);
+status.cpp:		MoveSprite(&sprites[start+15], 160, 152);
+status.cpp:		MoveSprite(&sprites[start+16], 168, 152);
+status.cpp:		MoveSprite(&sprites[start+22], 216, 152);
