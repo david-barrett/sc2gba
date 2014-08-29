@@ -15,7 +15,7 @@ void Fire(pPlayer pl)
 {
 	print("fire");
 	int ret=0;
-	if (pl->weapon_turn==0&&pl->batt>pl->firebatt)
+	if (pl->weapon_turn==0&&pl->batt>=pl->firebatt)
 	{
 		ret=pl->firefunc(pl);
 		/*
@@ -35,7 +35,7 @@ void Fire(pPlayer pl)
 			break;
 		}
 		*/
-		if (ret==1)
+		if (ret>0)
 		{
 			ModifyBatt(pl,-1*pl->firebatt);
 			pl->weapon_turn=pl->weapon_wait;
@@ -43,9 +43,10 @@ void Fire(pPlayer pl)
 	}
 }
 
-int nextWeapon(pPlayer pl)
+int nextWeapon(pPlayer pl,int f,int l)
 {
-	for (int i=0;i<12;i++)
+	//defaults f=1 & l=11
+	for (int i=f;i<l+1;i++)
 	{
 		if (pl->weapon[i].life==-1)
 			return i;

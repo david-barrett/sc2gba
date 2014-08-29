@@ -14,6 +14,7 @@
 #include "sfx.h"
 #include "sound/TektronicWave.h"
 
+
 //#include "gfx/gfx.h"
 //#include "gfx/gfx_symbols.h"
 
@@ -217,6 +218,12 @@ s16 size;
 
 }Object,*pObject;
 
+typedef struct Pilots
+{
+	s8 x;
+	s8 y;
+}Pilots,pPilots;
+
 
 typedef struct Player
 {
@@ -240,6 +247,7 @@ s16 maxbatt;
 s16 accesst;
 s16 speed;
 s16 maxspeed;
+s16 thrustspeed;
 
 s16 accel_inc;
 s16 firebatt;
@@ -271,7 +279,7 @@ s16 offset;
 s8 warp;
 
 s16 SpriteStart;
-s16 OAMStart;
+//s16 OAMStart;
 
 void* opp;
 
@@ -304,10 +312,17 @@ int (*firefunc)(Player*);
 int (*specfunc)(Player*);
 int (*aifunc)(Player*, pObject,COUNT);
 void (*loadfunc)(s16);
+void (*loadpilots)(Player*);
 
 const PCMSOUND *ditty;
 
 s32 ship_input_flags;
+
+s16 pilot_sprite;
+
+s8 EndGame;
+
+Pilots pilots[5];
 }Player, *pPlayer;
 
 
@@ -359,35 +374,21 @@ enum type
 };
 
 
-
-//OAM memory sprite = oam/16
-const s16 P1_OAMStart =0;
+//1022 seems to be the last
+//game
 const s16 P1_SpriteStart =0;
+const s16 P2_SpriteStart =388;
+const s16 SpriteAsteroidStart=776;  //size 32
+const s16 FireSprite1 = 808;//size 28
+const s16 TrailSprite = 836;//size =2
+const s16 PlanetSprite=838;//128
+const s16 SpriteStatusStart = 968;  //size 54
 
-const s16 P2_OAMStart =2048;
-const s16 P2_SpriteStart =128;
 
-const s16 OAMFireSprite1=4096;
-const s16 FireSprite1 = 256;
-
-const s16 OAMTrailSprite=4608;
-const s16 TrailSprite = 288;
-
-const s16 OAMPlanetSprite=8000;
-const s16 PlanetSprite=500;
-
-const s16 OAMStatusStart = 5120;//rand no
-const s16 SpriteStatusStart = 320;
-
-const s16 OAMTitleStart = 10240;//rand no
+//menus
 const s16 SpriteTitleStart = 640;
-
-const s16 OAMAllships = 0;
 const s16 SpriteAllShips = 0;
-
-const s16 OAMAsteroidStart=628*16;
-const s16 SpriteAsteroidStart=628;
-
+const s16 SpriteLettersStart=896;
 
 
 void Thrust(pPlayer plr);
@@ -411,14 +412,14 @@ void WaitForVsync();
 
 void Melee(pPlayer ,pPlayer,pBg,pBg);
 void SetNew(pPlayer pl);
-void LoadExp(s16 OAMStart, s16 SpriteStart);
+void LoadExp(s16 OAMStart);
 void LoadTrail(s16 OAMStart);
 void LoadPlanet(s16 OAMStart);
 void RestoreGFX(pPlayer p);
 
 void CreateTrail(pPlayer);
 int FightersFire(pWeapon f,s16 angle);
-int nextWeapon(pPlayer pl);
+int nextWeapon(pPlayer pl,int f=0,int l=11);
 
 void print(char *s);
 
@@ -449,8 +450,8 @@ void LoadAsteroid(s16 OAMStart);
 
 //general
 
-int nextSpec(pPlayer pl);
-int nextSpecSprite(pPlayer pl);
+//int nextSpec(pPlayer pl);
+//int nextSpecSprite(pPlayer pl);
 void InterruptProcess(void);
 int InRange(s32 xpos,s32 ypos,s32 txpos,s32 typos,s16 range);
 int DetectWeaponToShip(pPlayer p,pWeapon w);
@@ -492,6 +493,9 @@ enum
 	GRAVITY_MASS_INDEX,
 	FIRST_EMPTY_INDEX
 };
+
+//tmp
+
 
 
 #endif

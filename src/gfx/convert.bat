@@ -77,11 +77,17 @@ bmp2spr yehat.bmp yehat.h
 bmp2spr zoqfot.bmp zoqfot.h
 
 bmp2spr urquan_fire.bmp urquan_fire.h
+bmp2spr ilwrath_out.bmp ilwrath_out.h
+bmp2spr ilwrath_cloak.bmp ilwrath_cloak.h
+bmp2spr urquan_fire.bmp urquan_fire.h
+bmp2spr urquan_out.bmp urquan_out.h
 bmp2spr urquan_fighters.bmp urquan_fighters.h
 bmp2spr urquan_fighters_fire.bmp urquan_fighters_fire.h
 bmp2spr yehat_shield.bmp yehat_shield.h
 bmp2spr yehat_fire.bmp yehat_fire.h
+bmp2spr yehat_out.bmp yehat_out.h
 bmp2spr pkunk_fire.bmp pkunk_fire.h
+bmp2spr pkunk_out.bmp pkunk_out.h
 bmp2spr syreen_fire.bmp syreen_fire.h
 bmp2spr syreen_crew.bmp syreen_crew.h
 bmp2spr orz_body.bmp orz_body.h
@@ -92,5 +98,11 @@ bmp2spr mmrnmhrm1.bmp mmrnmhrm2.h
 
 bmp2spr stars.bmp stars.h
 
-bmp2spr ships.bmp ships.h
+bmp2spr planet.bmp planet.h
+
+bmp2spr question.bmp question.h
+bmp2spr cross.bmp cross.h
+bmp2spr outline.bmp outline.h
+
+bmp2spr asteroid.bmp asteroid.h
 

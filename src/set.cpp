@@ -16,8 +16,10 @@ void SetNew(pPlayer pl)
 	pl->weapon_turn=0;
 	pl->special_turn=0;
 
-	pl->xspeed=0;
-	pl->yspeed=0;
+	//pl->xspeed=0;
+	//pl->yspeed=0;
+
+	pl->thrustspeed=0;
 
 	for (int i=0;i<12;i++)
 	{
@@ -25,9 +27,6 @@ void SetNew(pPlayer pl)
 		MoveOffscreen(&sprites[pl->weapon[i].sprite]);
 	}
 	print("A");
-	pl->warp=6;
-	pl->xspeed = ((20) * (s32)SIN[pl->angle])>>8;
-	pl->yspeed = ((20) * (s32)COS[pl->angle])>>8;
 
 	pl->aiturn=0;
 	pl->aispecial=0;
@@ -46,7 +45,12 @@ void SetNew(pPlayer pl)
 
 	print("gen start");
 	GenerateStart(pl);
+	pl->warp=6;
+	pl->xspeed = ((20) * (s32)SIN[pl->angle])>>8;
+	pl->yspeed = ((20) * (s32)COS[pl->angle])>>8;
 	print("end set new");
+
+	pl->EndGame=20;
 }
 
 

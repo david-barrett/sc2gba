@@ -41,36 +41,46 @@ extern pOAMEntry sprites;
 const int start=71;
 void drawStatus(pPlayer p1,pPlayer p2);
 const s16 crew1=SpriteStatusStart;
-const s16 crew2=SpriteStatusStart+4;
-const s16 crew3=SpriteStatusStart+8;
-const s16 crew4=SpriteStatusStart+12;
-const s16 crew5=SpriteStatusStart+16;
-const s16 crew6=SpriteStatusStart+20;
-const s16 crew7=SpriteStatusStart+24;
-const s16 crew8=SpriteStatusStart+28;
+const s16 crew2=SpriteStatusStart+2;
+const s16 crew3=SpriteStatusStart+4;
+const s16 crew4=SpriteStatusStart+6;
+const s16 crew5=SpriteStatusStart+8;
+const s16 crew6=SpriteStatusStart+10;
+const s16 crew7=SpriteStatusStart+12;
+const s16 crew8=SpriteStatusStart+14;
 
-const s16 blank = SpriteStatusStart+68;
+const s16 batt1=SpriteStatusStart+16;
+const s16 batt2=SpriteStatusStart+18;
+const s16 batt3=SpriteStatusStart+20;
+const s16 batt4=SpriteStatusStart+22;
+const s16 batt5=SpriteStatusStart+24;
+const s16 batt6=SpriteStatusStart+26;
+const s16 batt7=SpriteStatusStart+28;
+const s16 batt8=SpriteStatusStart+30;
 
-const s16 batt1=SpriteStatusStart+32;
-const s16 batt2=SpriteStatusStart+36;
-const s16 batt3=SpriteStatusStart+40;
-const s16 batt4=SpriteStatusStart+48;//jumps weird!
-const s16 batt5=SpriteStatusStart+52;
-const s16 batt6=SpriteStatusStart+56;
-const s16 batt7=SpriteStatusStart+60;
-const s16 batt8=SpriteStatusStart+64;
+const s16 blank = SpriteStatusStart+32;
+const s16 line = SpriteStatusStart+34;
+
+const s16 endl1=SpriteStatusStart+36;
+const s16 endl2=SpriteStatusStart+38;
+const s16 endl3=SpriteStatusStart+40;
+const s16 endl4=SpriteStatusStart+42;
+const s16 endr1=SpriteStatusStart+44;
+const s16 endr2=SpriteStatusStart+46;
+const s16 endr3=SpriteStatusStart+48;
+const s16 endr4=SpriteStatusStart+50;
+
 
 void SetupStatus(pPlayer p1,pPlayer p2)
 {
-	u16 loop;
+	u32 loop;
+	s32 OAMStatusStart = 16*SpriteStatusStart;
 
 	for (int i=start;i<start+48;i++)
 	{
 		sprites[i].attribute0 = COLOR_256 | SQUARE |50;
 	    sprites[i].attribute1 = SIZE_8 | 240;
 		sprites[i].attribute2 = 64 | PRIORITY(2);
-
-
 	}
 
 
@@ -79,37 +89,36 @@ void SetupStatus(pPlayer p1,pPlayer p2)
 		for(loop = 0; loop < 64; loop++)               //load sprite image data
        	{
        		OAMData[loop+OAMStatusStart] = crew1Data[loop];
-			OAMData[loop+OAMStatusStart+64] = crew2Data[loop];
-			OAMData[loop+OAMStatusStart+128] = crew3Data[loop];
-			OAMData[loop+OAMStatusStart+192] = crew4Data[loop];
-			OAMData[loop+OAMStatusStart+256] = crew5Data[loop];
-			OAMData[loop+OAMStatusStart+320] = crew6Data[loop];
-			OAMData[loop+OAMStatusStart+384] = crew7Data[loop];
-			OAMData[loop+OAMStatusStart+448] = crew8Data[loop];
+			OAMData[loop+OAMStatusStart+32] = crew2Data[loop];
+			OAMData[loop+OAMStatusStart+64] = crew3Data[loop];
+			OAMData[loop+OAMStatusStart+96] = crew4Data[loop];
+			OAMData[loop+OAMStatusStart+128] = crew5Data[loop];
+			OAMData[loop+OAMStatusStart+160] = crew6Data[loop];
+			OAMData[loop+OAMStatusStart+192] = crew7Data[loop];
+			OAMData[loop+OAMStatusStart+224] = crew8Data[loop];
 
-			OAMData[loop+OAMStatusStart+512] = batt1Data[loop];
-			OAMData[loop+OAMStatusStart+576] = batt2Data[loop];
-			OAMData[loop+OAMStatusStart+640] = batt3Data[loop];
-			OAMData[loop+OAMStatusStart+768] = batt4Data[loop];
-			OAMData[loop+OAMStatusStart+832] = batt5Data[loop];
-			OAMData[loop+OAMStatusStart+896] = batt6Data[loop];
-			OAMData[loop+OAMStatusStart+960] = batt7Data[loop];
-			OAMData[loop+OAMStatusStart+1024] = batt8Data[loop];
+			OAMData[loop+OAMStatusStart+256] = batt1Data[loop];
+			OAMData[loop+OAMStatusStart+288] = batt2Data[loop];
+			OAMData[loop+OAMStatusStart+320] = batt3Data[loop];
+			OAMData[loop+OAMStatusStart+352] = batt4Data[loop];
+			OAMData[loop+OAMStatusStart+384] = batt5Data[loop];
+			OAMData[loop+OAMStatusStart+416] = batt6Data[loop];
+			OAMData[loop+OAMStatusStart+448] = batt7Data[loop];
+			OAMData[loop+OAMStatusStart+480] = batt8Data[loop];
+//I really dont understand - not including these 2 and yet they appear...
 
-			OAMData[loop+OAMStatusStart+1088] = blankData[loop];
-			OAMData[loop+OAMStatusStart+1152] = lineData[loop];
+			OAMData[loop+OAMStatusStart+512] = blankData[loop];
+		//	OAMData[loop+OAMStatusStart+544] = lineData[loop];
 
-			OAMData[loop+OAMStatusStart+1216] = endl1Data[loop];
-			OAMData[loop+OAMStatusStart+1280] = endl2Data[loop];
-			OAMData[loop+OAMStatusStart+1344] = endl3Data[loop];
-			OAMData[loop+OAMStatusStart+1408] = endl4Data[loop];
+			OAMData[loop+OAMStatusStart+576] = endl1Data[loop];
+			OAMData[loop+OAMStatusStart+608] = endl2Data[loop];
+			OAMData[loop+OAMStatusStart+640] = endl3Data[loop];
+			//OAMData[loop+OAMStatusStart+672] = endl4Data[loop];
 
-			OAMData[loop+OAMStatusStart+1472] = endr1Data[loop];
-			OAMData[loop+OAMStatusStart+1536] = endr2Data[loop];
-			OAMData[loop+OAMStatusStart+1600] = endr3Data[loop];
-			OAMData[loop+OAMStatusStart+1664] = endr4Data[loop];
-
-
+			OAMData[loop+OAMStatusStart+704] = endr1Data[loop];
+			OAMData[loop+OAMStatusStart+736] = endr2Data[loop];
+			OAMData[loop+OAMStatusStart+768] = endr3Data[loop];
+			OAMData[loop+OAMStatusStart+800] = endr4Data[loop];
 
        	}
        	drawStatus(p1,p2);
@@ -161,12 +170,6 @@ s16 statusCrew(s16 data,s16 minus)
 
 s16 statusCrewS(s16 data,s16 minus)
 {
-	s16 endl1=SpriteStatusStart+76;
-	s16 endl2=SpriteStatusStart+80;
-	s16 endl3=SpriteStatusStart+84;
-	s16 endl4=SpriteStatusStart+88;
-	s16 blank = SpriteStatusStart+68;
-	s16 line = SpriteStatusStart+72;
 
 	s16 d = data - minus;
 	if (d<0)
@@ -197,12 +200,6 @@ s16 statusCrewS(s16 data,s16 minus)
 
 s16 statusBattS(s16 data,s16 minus)
 {
-	s16 endr1=SpriteStatusStart+92;
-		s16 endr2=SpriteStatusStart+96;
-		s16 endr3=SpriteStatusStart+100;
-		s16 endr4=SpriteStatusStart+104;
-		s16 blank = SpriteStatusStart+68;
-		s16 line = SpriteStatusStart+72;
 
 		s16 d = data - minus;
 		if (d<0)
@@ -364,75 +361,6 @@ void drawStatus(pPlayer p1,pPlayer p2)
 		MoveSprite(&sprites[start+23], 224, 152);
 
 }
-/*
-void UpdateStatus()
-{
-		//max crew/batt =42
-
-		sprites[start].attribute2 = statusCrew(p1->crew,40) | PRIORITY(2);
-		sprites[start+1].attribute2 = statusCrew(p1->crew,32) | PRIORITY(2);
-		sprites[start+2].attribute2 = statusCrew(p1->crew,24) | PRIORITY(2);
-		sprites[start+3].attribute2 = statusCrew(p1->crew,16) | PRIORITY(2);
-		sprites[start+4].attribute2 = statusCrew(p1->crew,8) | PRIORITY(2);
-		sprites[start+5].attribute2 = statusCrew(p1->crew,0) | PRIORITY(2);
-
-		sprites[start+6].attribute2 = statusBatt(p1->batt,0) | PRIORITY(2);
-		sprites[start+7].attribute2 = statusBatt(p1->batt,8) | PRIORITY(2);
-		sprites[start+8].attribute2 = statusBatt(p1->batt,16) | PRIORITY(2);
-		sprites[start+9].attribute2 = statusBatt(p1->batt,24) | PRIORITY(2);
-		sprites[start+10].attribute2 = statusBatt(p1->batt,32) | PRIORITY(2);
-		sprites[start+11].attribute2 = statusBatt(p1->batt,40) | PRIORITY(2);
-
-		sprites[start+12].attribute2 = statusCrew(p2->crew,40) | PRIORITY(2);
-		sprites[start+13].attribute2 = statusCrew(p2->crew,32) | PRIORITY(2);
-		sprites[start+14].attribute2 = statusCrew(p2->crew,24) | PRIORITY(2);
-		sprites[start+15].attribute2 = statusCrew(p2->crew,16) | PRIORITY(2);
-		sprites[start+16].attribute2 = statusCrew(p2->crew,8) | PRIORITY(2);
-		sprites[start+17].attribute2 = statusCrew(p2->crew,0) | PRIORITY(2);
-
-		sprites[start+18].attribute2 = statusBatt(p2->batt,0) | PRIORITY(2);
-		sprites[start+19].attribute2 = statusBatt(p2->batt,8) | PRIORITY(2);
-		sprites[start+20].attribute2 = statusBatt(p2->batt,16) | PRIORITY(2);
-		sprites[start+21].attribute2 = statusBatt(p2->batt,24) | PRIORITY(2);
-		sprites[start+22].attribute2 = statusBatt(p2->batt,32) | PRIORITY(2);
-		sprites[start+23].attribute2 = statusBatt(p2->batt,40) | PRIORITY(2);
-
-
-/* dont need to do this again?
-	    //p1 crew
-		MoveSprite(&sprites[start], 8, 152);
-		MoveSprite(&sprites[start+1], 16, 152);
-		MoveSprite(&sprites[start+2], 24, 152);
-		MoveSprite(&sprites[start+3], 32, 152);
-		MoveSprite(&sprites[start+4], 40, 152);
-		MoveSprite(&sprites[start+5], 48, 152);
-		//p1 batt
-		MoveSprite(&sprites[start+6], 56, 152);
-		MoveSprite(&sprites[start+7], 64, 152);
-		MoveSprite(&sprites[start+8], 72, 152);
-		MoveSprite(&sprites[start+9], 80, 152);
-		MoveSprite(&sprites[start+10], 88, 152);
-		MoveSprite(&sprites[start+11], 96, 152);
-
-		//p2 crew
-		MoveSprite(&sprites[start+12], 136, 152);
-		MoveSprite(&sprites[start+13], 144, 152);
-		MoveSprite(&sprites[start+14], 152, 152);
-		MoveSprite(&sprites[start+15], 160, 152);
-		MoveSprite(&sprites[start+16], 168, 152);
-		MoveSprite(&sprites[start+17], 176, 152);
-		//p2 batt
-		MoveSprite(&sprites[start+18], 184, 152);
-		MoveSprite(&sprites[start+19], 192, 152);
-		MoveSprite(&sprites[start+20], 200, 152);
-		MoveSprite(&sprites[start+21], 208, 152);
-		MoveSprite(&sprites[start+22], 216, 152);
-		MoveSprite(&sprites[start+23], 224, 152);
-
-
-
-}
-*/
 
 void UpdateCrew(pPlayer pl)
 {

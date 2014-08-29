@@ -21,6 +21,8 @@ extern pOAMEntry sprites;
 extern pRotData rotData;
 extern int* KEYS;
 
+extern s8 pilot;
+
 
 pTrail trails;
 pAsteroid asteroids;
@@ -31,8 +33,8 @@ s16 planet_screenx,planet_screeny;
 
 
 
-extern FIXED SIN2[360];	    //Look-Up Tabless for sign and cosign
-extern FIXED COS2[360];
+//extern FIXED SIN2[360];	    //Look-Up Tabless for sign and cosign
+//extern FIXED COS2[360];
 
 const s8 EXPX[12] = {5,-10,9,-2,7,0,-6,4,-12,13,-14,8};
 const s8 EXPY[12] = {-7,0,-15,12,-5,4,-9,10,-4,9,-2,4};
@@ -56,10 +58,10 @@ char s[100];
 void
 print(char *s)
 {
-
+/*
     asm volatile ("mov r0, %0;" "swi 0xff0000;":        // warning! will crash on hardware!
                   :"r" (s):"r0");
-
+*/
 }
 
 
@@ -136,10 +138,16 @@ void GenerateStart(pPlayer p)
 	int good=0;
 	s32 xpos,ypos,xspeed,yspeed;
 	s16 dist;
+
+	pPlayer opp=(pPlayer)p->opp;
+			p->angle=ran(0,24)*15;
+			print("\n Generate start\nrand angle:=");
+		print(p->angle);
+	xspeed = ((20) * (s32)SIN[p->angle])>>8;
+	yspeed = ((20) * (s32)COS[p->angle])>>8;
 	do
 	{
-		pPlayer opp=(pPlayer)p->opp;
-		p->angle=ran(0,24)*15;
+		good=0;
 		/*
 		s32 rand=ran(0,1820)-910;//960-50 *2
 		p->xpos=opp->xpos+rand+(rand<0?-50:50);
@@ -148,9 +156,16 @@ void GenerateStart(pPlayer p)
 		*/
 
 		s32 rand=ran(0,1180)-590;//960-50 *2
+
+		print("\nrand val:=");
+		print(rand);
 		p->xpos=opp->xpos+rand+(rand<0?-50:50);
 
 		p->ypos=opp->ypos+rand+(rand<0?-50:50);
+		print("\nxpos:=");
+		print(p->xpos);
+		print("\nypos:=");
+		print(p->ypos);
 
 		//s16 dist=distanceBetweenPoints(p->xpos,p->ypos,planetx,planety);
 					//if (dist<(p->offset+64)/2)
@@ -168,15 +183,17 @@ void GenerateStart(pPlayer p)
 
 
 */
-		xspeed = ((20) * (s32)SIN[p->angle])>>8;
-	    yspeed = ((20) * (s32)COS[p->angle])>>8;
+
 	    xpos = p->xpos;
 	    ypos = p->ypos;
 		//check we aint going to hit a planet
 		dist=distanceBetweenPoints(xpos,ypos,planetx,planety);
+		print("\ndist:=");
+		print(dist);
 		if (dist<200)
 			good=1;
 	}while(good);
+	print("\nbreak from loop");
 	good=0;
 		for (int i=0;i<6;i++)
 		{
@@ -192,7 +209,7 @@ void GenerateStart(pPlayer p)
 			ypos+=yspeed;
 		}
 	if (good==1)
-		p->angle=p->angle+(p->angle>180)?-180:180;
+		p->angle=ModifyAngle(p->angle,180);
 
 
 	//while(good);
@@ -260,13 +277,13 @@ void DrawExplosion(pWeapon w)
 	    sprites[w->sprite].attribute1 = SIZE_8 | ROTDATA(w->sprite) | w->xscreen;
     	sprites[w->sprite].attribute2 = FireSprite1+off | PRIORITY(0);
 	}
-	else if (life<5)
+	else if (life<=5)
 	{
-		off=10;
+		off=4;
 		if (life==4)
-			off=18;
+			off=12;
 		else if (life==5)
-			off=26;
+			off=20;
 		w->size=16;
 		sprites[w->sprite].attribute0 = COLOR_256 | SQUARE | ROTATION_FLAG | SIZE_DOUBLE | MODE_TRANSPARENT | w->yscreen;	//setup sprite info, 256 colour, shape and y-coord
 		sprites[w->sprite].attribute1 = SIZE_16 | ROTDATA(w->sprite) | w->xscreen;
@@ -356,31 +373,30 @@ void GetInput(pPlayer pl)
 {
 	if(!(*KEYS & KEY_UP))                   //if the UP key is pressed
 	{
-		Thrust(pl);
+		pl->ship_input_state |= THRUST;
 	}
 	if(!(*KEYS & KEY_DOWN))                 //if the DOWN key is pressed
 	{
 	}
 	if(!(*KEYS & KEY_LEFT))                 //if the LEFT key is pressed
 	{
-        TurnLeft(pl);
+        pl->ship_input_state |= LEFT;
 	}
 	if(!(*KEYS & KEY_RIGHT))                //if the RIGHT key is pressed
 	{
-		TurnRight(pl);
+		pl->ship_input_state |= RIGHT;
 	}
 	if(!(*KEYS & KEY_A))                	//if the A key is pressed
 	{
-       Fire(pl);
+		pl->ship_input_state |= WEAPON;
     }
 	if(!(*KEYS & KEY_B))                	//if the B key is pressed
 	{
-		Special(pl);
+		pl->ship_input_state |= SPECIAL;
     }
 	if(!(*KEYS & KEY_L))                	//if the L key is pressed
 	{
-		print("\n sprite 1 attr 2");
-		print(sprites[1].attribute2);
+		pl->ship_input_state |= THRUST;
 
 	}
 	if(!(*KEYS & KEY_R))                	//if the R key is pressed
@@ -600,6 +616,8 @@ void MoveBullets(pPlayer pl)
 						}
 					}
 				}
+				if (stop==0)
+					pl->weapon[i].life=0;
 
 			}//simple
 			else if (pl->weapon[i].type==UR_FIGHTERS)
@@ -635,24 +653,209 @@ void Thrust(pPlayer plr)
 	{
 	plr->thrust_turn==plr->thrust_wait;
 	s32 x,y;
-
-	if (plr->angle==plr->thrustangle)
+	if (plr->accel_inc == plr->maxspeed)
 	{
-		plr->speed+=plr->accel_inc;
-		if (plr->speed>plr->maxspeed)
-			plr->speed=plr->maxspeed;
+		//arilou
+		plr->thrustspeed==plr->maxspeed;
+
+		plr->xspeed = (s32)(double(plr->maxspeed) * (s32)SIN[plr->angle])>>8;
+		plr->yspeed = (s32)(double(plr->maxspeed) * (s32)COS[plr->angle])>>8;
+
 	}
 	else
 	{
-		plr->speed=plr->accel_inc;
-		plr->thrustangle=plr->angle;
-	}
-    x = ((plr->speed) * (s32)SIN[plr->angle])>>8;
-	y = ((plr->speed) * (s32)COS[plr->angle])>>8;
 
-	plr->xspeed = (plr->xspeed + x)/(SPEED_REDUCT*2);
-	plr->yspeed = (plr->yspeed + y)/(SPEED_REDUCT*2);
-	if (plr->cloak==0)
+		if (plr->angle==plr->thrustangle)
+		{
+
+			s32 actual_speed=distanceBetweenPoints(0,0,plr->xspeed,plr->yspeed);
+			plr->thrustspeed+=plr->accel_inc;
+			if (actual_speed+plr->accel_inc>plr->maxspeed)
+			{
+				print("max speed");
+				plr->thrustspeed=plr->maxspeed;
+			}
+
+		}
+		else
+		{
+			plr->thrustspeed=2*plr->accel_inc;
+			if (plr->thrustspeed>plr->maxspeed)
+			{
+				print("max speed");
+				plr->thrustspeed=plr->maxspeed;
+			}
+
+			plr->thrustangle=plr->angle;
+		}
+    	x = (s32)(double(plr->thrustspeed) * (s32)SIN[plr->angle])>>8;
+		y = (s32)(double(plr->thrustspeed) * (s32)COS[plr->angle])>>8;
+
+		plr->xspeed = (plr->xspeed + x)>>3;
+		plr->yspeed = (plr->yspeed + y)>>3;
+	}
+
+	if (!plr->cloak)
+		CreateTrail(plr);
+	}
+
+}
+
+void NewThrust(pPlayer plr)
+{
+	print("started thrust");
+	if (plr->thrust_turn==0)
+	{
+	plr->thrust_turn==plr->thrust_wait;
+	s32 x,y;
+/*
+	if (plr->accel_inc == plr->maxspeed)
+	{
+		//arilou
+		x = (double(plr->maxspeed) * SIN[plr->angle]);
+		y = (double(plr->maxspeed) * COS[plr->angle]);
+		//return (SHIP_AT_MAX_SPEED);
+	}
+	else if ((FindAngle(0,0,plr->xspeed,plr->yspeed) == plr->angle
+				&& (plr->speed>=plr->maxspeed))
+	{
+		//ship flying at max speed
+	}
+	else
+	{
+		register s32 delta_x, delta_y;
+		s32 cur_delta_x, cur_delta_y;
+		s32 desired_speed, max_speed;
+
+			//thrust_increment = WORLD_TO_VELOCITY (thrust_increment);
+			//GetCurrentVelocityComponents (VelocityPtr, &cur_delta_x, &cur_delta_y);
+			//delta_x = cur_delta_x
+			//		+ COSINE (CurrentAngle, thrust_increment);
+			//delta_y = cur_delta_y
+					+ SINE (CurrentAngle, thrust_increment);
+			//desired_speed = (DWORD)((long)delta_x * delta_x)
+					+ (DWORD)((long)delta_y * delta_y);
+			//max_speed = (DWORD)WORLD_TO_VELOCITY (max_thrust)
+			//		* WORLD_TO_VELOCITY (max_thrust);
+			if (desired_speed <= max_speed)
+				SetVelocityComponents (VelocityPtr, delta_x, delta_y);
+			else
+			{
+	#define MAX_ALLOWED_SPEED WORLD_TO_VELOCITY (DISPLAY_TO_WORLD (18))
+				DWORD current_speed;
+
+				if (((StarShipPtr->cur_status_flags & SHIP_IN_GRAVITY_WELL)
+						&& desired_speed <=
+						(DWORD)MAX_ALLOWED_SPEED * (DWORD)MAX_ALLOWED_SPEED)
+						|| (current_speed =
+						(DWORD)((long)cur_delta_x * (long)cur_delta_x)
+						+ (DWORD)((long)cur_delta_y * (long)cur_delta_y)) > desired_speed)
+				{
+					SetVelocityComponents (VelocityPtr, delta_x, delta_y);
+					return (SHIP_AT_MAX_SPEED | SHIP_BEYOND_MAX_SPEED);
+				}
+				else if (TravelAngle == CurrentAngle)
+				{
+					if (current_speed <= max_speed)
+						SetVelocityVector (VelocityPtr,
+								max_thrust, StarShipPtr->ShipFacing);
+					return (SHIP_AT_MAX_SPEED);
+				}
+				else
+				{
+					VELOCITY_DESC v;
+
+					v = *VelocityPtr;
+
+					DeltaVelocityComponents (&v,
+							COSINE (CurrentAngle, thrust_increment >> 1)
+							- COSINE (TravelAngle, thrust_increment),
+							SINE (CurrentAngle, thrust_increment >> 1)
+							- SINE (TravelAngle, thrust_increment));
+					GetCurrentVelocityComponents (&v, &cur_delta_x, &cur_delta_y);
+					desired_speed = (long)cur_delta_x * (long)cur_delta_x
+							+ (long)cur_delta_y * (long)cur_delta_y;
+					if (desired_speed > max_speed)
+					{
+						if (desired_speed < current_speed)
+							*VelocityPtr = v;
+						return (SHIP_AT_MAX_SPEED | SHIP_BEYOND_MAX_SPEED);
+					}
+
+					*VelocityPtr = v;
+				}
+			}
+	}
+
+
+	*/
+	if (plr->accel_inc == plr->maxspeed)
+	{
+			//arilou
+			plr->xspeed = (s32)(double(plr->maxspeed) * SIN[plr->angle])>>9;
+			plr->yspeed = (s32)(double(plr->maxspeed) * COS[plr->angle])>>9;
+			//return (SHIP_AT_MAX_SPEED);
+	}
+
+	else
+	{/*
+		s32 velocity_angle=FindAngle(0,0,plr->xspeed,plr->yspeed);
+		print("\nvel ang");print(velocity_angle);print("ship angle");print(plr->angle);
+		if (TurnAngle(velocity_angle,plr->angle,45)==0)
+		{
+			plr->speed+=plr->accel_inc;
+			if (plr->speed>plr->maxspeed)
+				plr->speed=plr->maxspeed;
+			plr->thrustspeed=plr->speed;
+			print("continue to thrust");
+
+			plr->xspeed = (s32)(double(plr->thrustspeed) * SIN[plr->angle])>>9;
+			plr->yspeed = (s32)(double(plr->thrustspeed) * SIN[plr->angle])>>9;
+
+
+		}
+		else
+		{*/
+			if(plr->thrustangle==plr->angle)
+			{
+				plr->thrustspeed=distanceBetweenPoints(0,0,plr->xspeed,plr->yspeed);
+				plr->thrustspeed+=plr->accel_inc;
+				if (plr->thrustspeed>plr->maxspeed)
+					plr->thrustspeed=plr->maxspeed;
+				print("thrust speed");print(plr->thrustspeed);
+
+				/*
+				s32 velocity_angle=FindAngle(0,0,plr->xspeed,plr->yspeed);
+				print("\nvel ang");print(velocity_angle);print("ship angle");print(plr->angle);
+				if (TurnAngle(velocity_angle,plr->angle,45)==0)
+				{
+					plr->thrustspeed+=plr->accel_inc;
+					if (plr->thrustspeed>plr->maxspeed)
+						plr->thrustspeed=plr->maxspeed;
+				}
+				*/
+
+				print("thrust same a");
+			}
+			else
+			{
+				plr->thrustspeed=plr->accel_inc;
+				print("new thrust");
+				plr->thrustangle=plr->angle;
+			}
+
+		 	x = (s32)(double(plr->thrustspeed) * SIN[plr->angle])>>8;
+			y = (s32)(double(plr->thrustspeed) * COS[plr->angle])>>8;
+
+		//	x = (double(plr->accel_inc) * SIN[plr->angle]);
+		//	y = (double(plr->accel_inc) * COS[plr->angle]);
+
+
+			plr->xspeed = (plr->xspeed + x)>>1;
+			plr->yspeed = (plr->xspeed + x)>>1;
+	//	}
+	}
+	if (!plr->cloak)
 		CreateTrail(plr);
 	}
 
@@ -660,7 +863,7 @@ void Thrust(pPlayer plr)
 
 void Regen(pPlayer pl)
 {
-
+//perhaps should call regen less?
 	if (pl->batt_turn>0)
 		pl->batt_turn--;
 	if (pl->turn_turn>0)
@@ -676,7 +879,7 @@ void Regen(pPlayer pl)
 
 	if (pl->batt<pl->maxbatt&&pl->batt_turn==0)
 	{
-		pl->batt_turn=pl->batt_wait*5;
+		pl->batt_turn=pl->batt_wait;
 		ModifyBatt(pl,pl->batt_regen);
 	}
 
@@ -1281,7 +1484,7 @@ void ProcessAsteroids(pPlayer p1,pPlayer p2)
 		dist=distanceBetweenPoints(p1->xpos,p1->ypos,asteroids[i].xpos,asteroids[i].ypos);
 		if (dist<(p1->offset+25)/2)
 		{
-			ModifyCrew(p1,-1);
+			//ModifyCrew(p1,-1);
 			Bounce(p1);
 			BounceAsteroid(i);
 			print("\n ast hit p1");
@@ -1289,7 +1492,7 @@ void ProcessAsteroids(pPlayer p1,pPlayer p2)
 		dist=distanceBetweenPoints(p2->xpos,p2->ypos,asteroids[i].xpos,asteroids[i].ypos);
 		if (dist<(p2->offset+25)/2)
 		{
-			ModifyCrew(p2,-1);
+			//ModifyCrew(p2,-1);
 			Bounce(p2);
 			BounceAsteroid(i);
 			print("\n ast hit p2");
@@ -1328,8 +1531,16 @@ void ProcessAsteroids(pPlayer p1,pPlayer p2)
 	}//end for loop
 }//end func
 
-void ProcessPlayer(pPlayer pl,s8 *EndGame)
+void ProcessPlayer(pPlayer pl)
 {
+	pl->ship_input_state=0;
+	int off=0;
+	int x=509;
+	if (pl->plr==2)
+	{
+		off=6;
+		x=179;
+	}
 	if (pl->crew>0)
 	{
 		if (pl->warp>1)
@@ -1353,27 +1564,152 @@ void ProcessPlayer(pPlayer pl,s8 *EndGame)
 			if (pl->ai==PLAYER1||pl->ai==PLAYER2)
 				GetInput(pl);
 			else if(pl->ai!=DISABLED)
-				aiTurn(pl);
+				tactical_intelligence (pl);
 
 		}
+
+
+		if (pl->ship_input_state & LEFT)
+			TurnLeft(pl);
+		else if (pl->ship_input_state & RIGHT)
+			TurnRight(pl);
+		if (pl->ship_input_state & THRUST)
+			Thrust(pl);;
+		if (pl->ship_input_state & WEAPON)
+			Fire(pl);
+		if (pl->ship_input_state & SPECIAL)
+			Special(pl);
+
 		pl->xpos+=pl->xspeed;
 		pl->ypos-=pl->yspeed;
+		pl->speed=distanceBetweenPoints(0,0,pl->xspeed,pl->yspeed);
+
+		//pilot
+			if (pilot)
+			{
+
+				if (1)
+				{
+					if (pl->ship_input_state & LEFT)
+						MoveSprite(&sprites[43+off],x+pl->pilots[0].x,pl->pilots[0].y);
+					else
+						MoveSprite(&sprites[43+off], 240, 160);
+
+					if (pl->ship_input_state & RIGHT)
+						MoveSprite(&sprites[44+off],x+pl->pilots[1].x,pl->pilots[1].y);
+					else
+						MoveSprite(&sprites[44+off], 240, 160);
+
+					if (pl->ship_input_state & THRUST)
+						MoveSprite(&sprites[45+off],x+pl->pilots[2].x,pl->pilots[2].y);
+					else
+						MoveSprite(&sprites[45+off], 240, 160);
+
+					if (pl->ship_input_state & WEAPON)
+						MoveSprite(&sprites[46+off],x+pl->pilots[3].x,pl->pilots[3].y);
+					else
+						MoveSprite(&sprites[46+off], 240, 160);
+
+					if (pl->ship_input_state & SPECIAL)
+						MoveSprite(&sprites[47+off],x+pl->pilots[4].x,pl->pilots[4].y);
+					else
+						MoveSprite(&sprites[47+off], 240, 160);
+				}
+
+				else  //oldstyle
+				{
+
+				if (pl->ship_input_state & LEFT)
+				{
+					sprites[43+off].attribute0 = COLOR_256 | TALL  | 0;
+					sprites[43+off].attribute1 = SIZE_64 | x;
+					sprites[43+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+64 | PRIORITY(2);
+
+				}
+				else if (pl->ship_input_state & RIGHT)
+				{
+					sprites[43+off].attribute0 = COLOR_256 | TALL  | 0;
+					sprites[43+off].attribute1 = SIZE_64 | x;
+					sprites[43+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+128 | PRIORITY(2);
+
+				}
+				else
+				{
+					sprites[43+off].attribute0 = COLOR_256 | TALL  | 160;
+					sprites[43+off].attribute1 = SIZE_64 | 240;
+				}
+
+				if (pl->ship_input_state & THRUST)
+				{
+					sprites[44+off].attribute0 = COLOR_256 | TALL  | 0;
+					sprites[44+off].attribute1 = SIZE_64 | x;
+					sprites[44+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+192 | PRIORITY(2);
+
+				}
+				else
+				{
+					sprites[44+off].attribute0 = COLOR_256 | TALL  | 160;
+					sprites[44+off].attribute1 = SIZE_64 | 240;
+				}
+				/*
+				if (pl->ship_input_state & WEAPON)
+				{
+					sprites[45+off].attribute0 = COLOR_256 | TALL  | 0;
+					sprites[45+off].attribute1 = SIZE_64 | x;
+					sprites[45+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+256 | PRIORITY(2);
+				}
+				else
+				{
+					sprites[45+off].attribute0 = COLOR_256 | TALL  | 160;
+					sprites[45+off].attribute1 = SIZE_64 | 240;
+				}
+
+				if (pl->ship_input_state & SPECIAL)
+				{
+					sprites[46+off].attribute0 = COLOR_256 | TALL  | 0;
+					sprites[46+off].attribute1 = SIZE_64 | x;
+					sprites[46+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+288 | PRIORITY(2);
+				}
+				else
+				{
+					sprites[46+off].attribute0 = COLOR_256 | TALL  | 160;
+					sprites[46+off].attribute1 = SIZE_64 | 240;
+				}
+				*/
+			}
+		}
 	}
 	else
 	{
-		if (pl->ship==FURY&&*EndGame==20)
+		if (pl->ship==FURY&&pl->EndGame==20)
 		{
 			if (DeathFury(pl)==1)
 				return;
 		}
 		pPlayer opp = (pPlayer)pl->opp;
-		if (opp->crew>0&&*EndGame==20)
+		if (opp->crew>0&&pl->EndGame==20)
 		{
-			play_sfx(opp->ditty,opp->plr-1);
+			play_sfx(opp->ditty,pl->plr-1);
+			//remove pilot
+			sprites[42+off].attribute0 = COLOR_256 | TALL  | 160;
+			sprites[42+off].attribute1 = SIZE_64 | 240;
 		}
-		*EndGame=*EndGame-1;
+		pl->EndGame--;
 		DetonateShip(pl);
 	}
+
+
+
+
+
+	/* not gonna
+	else
+	{
+		sprites[42].attribute0 = COLOR_256 | TALL  | 0;
+		sprites[42].attribute1 = SIZE_64 | 509;
+		sprites[42].attribute2 = p1->SpriteStart+p1->pilot_sprite | PRIORITY(3);
+	}
+	*/
 }
 
 
@@ -1417,6 +1753,8 @@ void Melee(pPlayer p1,pPlayer p2,Bg *bg0, Bg *bg1)
 	screenx=100;
 	screeny=100;
 
+	pilot=1;
+
 
 	//holds planet vars
 	//may make these global
@@ -1441,15 +1779,16 @@ void Melee(pPlayer p1,pPlayer p2,Bg *bg0, Bg *bg1)
 
 	//try - should load in sc2.cpp but oam mem seems to be blank...
 	LoadPal();
+	print("load pal");
 	//LoadShip(p1);
 	//LoadShip(p2);
 	p1->loadfunc(p1->SpriteStart);
 	p2->loadfunc(p2->SpriteStart);
-
-	LoadExp(OAMFireSprite1,FireSprite1);
-	LoadTrail(OAMTrailSprite);
-	LoadPlanet(OAMPlanetSprite);
-	LoadAsteroid(OAMAsteroidStart);
+	print("load ships");
+	LoadExp(FireSprite1*16);
+	LoadTrail(TrailSprite*16);
+	LoadPlanet(PlanetSprite*16);
+	LoadAsteroid(SpriteAsteroidStart*16);
 
 //	p1->crew=1;
 
@@ -1528,31 +1867,46 @@ void Melee(pPlayer p1,pPlayer p2,Bg *bg0, Bg *bg1)
 */
 
 
+//Pilots
+//42 - p1 pilot
+//43-47 p1 (left/right)/thrust/fire/special
+//48 - p2 pilo5
+//49-54 = p2
+if (pilot)
+{
+sprites[42].attribute0 = COLOR_256 | TALL  | 0;
+sprites[42].attribute1 = SIZE_64 | 509;
+sprites[42].attribute2 = p1->SpriteStart+p1->pilot_sprite | PRIORITY(3);
+p1->loadpilots(p1);
 
-
+sprites[48].attribute0 = COLOR_256 | TALL  | 0;
+sprites[48].attribute1 = SIZE_64 | 179;
+sprites[48].attribute2 = p2->SpriteStart+p2->pilot_sprite | PRIORITY(3);
+p2->loadpilots(p2);
+}
 		SetupStatus(p1,p2);
 		//setScreen(p1,p2);
 		turn=0;
 		WaitForVsync();
-		s8 EndGame1=20;
-		s8 EndGame2=20;
+		//s8 EndGame1=20;
+		//s8 EndGame2=20;
 		//UpdateStatus();
-
-		while(EndGame1&&EndGame2)                                //main loop
+print("before loop");
+		while(p1->EndGame&&p2->EndGame)                                //main loop
         {
-
-			ProcessPlayer(p1,&EndGame1);
-			ProcessPlayer(p2,&EndGame2);
+print("\nloop");
+			ProcessPlayer(p1);
+			ProcessPlayer(p2);
 
 
 
   			//should also check for collisions with
   			//other player
   			//this isnt too great
-  			if (distanceBetweenPoints(p1->xpos,p1->ypos,p2->xpos,p2->ypos)<(p1->offset+p2->offset)/2)
+  			if (distanceBetweenPoints(p1->xpos,p1->ypos,p2->xpos,p2->ypos)<(p1->offset+p2->offset)/2&&p1->crew>0&&p2->crew>0)
   			{
-				ModifyCrew(p1,-2);
-				ModifyCrew(p2,-2);
+			//	ModifyCrew(p1,-2);
+			//	ModifyCrew(p2,-2);
 				Bounce(p1);
 				Bounce(p2);
 			}

@@ -19,6 +19,7 @@
 #include "gba.h"
 #include "dispcnt.h"
 #include "sc.h"
+#include<stdlib.h>
 
 
 s16 TurnShip (pPlayer ai, s16 angle);
@@ -588,6 +589,7 @@ ThrustShip (pPlayer ShipPtr, s16 angle)
 //	STARSHIPPTR StarShipPtr;
 
 //	GetElementStarShip (ShipPtr, &StarShipPtr);
+	print("enter thrust");
 	if (ShipPtr->ship_input_state & THRUST)
 		ShouldThrust = 1;
 	else if (ShipPtr->angle==GetVelocityTravelAngle (ShipPtr->xspeed,ShipPtr->yspeed)
@@ -612,7 +614,11 @@ ThrustShip (pPlayer ShipPtr, s16 angle)
 	if (ShouldThrust)
 	{
 		ShipPtr->ship_input_state |= THRUST;
+		print("should thrust");
 	}
+	else
+	 	print("not thrust");
+
 
 	return (ShouldThrust);
 }
@@ -831,37 +837,37 @@ Entice (pPlayer ShipPtr, pObject obj)//, EVALUATE_DESCPTR EvalDescPtr)
 		}
 
 		//desired_thrust_angle = desired_thrust_angle;
-	}/*
-	else if (GRAVITY_MASS (OtherObjPtr->mass_points))
+	}
+	//else if (GRAVITY_MASS (OtherObjPtr->mass_points))
+	else if (obj->type==PLANET)
 	{
-		COUNT planet_facing;
+		COUNT planet_facing,awayfacing;
 
-		planet_facing = NORMALIZE_FACING (ANGLE_TO_FACING (desired_thrust_angle));
-		cone_of_fire = NORMALIZE_FACING (
-				planet_facing
-				- StarShipPtr->ShipFacing
-				+ ANGLE_TO_FACING (QUADRANT));
+		planet_facing = desired_thrust_angle;
+		cone_of_fire = ModifyAngle(planet_facing,90-ShipPtr->angle);
 
-		if (RDPtr->characteristics.thrust_increment !=
-				RDPtr->characteristics.max_thrust)
+		awayfacing=ModifyAngle(planet_facing,180);
+
+
+
+		if (ShipPtr->accel_inc !=
+				ShipPtr->maxspeed)
 			maneuver_state &= ~THRUST;
 
 				// if not pointing towards planet
-		if (cone_of_fire > ANGLE_TO_FACING (QUADRANT << 1))
+		if (TurnAngle(ShipPtr->angle,awayfacing,90)==0)
 			desired_turn_angle = desired_thrust_angle;
 				// if pointing directly at planet
-		else if (cone_of_fire == ANGLE_TO_FACING (QUADRANT)
-				&& NORMALIZE_FACING (ANGLE_TO_FACING (travel_angle)) != planet_facing)
+		else if (TurnAngle(ShipPtr->angle,planet_facing,90)==0)
 			desired_turn_angle = travel_angle;
-		else if (cone_of_fire == 0
+		else /*if (cone_of_fire == 0
 				|| cone_of_fire == ANGLE_TO_FACING (QUADRANT << 1)
 				|| (!(maneuver_state & THRUST)
 				&& (cone_of_fire < ANGLE_TO_FACING (OCTANT)
-				|| cone_of_fire > ANGLE_TO_FACING ((QUADRANT << 1) - OCTANT))))
+				|| cone_of_fire > ANGLE_TO_FACING ((QUADRANT << 1) - OCTANT))))*/
 		{
-			desired_turn_angle = FACING_TO_ANGLE (StarShipPtr->ShipFacing);
-			if (NORMALIZE_ANGLE (desired_turn_angle
-					- travel_angle + QUADRANT) > HALF_CIRCLE)
+			desired_turn_angle = (ShipPtr->angle);
+			if (TurnAngle(desired_turn_angle,travel_angle,180)!=0)
 				desired_turn_angle = travel_angle;
 			if (ShipPtr->thrust_wait == 0)
 				maneuver_state |= THRUST;
@@ -869,7 +875,7 @@ Entice (pPlayer ShipPtr, pObject obj)//, EVALUATE_DESCPTR EvalDescPtr)
 
 		desired_thrust_angle = desired_turn_angle;
 	}
-	*/
+
 	else
 	{
 		COUNT WRange;
@@ -1039,10 +1045,13 @@ tactical_intelligence (pPlayer StarShipPtr )
 	COUNT ShipFacing;
 	//HELEMENT hElement, hNextElement;
 	COUNT ConcernCounter;
-	Object ObjectsOfConcern[10],gameObjs[19];
+	pObject ObjectsOfConcern,gameObjs;
 	int ShipMoved, UltraManeuverable;
 	//STARSHIPPTR StarShipPtr, EnemyStarShipPtr;
 	//RACE_DESCPTR RDPtr, EnemyRDPtr;
+
+	ObjectsOfConcern=(pObject)malloc(10*(sizeof (Object)));
+	gameObjs=(pObject)malloc(19*(sizeof (Object)));
 
 	if (StarShipPtr->ManeuverabilityIndex == 0)
 		InitCyborg (StarShipPtr);
@@ -1091,6 +1100,20 @@ print("\n tact intel");
 	*/
 
 	pPlayer opp = (pPlayer)StarShipPtr->opp;
+
+	Object tmp_obj;
+
+	tmp_obj.type=PLAYER;
+	tmp_obj.parent=(void*)StarShipPtr;
+	tmp_obj.xpos=StarShipPtr->xpos;
+	tmp_obj.ypos=StarShipPtr->ypos ;
+	tmp_obj.xscreen=StarShipPtr->xscreen;
+	tmp_obj.yscreen=StarShipPtr->yscreen;
+	tmp_obj.angle=StarShipPtr->angle;
+	tmp_obj.xspeed=StarShipPtr->xspeed;
+	tmp_obj.yspeed=StarShipPtr->yspeed;
+	tmp_obj.life=-1;
+	tmp_obj.life=StarShipPtr->offset;
 
 	gameObjs[0].type=PLAYER;
 	gameObjs[0].parent=(void*)opp;
@@ -1236,7 +1259,10 @@ print("\n tact intel");
 				ObjectsOfConcern[ENEMY_SHIP_INDEX] = ed;
 				//ObjectsOfConcern[ENEMY_SHIP_INDEX].angle = opp->angle;
 				//ObjectsOfConcern[ENEMY_SHIP_INDEX].angle = opp->angle;
-				//ObjectsOfConcern[ENEMY_SHIP_INDEX].which_turn = ed.which_turn;
+				int tmp=PlotIntercept(StarShipPtr,&ed,20,0);
+
+				ObjectsOfConcern[ENEMY_SHIP_INDEX].which_turn = tmp==0?100:tmp;
+
 
 				if (ShipMoved
 				//		|| ed.ObjectPtr->mass_points > MAX_SHIP_MASS
@@ -1251,14 +1277,14 @@ print("\n tact intel");
 					ObjectsOfConcern[ENEMY_SHIP_INDEX].MoveState = ENTICE;
 
 				if ((opp->ship_flags & IMMEDIATE_WEAPON)
-					// && ship_weapons (ed.ObjectPtr, &Ship, 0))//can be hit
-					)
-				{
-				//	ed.which_turn = 1;
-				//	ed.MoveState = AVOID;
-				//	ed.facing = ObjectsOfConcern[ENEMY_SHIP_INDEX].facing;
+					 && ship_weapons (opp, &tmp_obj, 0))//can be hit
 
-				//	ObjectsOfConcern[ENEMY_WEAPON_INDEX] = ed;
+				{
+					ed.which_turn = 1;
+					ed.MoveState = AVOID;
+					//ed.facing = ObjectsOfConcern[ENEMY_SHIP_INDEX].facing;
+
+					ObjectsOfConcern[ENEMY_WEAPON_INDEX] = ed;
 				}
 				if (ObjectsOfConcern[ENEMY_SHIP_INDEX].MoveState == PURSUE)
 				print("PURSE");
@@ -1307,8 +1333,10 @@ print("\n tact intel");
 							&& StarShipPtr->maxspeed > 8 )
 							|| TurnAngle(GetVelocityTravelAngle (ed.xspeed,ed.yspeed),
 							GetVelocityTravelAngle (StarShipPtr->xspeed,StarShipPtr->yspeed),180)==0)
+					{
 
-						ed.which_turn = 0;
+						//ed.which_turn = 0;
+					}
 					else
 					{
 						ed.which_turn = distanceBetweenPoints(StarShipPtr->xpos,
@@ -1381,6 +1409,10 @@ print("\n tact intel");
 
 	// TO DO Call AI Func
 	(StarShipPtr->aifunc)(StarShipPtr, ObjectsOfConcern, ConcernCounter);
+
+	//very dangerous
+	free (ObjectsOfConcern);
+	free (gameObjs);
 
 /* not sure if I need this?
 

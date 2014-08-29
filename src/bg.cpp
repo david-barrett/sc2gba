@@ -9,8 +9,8 @@
 #include "stars.h"
 
 
-extern FIXED COS2[360];
-extern FIXED SIN2[360];
+//extern FIXED COS2[360];
+//extern FIXED SIN2[360];
 
 
 //extern Bg &bg0;
@@ -110,13 +110,13 @@ void RotateBackground(Bg* bg, int angle,int center_x, int center_y, FIXED zoom)
 	center_y = (center_y * zoom)>>8;
 	center_x = (center_x * zoom)>>8;
 
-	bg->DX = ((bg->x_scroll<<8)-center_y*SIN2[angle]-center_x*COS2[angle]);
-	bg->DY = ((bg->y_scroll<<8)-center_y*COS2[angle]+center_x*SIN2[angle]);
+	bg->DX = ((bg->x_scroll<<8)-(s32)(center_y*SIN[angle]-center_x*COS[angle]));
+	bg->DY = ((bg->y_scroll<<8)-(s32)(center_y*COS[angle]+center_x*SIN[angle]));
 
-	bg->PA = (COS2[angle]*zoom)>>8;  //cos&sin are LUTs that are .8 fixed numbers
-	bg->PB = (SIN2[angle]*zoom)>>8;  //zoom is also fixed
-	bg->PC = (-SIN2[angle]*zoom)>>8;
-	bg->PD = (COS2[angle]*zoom)>>8;
+	bg->PA = (s32)(COS[angle]*zoom)>>8;  //cos&sin are LUTs that are .8 fixed numbers
+	bg->PB = (s32)(SIN[angle]*zoom)>>8;  //zoom is also fixed
+	bg->PC = (s32)(-SIN[angle]*zoom)>>8;
+	bg->PD = (s32)(COS[angle]*zoom)>>8;
 }
 
 void SetupBackground(pBg bg0,pBg bg1)

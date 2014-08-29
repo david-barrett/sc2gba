@@ -22,7 +22,7 @@ extern pRotData rotData;
 
 //extern Player p1,p2;
 
-void LoadExp(s16 OAMStart, s16 SpriteStart)
+void LoadExp(s16 OAMStart)
 {
 	s16 loop;
 	for(loop = OAMStart; loop < OAMStart+32; loop++)               //load sprite image data
@@ -32,9 +32,9 @@ void LoadExp(s16 OAMStart, s16 SpriteStart)
    	}
    	for(loop = OAMStart; loop < OAMStart+128; loop++)               //load sprite image data
 	{
-	    OAMData[loop+32+128] = exp3Data[loop-OAMStart];
-	   	OAMData[loop+32+256] = exp4Data[loop-OAMStart];
-		OAMData[loop+32+128+256] = exp5Data[loop-OAMStart];
+	    OAMData[loop+64] = exp3Data[loop-OAMStart];
+	   	OAMData[loop+64+128] = exp4Data[loop-OAMStart];
+		OAMData[loop+64+256] = exp5Data[loop-OAMStart];
    	}
 }
 

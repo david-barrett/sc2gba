@@ -9,6 +9,15 @@
 #include "pkunk_sfx.h"
 #include "TektronicWave.h"
 
+#include "pkunkpilot.h"
+#include "pkunkpilotl.h"
+#include "pkunkpilotr.h"
+#include "pkunkpilott.h"
+#include "pkunkpilotf.h"
+#include "pkunkpilots.h"
+
+
+
 extern s32 screenx,screeny;
 extern pOAMEntry sprites;
 extern double scale;
@@ -19,6 +28,7 @@ int FireFury(pPlayer pl);
 int SpecialFury(pPlayer pl);
 int aiFury(pPlayer pl, pObject ObjectsOfConcern, COUNT ConcernCounter);
 void LoadFury(s16 SpriteStart);
+void SetPkunkPilot(pPlayer pl);
 
 const PCMSOUND insults[] = {pkunk_baby,pkunk_dodo,pkunk_fool,pkunk_idiot,pkunk_jerk,pkunk_loser,pkunk_moron,pkunk_nerd,pkunk_nitwit,pkunk_stupid,pkunk_twit,pkunk_wimp,pkunk_worm};
 
@@ -58,8 +68,23 @@ void SetFury(pPlayer pl)
 	pl->specfunc=&SpecialFury;
 	pl->aifunc=&aiFury;
 	pl->loadfunc=&LoadFury;
+	pl->loadpilots=&SetPkunkPilot;
 
 	pl->ditty=&pkunk_ditty;
+
+	pl->ship_flags = FIRES_FORE | FIRES_LEFT | FIRES_RIGHT;
+	pl->pilot_sprite=(1024+32)/16;
+
+	pl->pilots[0].x=27;
+	pl->pilots[0].y=15;
+	pl->pilots[1].x=4;
+	pl->pilots[1].y=22;
+	pl->pilots[2].x=8;
+	pl->pilots[2].y=6;
+	pl->pilots[3].x=0;
+	pl->pilots[3].y=0;
+	pl->pilots[4].x=15;
+	pl->pilots[4].y=0;
 
 }
 
@@ -77,6 +102,21 @@ void LoadFury(s16 SpriteStart)
 		OAMData[loop+1024] = pkunk_fireData[loop-OAMStart]; //loads some garbv
     }
 
+     for (loop=OAMStart ;loop<OAMStart+1024;loop++)
+		OAMData[loop+1024+32] = pkunkpilotData[loop-OAMStart];
+
+	 for (loop=OAMStart ;loop<OAMStart+256;loop++)
+		OAMData[loop+(1024*2)+32] = pkunkpilotlData[loop-OAMStart];
+	 for (loop=OAMStart ;loop<OAMStart+64;loop++)
+		OAMData[loop+(1024*2)+32+256] = pkunkpilotrData[loop-OAMStart];
+	 for (loop=OAMStart ;loop<OAMStart+128;loop++)
+		OAMData[loop+(1024*2)+32+256+64] = pkunkpilottData[loop-OAMStart];
+	 for (loop=OAMStart ;loop<OAMStart+1024;loop++)
+		OAMData[loop+(1024*2)+32+256+64+128] = pkunkpilotfData[loop-OAMStart];
+	 for (loop=OAMStart ;loop<OAMStart+512;loop++)
+		OAMData[loop+(1024*3)+32+256+64+128] = pkunkpilotsData[loop-OAMStart];
+
+
 }
 
 
@@ -90,7 +130,7 @@ int FireFuryA(pPlayer pl,s32 angle)
 	pl->weapon[b].type=SIMPLE;
 	pl->weapon[b].life=5;//range
 	pl->weapon[b].damage=-1;
-	pl->weapon[b].angle;
+	pl->weapon[b].angle=0;
 	pl->weapon[b].target=pl->opp;
 	pl->weapon[b].parent=pl;
 	pl->weapon[b].damageparent=0;
@@ -100,12 +140,12 @@ int FireFuryA(pPlayer pl,s32 angle)
 	pl->weapon[b].xpos = pl->xpos;//+(s32)(15 * SIN[angle])>>8;
 	pl->weapon[b].ypos = pl->ypos;//-(s32)(15 * COS[angle])>>8 ;
 
-	drawOnScreen(&pl->weapon[b].xscreen,&pl->weapon[b].yscreen,
-		pl->weapon[b].xpos,pl->weapon[b].ypos,screenx,screeny,pl->weapon[b].size);
+	//drawOnScreen(&pl->weapon[b].xscreen,&pl->weapon[b].yscreen,
+	//	pl->weapon[b].xpos,pl->weapon[b].ypos,screenx,screeny,pl->weapon[b].size);
 
 	s32 speed=24;
-	pl->weapon[b].xspeed = (s32)(speed * SIN[angle])>>8;
-	pl->weapon[b].yspeed = (s32)(speed * COS[angle])>>8;
+	pl->weapon[b].xspeed = (s32)(speed * SIN[angle])>>7;
+	pl->weapon[b].yspeed = (s32)(speed * COS[angle])>>7;
 
 	//pl->weapon[b].xpos+=pl->weapon[b].xspeed;
 	//pl->weapon[b].ypos-=pl->weapon[b].yspeed;
@@ -163,8 +203,8 @@ int SpecialFury(pPlayer pl)
 
 int DeathFury(pPlayer pl)
 {
-	int r=ran(0,20);
-	if (r>15)
+	int r=ran(0,1);
+	if (r&&pl->ai<STANDARD)
 	{
 		//SetFury(pl);
 		SetShip(pl);
@@ -188,4 +228,30 @@ int aiFury(pPlayer ai, pObject ObjectsOfConcern, COUNT ConcernCounter)
 		ai->ship_input_state |= SPECIAL;
 
 	ship_intelligence(ai,ObjectsOfConcern, ConcernCounter);
+}
+
+void SetPkunkPilot(pPlayer pl)
+{
+	//setup pilot
+	int off=(pl->plr==1)?0:6;
+
+	sprites[43+off].attribute0 = COLOR_256 | TALL  | 160;
+		sprites[43+off].attribute1 = SIZE_32 | 240;
+		sprites[43+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+64 | PRIORITY(2);
+
+		sprites[44+off].attribute0 = COLOR_256 | SQUARE  | 160;
+		sprites[44+off].attribute1 = SIZE_8 | 240;
+		sprites[44+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+80 | PRIORITY(2);
+
+		sprites[45+off].attribute0 = COLOR_256 | SQUARE  | 160;
+		sprites[45+off].attribute1 = SIZE_16 | 240;
+		sprites[45+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+84 | PRIORITY(2);
+
+		sprites[46+off].attribute0 = COLOR_256 | TALL  | 160;
+		sprites[46+off].attribute1 = SIZE_64 | 240;
+		sprites[46+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+92 | PRIORITY(2);
+
+		sprites[47+off].attribute0 = COLOR_256 | SQUARE  | 160;
+		sprites[47+off].attribute1 = SIZE_32 | 240;
+		sprites[47+off].attribute2 = pl->SpriteStart+pl->pilot_sprite+156 | PRIORITY(2);
 }

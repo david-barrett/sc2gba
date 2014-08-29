@@ -18,7 +18,7 @@ extern unsigned long state;
 int Special(pPlayer pl)
 {
 	int ret=0;
-	if (pl->special_turn==0&&pl->batt>pl->specbatt)
+	if (pl->special_turn==0&&pl->batt>=pl->specbatt)
 	{
 		ret=pl->specfunc(pl);
 		/*

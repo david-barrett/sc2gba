@@ -1,25 +1,14 @@
-#
-# first.mak
-#
-# a minimal makefile (and I do mean minimal, look to the others
-# for real-life use)
-
-PROJ= sc2gba
-#CC= arm-elf-gcc
-#OBJCOPY= arm-elf-objcopy
-
-CC= gcc
+CC= gcc # use GNU C++ compiler 
 OBJCOPY= objcopy
-
-SRC=C:\gba\sc2gba
-
-IFLAGS  = -I$(SRC)/gfx -I$(SRC) -I$(SRC)/sound
-
-CFLAGS = $(IFLAGS) 
-
-#CFLAGS= $(IFLAGS) -mthumb-interwork 
-
-SOURCES = sc.cpp \
+SRC=/gba/sc2gba
+IFLAGS  = -I$(SRC)/gfx -I$(SRC) -I$(SRC)/sound -I$(SRC)/letters -I$(SRC)/pilots
+CFLAGS = $(IFLAGS)   
+LINKER=gcc # use GNU C++ as linker  
+LINKER-FLAGS=-o            # flags for linker 
+RM=rm -f # how to remove files 
+MAKE=make # name of make utility 
+# you cannot add comments after the continuation character! 
+CPPSOURCES = sc.cpp \
 	bg.cpp \
 	ships.cpp \
 	status.cpp \
@@ -30,30 +19,49 @@ SOURCES = sc.cpp \
 	choose.cpp \
 	restore.cpp \
 	pkunk.cpp \
-	pkunk_sfx.c \
 	urquan.cpp \
 	yehat.cpp \
-	yehat_sfx.c \
 	ilwrath.cpp \
-	ilwrath_sfx.c \
-	urquan_sfx.c \
 	sfx.cpp \
 	cyborg.cpp
-OBJECTS = $(SOURCES:.cpp=.o)
 
-.o .cpp:
-.cpp.o:
-	$(CC) $(CFLAGS) -c $<
-    
-.PHONY : build
-build : 
-	$(CC) $(CFLAGS) -c $(SOURCES) 
-	$(CC) $(CFLAGS) $(OBJECTS) -o $(PROJ).elf -lm
-	$(OBJCOPY) -v -O binary $(PROJ).elf $(PROJ).gba
-	#gbafix $(PROJ).gba
+CSOURCES = pkunk_sfx.c \
+	yehat_sfx.c \
+	ilwrath_sfx.c \
+	urquan_sfx.c \
+	
+COBJECTS = $(CSOURCES:.c=.o)
+CPPOBJECTS = $(CPPSOURCES:.cpp=.o)
+PROJ=sc2gba# name of executable 
+.IGNORE: # ignore problems (as far as possible) 
+.SUFFIXES: # get rid of predefined rules 
+.SUFFIXES: .cpp .o
+.SUFFIXES: .c .o
 
-.PHONY : clean
-clean : 
-	@rm -fv *.o
-	@rm -fv $(PROJ).gba
-	@rm -fv $(PROJ).elf
+$(PROJ): $(COBJECTS) $(CPPOBJECTS)
+	$(CC) $(CFLAGS) $(COBJECTS) $(CPPOBJECTS) -o $(PROJ).elf -lm
+	$(OBJCOPY) -v -O binary $(PROJ).elf $(PROJ).gba 
+
+.c.o: 
+	$(CC) $(CFLAGS) -c $< 
+.cpp.o: 
+	$(CC) $(CFLAGS) -c $< 
+
+# remove object files and core (if any) 
+clean: 
+	$(RM) $(CPPOBJECTS) core 
+
+# remove object files, core dump, and executable (if any) 
+distclean: 
+	$(RM) *.o core  
+	$(RM) $(TARGET) 
+
+# remove object files, core dump, and executable (if any) and 
+# make them again. 
+again: 
+	$(MAKE) distclean 
+	 $(MAKE) $(TARGET) 
+	 
+#dependancies
+$(CPPOBJECTS): sc.h
+

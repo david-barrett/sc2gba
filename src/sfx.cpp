@@ -26,12 +26,12 @@ void InterruptProcess(void)
 {
 	if (REG_IF&INT_TIMER0)
 	{
-	if(!(iNextSampleA&3))				// use associate variable name
-				REG_SGFIF0A=(*(((u32 *)(pcmsoundA->pName))+(iNextSampleA>>2)));
-			iNextSampleA++;
+		if(!(iNextSampleA&3))				// use associate variable name
+			REG_SGFIFOA=(*(((u32 *)(pcmsoundA->pName))+(iNextSampleA>>2)));
+		iNextSampleA++;
 		if(iNextSampleA>pcmsoundA->nLength) { 	REG_TM0CNT=0;}
 
-	REG_IF |=INT_TIMER0;
+		REG_IF |=INT_TIMER0;
 	}
 	//else T1
 	if (REG_IF&INT_TIMER1)
@@ -49,9 +49,9 @@ void InterruptProcess(void)
 		*/
 		if(!(iNextSampleB&3))				// use associate variable name
 				REG_SGFIFOB=(*(((u32 *)(pcmsoundB->pName))+(iNextSampleB>>2)));
-			iNextSampleB++;
-			if(iNextSampleB>pcmsoundB->nLength) { 	REG_TM1CNT=0;}
-			REG_IF |=INT_TIMER1;
+		iNextSampleB++;
+		if(iNextSampleB>pcmsoundB->nLength) { 	REG_TM1CNT=0;}
+		REG_IF |=INT_TIMER1;
 	}
 
 
@@ -93,7 +93,6 @@ void play_sfx(const PCMSOUND *pSample,short channel)
 
 		pcmsoundA=pSample;
 		iNextSampleA=0;
-	  //  SampleSizeA=urquan_launch.nLength;
 		REG_TM0D=0xffff-(unsigned int)16772216/pSample->nSamplingRate; // aproximated
 		REG_TM0CNT=0x00C0;
 
@@ -102,7 +101,6 @@ void play_sfx(const PCMSOUND *pSample,short channel)
 	{
 		pcmsoundB=pSample;
     	iNextSampleB=0;
-    //	SampleSizeB=urquan_launch.nLength;
 		REG_TM1D=0xffff-(unsigned int)16772216/pSample->nSamplingRate; // aproximated
 		REG_TM1CNT=0x00C0;
 	}
