@@ -390,11 +390,13 @@ for (int i=0;i<12;i++)
 		}
 		while (nextp1!=-1&&nextp2!=-1);
 		//game over!!!
+		DrawWinner(plist1,plist2);
+		/*
 		if (nextp1==-1)
 			DrawWinner(p2,plist2);
 		else
 			DrawWinner(p1,plist1);
-
+		*/
 	}//end loop - got back to titles;
 	while(1);
 

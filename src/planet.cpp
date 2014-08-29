@@ -91,7 +91,7 @@ void CreateAsteroid(int i)
 void BounceAsteroid(int i)
 {
 	asteroids[i].xspeed*=-1;
-	asteroids[i].xspeed*=-1;
+	asteroids[i].yspeed*=-1;
 }
 
 void ProcessAsteroids(pPlayer p1,pPlayer p2)
@@ -162,10 +162,17 @@ void ProcessAsteroids(pPlayer p1,pPlayer p2)
 		dist=distanceBetweenPoints(p1->xpos,p1->ypos,asteroids[i].xpos,asteroids[i].ypos);
 		if (dist<(p1->offset+10))
 		{
-			//ModifyCrew(p1,-1);
-			Bounce(p1);
+			if (p1->blaze==1)
+			{
+				asteroids[i].life=0;
+			}
 
-			BounceAsteroid(i);
+			else
+			{
+				//ModifyCrew(p1,-1);
+				Bounce(p1);
+				BounceAsteroid(i);
+			}
 			#ifdef DEBUG
 			print("\n ast hit p1");
 			#endif
@@ -174,9 +181,16 @@ void ProcessAsteroids(pPlayer p1,pPlayer p2)
 		dist=distanceBetweenPoints(p2->xpos,p2->ypos,asteroids[i].xpos,asteroids[i].ypos);
 		if (dist<(p2->offset+10))
 		{
-			//ModifyCrew(p2,-1);
-			Bounce(p2);
-			BounceAsteroid(i);
+			if (p2->blaze==1)
+			{
+				asteroids[i].life=0;
+			}
+			else
+			{
+				//ModifyCrew(p2,-1);
+				Bounce(p2);
+				BounceAsteroid(i);
+			}
 			#ifdef DEBUG
 			print("\n ast hit p2");
 			#endif
@@ -197,7 +211,7 @@ void ProcessAsteroids(pPlayer p1,pPlayer p2)
 		}//if life >0
 
 		asteroids[i].xpos+=asteroids[i].xspeed;
-		asteroids[i].ypos+=asteroids[i].yspeed;
+		asteroids[i].ypos-=asteroids[i].yspeed;
 
 		RotateSprite(i+26, 0, zoom,zoom);
 		drawOnScreen(&asteroids[i].xscreen,&asteroids[i].yscreen,asteroids[i].xpos,asteroids[i].ypos,screenx,screeny,32);
@@ -251,7 +265,7 @@ void CalcPlanet(pPlayer pl)
 		s32 y = ((pl->mass+1) * (s32)COS[a])>>9;//((2) * (s32)COS[a])>>8;
 
 		pl->xspeed = pl->xspeed + x;
-		pl->yspeed = pl->yspeed + y;
+		pl->yspeed = pl->yspeed - y;
 
 	}
 

@@ -108,7 +108,7 @@ void GenerateStart(pPlayer p,s32 range)
 				break;
 			}
 			xpos+=p->xspeed;
-			ypos+=p->yspeed;
+			ypos-=p->yspeed;
 		}
 	if (good==1)
 	{

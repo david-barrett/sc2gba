@@ -392,27 +392,28 @@ enum type
 	LASER,
 	LIMPET,
 	BUTT,
-	BUBBLE
+	BUBBLE,
+	MISSILE
 
 };
 
 
 //1022 seems to be the last
 //game
-const s16 P1_SpriteStart =0;
-const s16 P2_SpriteStart =338;//338;
-const s16 PauseSpriteStart=676;//size 64
-const s16 SpriteAsteroidStart=740;  //size 64
-const s16 FireSprite1 = 804;//size 28
-const s16 TrailSprite = 832;//size =2
-const s16 PlanetSprite=834;//128
-const s16 SpriteStatusStart = 964;  //size 54
+#define P1_SpriteStart  0
+#define P2_SpriteStart  350
+#define  PauseSpriteStart 702 //size ?
+#define SpriteAsteroidStart 744  //size 64
+#define FireSprite1   808//size 28
+#define TrailSprite   836//size =2
+#define PlanetSprite 838//128
+#define SpriteStatusStart   966  //size 54
 
 
 //menus
-const s16 SpriteTitleStart = 640;
-const s16 SpriteAllShips = 0;
-const s16 SpriteLettersStart=950;
+#define SpriteTitleStart   640
+#define SpriteAllShips   0
+#define SpriteLettersStart 950
 
 
 void Thrust(pPlayer plr);
@@ -512,7 +513,7 @@ void DrawTitle();
 
 //choose.cpp
 int ChooseNextShip(pPlayer pl, pPlrList list);
-int DrawWinner(pPlayer pl, pPlrList list);
+int DrawWinner(pPlrList list, pPlrList list2);
 int DrawRemainingShips(pPlayer pl,pPlrList list,int sx,int sy);
 int ChooseNextShipRand(pPlrList list);
 int score(int ship);

@@ -33,8 +33,9 @@ int Available(s16 selected)
 	if (selected==FURY||selected==DREADNAUGHT||
 		selected==AVENGER||selected==TERMINATOR||
 		selected==PENETRATOR||selected==INTRUDER||
-		selected==DRONE||selected==ELUDER
-		||selected==GUARDIAN)
+		selected==DRONE||selected==ELUDER||
+		selected==GUARDIAN||selected==PODSHIP||
+		selected==CRUISER)
 		return 1;
 
 	return 0;
@@ -1379,28 +1380,119 @@ int DrawRemainingShips(pPlayer pl,pPlrList list,int sx,int sy)
 	return tscore; // maybe return value of remaining ships!!
 }
 
-int DrawWinner(pPlayer pl, pPlrList list)
+s16 DrawEndShips(pPlrList list, s8 s,s8 x,s8 y)
 {
-	int sx=30,sy=30;
-	int score=DrawRemainingShips(pl,list,sx,sy);
-	DrawLetter('w',60,sx+110,15);
-	DrawLetter('i',61,sx+120,15);
-	DrawLetter('n',62,sx+130,15);
-	DrawLetter('s',63,sx+140,15);
+	s16 totalscore=0;
+	for (int i=0;i<7;i++)
+	{
 
-	DrawLargeNumber(score,64,sx,140,3);
+		//empty boxes
+	   	sprites[i+s].attribute0 = COLOR_256 | SQUARE | y;
+		sprites[i+s].attribute1 = SIZE_32 | (i*34)+x;
+		sprites[i+s].attribute2 = SpriteAllShips+896 | PRIORITY(1);
+		sprites[7+i+s].attribute0 = COLOR_256 | SQUARE | y+34;
+		sprites[7+i+s].attribute1 = SIZE_32 | (i*34)+x;
+		sprites[7+i+s].attribute2 = SpriteAllShips+896 | PRIORITY(1);
 
-	//DrawLetter('o',64,sx,140);
-	//DrawLetter('o',65,sx+10,140);
-	//DrawLetter('o',66,sx+20,140);
+		//crosses
+		sprites[28+i+s].attribute0 = COLOR_256 | SQUARE | 160;
+		sprites[28+i+s].attribute1 = SIZE_32 | 240;
+		sprites[28+i+s].attribute2 = SpriteAllShips+864 | PRIORITY(0);
+		sprites[35+i+s].attribute0 = COLOR_256 | SQUARE | 160;
+		sprites[35+i+s].attribute1 = SIZE_32 | 240;
+		sprites[35+i+s].attribute2 = SpriteAllShips+864 | PRIORITY(0);
 
-	DrawLetter('p',67,sx+40,140);
-	DrawLetter('o',68,sx+50,140);
-	DrawLetter('i',69,sx+60,140);
-	DrawLetter('n',70,sx+70,140);
-	DrawLetter('t',71,sx+80,140);
-	if (score!=1)
-		DrawLetter('s',72,sx+90,140);
+
+
+		sprites[14+i+s].attribute0 = COLOR_256 | SQUARE | y;
+	   	sprites[14+i+s].attribute1 = SIZE_32 | (i*34)+x;
+		if (list[i].active!=EMPTY)
+		{
+			if (list[i].active==ACTIVE)
+				totalscore+=score(list[i].ship);
+			else
+				MoveSprite(&sprites[28+i+s],(i*34)+x,y);
+			sprites[14+i+s].attribute2 = SpriteAllShips+(list[i].ship*32) | PRIORITY(3);
+
+		}
+		else
+			sprites[14+i+s].attribute2 = SpriteAllShips+896 | PRIORITY(3);
+
+	   	sprites[21+i+s].attribute0 = COLOR_256 | SQUARE | y+34;
+	   	sprites[21+i+s].attribute1 = SIZE_32 | (i*34)+x;
+		if (list[i+7].active!=EMPTY)
+		{
+			if (list[i+7].active==ACTIVE)
+				totalscore+=score(list[i+7].ship);
+			else
+				MoveSprite(&sprites[35+i+s],(i*34)+x,y+34);
+			sprites[21+i+s].attribute2 = SpriteAllShips+(list[i+7].ship*32) | PRIORITY(3);
+
+		}
+		else
+			sprites[21+i+s].attribute2 = SpriteAllShips+896 | PRIORITY(3);
+	}
+	return totalscore;
+}
+
+int DrawWinner(pPlrList list1, pPlrList list2)
+{
+	int sx=45,sy=71;
+	InitializeSprites();
+	int score1=DrawEndShips(list1,0,2,3);
+	int score2=DrawEndShips(list2,42,2,92);
+	LoadPal();
+	LoadAllShips(SpriteAllShips*16);
+	LoadLetters(SpriteLettersStart);
+
+
+	if (score1==score2)
+	{
+		DrawLetter('d',84,sx+55,sy);
+		DrawLetter('r',85,sx+65,sy);
+		DrawLetter('a',86,sx+75,sy);
+		DrawLetter('w',87,sx+85,sy);
+
+	}
+	else
+	{
+		DrawLetter('p',84,sx,sy);
+		DrawLetter('l',85,sx+10,sy);
+		DrawLetter('a',86,sx+20,sy);
+		DrawLetter('y',87,sx+30,sy);
+		DrawLetter('e',88,sx+40,sy);
+		DrawLetter('r',89,sx+50,sy);
+
+		if (score1>score2)
+		{
+		DrawLetter('o',90,sx+70,sy);
+		DrawLetter('n',91,sx+80,sy);
+		DrawLetter('e',92,sx+90,sy);
+		DrawLargeNumber(score1,97,sx+25,sy+10,3);
+		}
+		else
+		{
+		DrawLetter('t',90,sx+70,sy);
+		DrawLetter('w',91,sx+80,sy);
+		DrawLetter('o',92,sx+90,sy);
+		DrawLargeNumber(score2,97,sx+25,sy+10,3);
+		}
+
+		DrawLetter('w',93,sx+110,sy);
+		DrawLetter('i',94,sx+120,sy);
+		DrawLetter('n',95,sx+130,sy);
+		DrawLetter('s',96,sx+140,sy);
+
+		DrawLetter('p',100,sx+65,sy+10);
+		DrawLetter('o',101,sx+75,sy+10);
+		DrawLetter('i',102,sx+85,sy+10);
+		DrawLetter('n',103,sx+95,sy+10);
+		DrawLetter('t',104,sx+105,sy+10);
+		DrawLetter('s',105,sx+115,sy+10);
+
+
+
+	}
 
 	WaitForVsync();
 	CopyOAM();

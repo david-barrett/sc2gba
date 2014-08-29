@@ -251,6 +251,9 @@ int DetectWeaponToShip(pPlayer p,pWeapon w)
 
 	s16 offset=p->offset;///2;
 
+	//tmp
+//	offset+=(w->size>>2);
+
 	if (w->xpos>p->xpos-offset&&w->xpos<p->xpos+offset&&w->ypos>p->ypos-offset&&w->ypos<p->ypos+offset)
 	{
 		return 1;
@@ -265,6 +268,7 @@ int DetectWeaponToWeapon(pWeapon tar,pWeapon w)
 	//square (p.xpos-16,w.ypos-16), (w.xpos+16,w.ypos+16)
 
 	s16 offset=tar->size>>1;
+
 
 	if (w->xpos>tar->xpos-offset&&w->xpos<tar->xpos+offset&&w->ypos>tar->ypos-offset&&w->ypos<tar->ypos+offset)
 	{
@@ -557,6 +561,7 @@ void DetectBullets(pPlayer pl)
 					}*/
 					stop=0;
 				}
+
 
 				//parent ship
 				if (pl->weapon[i].damageparent==1&&stop)

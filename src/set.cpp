@@ -99,10 +99,10 @@ void SetShip(pPlayer pl)
 
 		case BLADE:
 			SetSupox(pl);
-			break;
+			break;*/
 		case CRUISER:
 			SetHuman(pl);
-			break;*/
+			break;
 		case DRONE:
 			SetUmgah(pl);
 			break;
@@ -122,9 +122,9 @@ void SetShip(pPlayer pl)
 		case PENETRATOR:
 			SetSyreen(pl);
 			break;
-		/*case PODSHIP:
+		case PODSHIP:
 			SetMycon(pl);
-			break;
+			break;/*
 		case PROBE:
 			SetProbe(pl);
 			break;

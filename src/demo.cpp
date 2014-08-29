@@ -73,9 +73,15 @@ void Demo(pPlayer p1,pPlayer p2,pBg bg0,pBg bg1)
 					p2->ship=AVENGER;
 				}
 
+				if (demo==9)
+				{
+					p1->ship=PODSHIP;
+					p2->ship=CRUISER;
+				}
+
 
 				demo++;
-				if (demo==9)
+				if (demo==10)
 					demo=1;
 
 				SetNew(p1);

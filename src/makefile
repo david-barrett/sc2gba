@@ -33,13 +33,17 @@ CPPSOURCES = sc.cpp \
 	umgah.cpp \
 	spathi.cpp \
 	androsynth.cpp \
+	human.cpp \
+	mycon.cpp \
 	sfx.cpp \
 	cyborg.cpp \
 	menu.cpp \
 	demo.cpp
 
 CSOURCES = androsynth_sfx.c \
+	human_sfx.c \
 	ilwrath_sfx.c \
+	mycon_sfx.c \
 	pkunk_sfx.c \
 	spathi_sfx.c \
 	syreen_sfx.c \

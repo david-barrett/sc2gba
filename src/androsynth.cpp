@@ -116,15 +116,15 @@ int FireAndrosynth(pPlayer pl)
 		pl->weapon[b].size=8;
 		pl->weapon[b].angle = 0;
 
-		pl->weapon[b].xspeed = (MISSILE_SPEED * (s32)SIN[pl->weapon[b].angle])>>8;
-		pl->weapon[b].yspeed = (MISSILE_SPEED * (s32)COS[pl->weapon[b].angle])>>8;
+		pl->weapon[b].xspeed = (MISSILE_SPEED * (s32)SIN[pl->angle])>>8;
+		pl->weapon[b].yspeed = (MISSILE_SPEED * (s32)COS[pl->angle])>>8;
 
 
 		pl->weapon[b].turn_wait=0;
 
 
-		pl->weapon[b].xpos = pl->xpos+((s32)(pl->offset*2 * SIN[pl->weapon[b].angle])>>8);
-		pl->weapon[b].ypos = pl->ypos-((s32)(pl->offset*2 * COS[pl->weapon[b].angle])>>8);
+		pl->weapon[b].xpos = pl->xpos+((s32)(pl->offset*2 * SIN[pl->angle])>>8);
+		pl->weapon[b].ypos = pl->ypos-((s32)(pl->offset*2 * COS[pl->angle])>>8);
 
 		drawOnScreen(&pl->weapon[b].xscreen,&pl->weapon[b].yscreen,
 			pl->weapon[b].xpos,pl->weapon[b].ypos,screenx,screeny,pl->weapon[b].size);
@@ -439,7 +439,7 @@ void PostAndro(pPlayer pl)
 			pl->xpos+=((BLAZER_THRUST) * (s32)SIN[pl->angle])>>8;
 			pl->ypos-=((BLAZER_THRUST) * (s32)COS[pl->angle])>>8;
 
-			if (pl->batt_turn==1)
+			if (pl->batt_turn==ENERGY_WAIT>>1)
 			{
 				ModifyBatt(pl,-1);
 				pl->batt_turn=ENERGY_WAIT;

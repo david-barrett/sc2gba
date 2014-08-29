@@ -75,18 +75,18 @@ PlotIntercept (pPlayer ElementPtr0, pObject ElementPtr1, COUNT
 		max_turns, COUNT margin_of_error)
 {
 	s32 x1 = ElementPtr0->xpos+ElementPtr0->xspeed;
-	s32 y1 = ElementPtr0->ypos+ElementPtr0->yspeed;
+	s32 y1 = ElementPtr0->ypos-ElementPtr0->yspeed;
 	s32 x2 = ElementPtr1->xpos+ElementPtr1->xspeed;
-	s32 y2 = ElementPtr1->ypos+ElementPtr1->yspeed;
+	s32 y2 = ElementPtr1->ypos-ElementPtr1->yspeed;
 	s16 size = (ElementPtr0->offset+ElementPtr1->size)+margin_of_error;
 	for (s16 i=1;i<=max_turns;i++)
 	{
 		if (distanceBetweenPoints(x1,y1,x2,y2)<size)
 			return i;
 		x1+=ElementPtr0->xspeed;
-		y1+=ElementPtr0->yspeed;
+		y1-=ElementPtr0->yspeed;
 		x2+=ElementPtr1->xspeed;
-		y1+=ElementPtr1->yspeed;
+		y1-=ElementPtr1->yspeed;
 	}
 	/*
 	register SIZE dy;
@@ -790,8 +790,8 @@ Entice (pPlayer ShipPtr, pObject obj)//, EVALUATE_DESCPTR EvalDescPtr)
 
 	desired_thrust_angle = ARCTAN (delta_x, delta_y);
 	*/
-	desired_thrust_angle = FindAngle(ShipPtr->xpos+ShipPtr->xspeed,ShipPtr->ypos+ShipPtr->yspeed,
-		obj->xpos+obj->xspeed,obj->ypos+obj->yspeed);
+	desired_thrust_angle = FindAngle(ShipPtr->xpos+ShipPtr->xspeed,ShipPtr->ypos-ShipPtr->yspeed,
+		obj->xpos+obj->xspeed,obj->ypos-obj->yspeed);
 
 
 
@@ -808,7 +808,7 @@ Entice (pPlayer ShipPtr, pObject obj)//, EVALUATE_DESCPTR EvalDescPtr)
 	delta_y = ship_delta_y - other_delta_y;
 	travel_angle = ARCTAN (delta_x, delta_y);
 	*/
-	travel_angle=FindAngle(ShipPtr->xpos+ShipPtr->xspeed,ShipPtr->ypos+ShipPtr->yspeed,
+	travel_angle=FindAngle(ShipPtr->xpos+ShipPtr->xspeed,ShipPtr->ypos-ShipPtr->yspeed,
 		opp->xpos,opp->ypos);
 	desired_turn_angle = ModifyAngle (desired_thrust_angle,180);
 
