@@ -56,10 +56,10 @@ char s[100];
 void
 print(char *s)
 {
-/*
+
     asm volatile ("mov r0, %0;" "swi 0xff0000;":        // warning! will crash on hardware!
                   :"r" (s):"r0");
-*/
+
 }
 
 
@@ -330,7 +330,7 @@ int DetectWeaponToWeapon(pWeapon tar,pWeapon w)
 }
 
 
-void TurnRight(pPlayer pl, int i=15)
+void TurnRight(pPlayer pl, int i)
 {
 	if (pl->turn_turn==0)
 	{
@@ -341,7 +341,7 @@ void TurnRight(pPlayer pl, int i=15)
 	}
 }
 
-void TurnLeft(pPlayer pl,int i=15)
+void TurnLeft(pPlayer pl,int i)
 {
 	if (pl->turn_turn==0)
 	{
@@ -970,6 +970,12 @@ int TurnAngle(s16 yourangle, s16 desiredangle,s8 precision)
 
 void aiTurn(pPlayer ai)
 {
+
+	//PursueShip ( ai, (pPlayer)ai->opp);
+	//Entice(ai);
+	ship_intelligence (ai);
+
+	/*
 	//do special?
 	if (ai->aiturn==0)
 	{
@@ -1064,6 +1070,7 @@ void aiTurn(pPlayer ai)
 
 	//do special?
 	}	//end if turn
+	*/
 }
 
 inline int GetNextTrail(int off)
@@ -1432,7 +1439,7 @@ void Melee(pPlayer p1,pPlayer p2,Bg *bg0, Bg *bg1)
 	LoadPlanet(OAMPlanetSprite);
 	LoadAsteroid(OAMAsteroidStart);
 
-	p1->crew=1;
+//	p1->crew=1;
 
 	InitializeSprites();                       //set all sprites off screen (stops artifact)
 

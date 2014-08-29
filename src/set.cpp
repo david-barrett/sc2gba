@@ -42,6 +42,8 @@ void SetNew(pPlayer pl)
 	pl->spriteoffset=0;
 	pl->angleoffset=0;
 
+	pl->ManeuverabilityIndex=0;
+
 	GenerateStart(pl);
 }
 

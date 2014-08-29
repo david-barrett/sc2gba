@@ -1,8 +1,8 @@
 
 #include "gba.h"	//GBA register definitions
 #include "dispcnt.h"    //REG_DISPCNT register #defines
-#include "sc.h"       //my generic sprite header file
-#include "sprite.h"
+#include "sc.h"
+#include "sprite.h" //my generic sprite header file
 
 #include "gfx/crew1.h"
 #include "gfx/crew2.h"

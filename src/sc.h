@@ -7,6 +7,7 @@
 ////////////////////////////////////////////////////////////////////////
 #ifndef SC2_H
 #define SC2_H
+#include "gba.h"
 #include "bg.h"
 #include "keypad.h"     //button registers
 #include "shipgfx.h"
@@ -15,6 +16,47 @@
 
 //#include "gfx/gfx.h"
 //#include "gfx/gfx_symbols.h"
+
+
+/* heat of battle specific flags */
+#define LEFT                   (1 << 0)
+#define RIGHT                  (1 << 1)
+#define THRUST                 (1 << 2)
+#define WEAPON                 (1 << 3)
+#define SPECIAL                (1 << 4)
+#define LOW_ON_ENERGY          (1 << 5)
+#define SHIP_BEYOND_MAX_SPEED  (1 << 6)
+#define SHIP_AT_MAX_SPEED      (1 << 7)
+#define SHIP_IN_GRAVITY_WELL   (1 << 8)
+#define PLAY_VICTORY_DITTY     (1 << 9)
+
+#define SEEKING_WEAPON    (1 << 2)
+#define SEEKING_SPECIAL   (1 << 3)
+#define POINT_DEFENSE     (1 << 4)
+#define IMMEDIATE_WEAPON  (1 << 5)
+#define CREW_IMMUNE       (1 << 6)
+#define FIRES_FORE        (1 << 7)
+#define FIRES_RIGHT       (1 << 8)
+#define FIRES_AFT         (1 << 9)
+#define FIRES_LEFT        (1 << 10)
+#define SHIELD_DEFENSE    (1 << 11)
+#define DONT_CHASE        (1 << 12)
+
+#define FAST_SHIP 150
+#define MEDIUM_SHIP 45
+#define SLOW_SHIP 25
+#define CLOSE_RANGE_WEAPON 50
+#define LONG_RANGE_WEAPON 1000
+
+typedef enum
+{
+	PURSUE = 0,
+	AVOID,
+	ENTICE,
+	NO_MOVEMENT
+} MOVEMENT_STATE;
+
+
 
 //define the screen width and height values to be used
 #define SCREEN_WIDTH	240
@@ -213,6 +255,10 @@ skill ai;
 s8 aiturn;
 s8 aispecial;
 
+s16 ManeuverabilityIndex;
+s8 ship_input_state;
+
+
 s16 range;
 
 s16 fireangle;
@@ -353,6 +399,9 @@ s16 FindAngle(s32 x,s32 y, s32 ox, s32 oy);
 
 int ran(int min, int max);
 int ModifyAngle(s16 a,int o);
+void TurnLeft(pPlayer,int i=15);
+void TurnRight(pPlayer,int i=15);
+void Thrust(pPlayer);
 
 const s32 planetx=1000;
 const s32 planety=1000;
@@ -386,6 +435,13 @@ void SetYehat(pPlayer pl);
 
 //ilwrath
 void SetIlwrath(pPlayer pl);
+
+
+//remove?
+void PursueShip (pPlayer ShipPtr, pPlayer enemyShipPtr);
+void Entice(pPlayer);
+void ship_intelligence (pPlayer ShipPtr);
+int InRange(s32 xpos,s32 ypos,s32 txpos,s32 typos,s16 range);
 #endif
 
 /*128 sprites first 32 rotate

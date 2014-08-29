@@ -420,7 +420,7 @@ for (int i=0;i<12;i++)
 
 		 //test sound
 		init_sfx_system();
-	//	play_sfx(&urquan_ditty,1);
+
 		play_sfx(&urquan_ditty,1);
 
 		while (*KEYS & KEY_START);
@@ -435,7 +435,7 @@ for (int i=0;i<12;i++)
 		p2->ai=STANDARD;
 		//p1->ai=STANDARD;
 		p2->ai=AWESOME;
-		p2->ai=DISABLED;
+		//p2->ai=DISABLED;
 
 		ChooseShips(p1,plist1);
 		ChooseShips(p2,plist2);
